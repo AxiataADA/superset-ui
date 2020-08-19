@@ -24,7 +24,9 @@ import {
   showLegend,
   showControls,
   xAxisLabel,
+  yAxisLabel,
   bottomMargin,
+  leftMargin,
   xTicksLayout,
   xAxisFormat,
   yLogScale,
@@ -78,6 +80,7 @@ export default {
       label: t('Y Axis'),
       expanded: true,
       controlSetRows: [
+        [yAxisLabel, leftMargin],
         ['y_axis_format', yAxisBounds],
         [yLogScale, null],
       ],

@@ -104,7 +104,7 @@ const { getColor, getScale } = CategoricalColorNamespace;
 // Limit on how large axes margins can grow as the chart window is resized
 const MAX_MARGIN_PAD = 30;
 const MIN_HEIGHT_FOR_BRUSH = 480;
-const MAX_NO_CHARACTERS_IN_LABEL = 40;
+const MAX_NO_CHARACTERS_IN_LABEL = 12;
 
 const BREAKPOINTS = {
   small: 340,
@@ -323,11 +323,15 @@ function nvd3Vis(element, props) {
 
     // Handling xAxis ticks settings
     const staggerLabels = xTicksLayout === 'staggered';
+    const xLabelRotationAngle =
+      (xTicksLayout === 'auto' && isVizTypes(['column', 'dist_bar'])) || xTicksLayout === '45°'
+        ? -30
+        : 0;
     const xLabelRotation =
       (xTicksLayout === 'auto' && isVizTypes(['column', 'dist_bar'])) || xTicksLayout === '45°'
-        ? 45
+        ? 30
         : 0;
-    if (xLabelRotation === 45 && isTruthy(showBrush)) {
+    if (xLabelRotation === 30 && isTruthy(showBrush)) {
       onError(t('You cannot use 45° tick layout along with the time range filter'));
 
       return null;
@@ -385,7 +389,7 @@ function nvd3Vis(element, props) {
           .multiBarChart()
           .showControls(showControls)
           .reduceXTicks(reduceXTicks)
-          .groupSpacing(0.1); // Distance between each group of bars.
+          .groupSpacing(0.45); // Distance between each group of bars.
 
         chart.xAxis.showMaxMin(false);
 
@@ -407,6 +411,15 @@ function nvd3Vis(element, props) {
         chart.valueFormat(numberFormatter);
         if (isDonut) {
           chart.donut(true);
+          chart.donutRatio(0.72);
+          let title = 0;
+          //calculate the combine value on y axis and display that value in donut chart
+          if (props.data.length) {
+            props.data.forEach(item => {
+              title += item.y;
+            });
+          }
+          chart.title(title);
         }
         chart.showLabels(showLabels);
         chart.labelsOutside(isPieLabelOutside);
@@ -462,6 +475,7 @@ function nvd3Vis(element, props) {
         chart = nv.models.stackedAreaChart();
         chart.showControls(showControls);
         chart.style(areaStackedStyle);
+        chart.interpolate(lineInterpolation);
         chart.xScale(d3.time.scale.utc());
         break;
 
@@ -512,13 +526,13 @@ function nvd3Vis(element, props) {
       chart.xAxis.staggerLabels(staggerLabels);
     }
     if (chart.xAxis && chart.xAxis.rotateLabels) {
-      chart.xAxis.rotateLabels(xLabelRotation);
+      chart.xAxis.rotateLabels(xLabelRotationAngle);
     }
     if (chart.x2Axis && chart.x2Axis.staggerLabels) {
       chart.x2Axis.staggerLabels(staggerLabels);
     }
     if (chart.x2Axis && chart.x2Axis.rotateLabels) {
-      chart.x2Axis.rotateLabels(xLabelRotation);
+      chart.x2Axis.rotateLabels(xLabelRotationAngle);
     }
 
     if ('showLegend' in chart && typeof showLegend !== 'undefined') {
@@ -656,7 +670,7 @@ function nvd3Vis(element, props) {
     if (xLabelRotation > 0) {
       // shift labels to the left so they look better
       const xTicks = svg.select('.nv-x.nv-axis > g').selectAll('g');
-      xTicks.selectAll('text').attr('dx', -6.5);
+      xTicks.selectAll('text').attr('dx', 6.5);
     }
 
     const applyYAxisBounds = () => {
@@ -772,11 +786,11 @@ function nvd3Vis(element, props) {
         // If x bounds are shown, we need a right margin
         margins.right = Math.max(20, maxXAxisLabelHeight / 2) + marginPad;
       }
-      if (xLabelRotation === 45) {
+      if (xLabelRotation === 30) {
         margins.bottom =
           maxXAxisLabelHeight * Math.sin((Math.PI * xLabelRotation) / 180) + marginPad + 30;
-        margins.right =
-          maxXAxisLabelHeight * Math.cos((Math.PI * xLabelRotation) / 180) + marginPad;
+        // margins.right =
+        //   maxXAxisLabelHeight * Math.cos((Math.PI * xLabelRotation) / 180) + marginPad;
       } else if (staggerLabels) {
         margins.bottom = 40;
       }

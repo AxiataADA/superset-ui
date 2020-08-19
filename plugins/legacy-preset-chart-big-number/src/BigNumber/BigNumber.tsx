@@ -38,8 +38,9 @@ const CHART_MARGIN = {
 
 const PROPORTION = {
   // text size: proportion of the chart container sans trendline
-  HEADER: 0.3,
+  HEADER: 0.125,
   SUBHEADER: 0.125,
+  ICON: 0.225,
   // trendline size: proportion of the whole chart container
   TRENDLINE: 0.3,
 };
@@ -79,6 +80,7 @@ type BigNumberVisProps = {
   headerFontSize: number;
   subheader: string;
   subheaderFontSize: number;
+  iconSize: number;
   showTrendLine?: boolean;
   startYAxisAtZero?: boolean;
   timeRangeFixed?: boolean;
@@ -99,6 +101,7 @@ class BigNumberVis extends React.PureComponent<BigNumberVisProps, {}> {
     startYAxisAtZero: true,
     subheader: '',
     subheaderFontSize: PROPORTION.SUBHEADER,
+    iconSize: PROPORTION.ICON,
     timeRangeFixed: false,
   };
 
@@ -191,6 +194,7 @@ class BigNumberVis extends React.PureComponent<BigNumberVisProps, {}> {
           style={{
             fontSize,
             height: maxHeight,
+            marginBottom: maxHeight / 2,
           }}
         >
           {text}
@@ -198,6 +202,24 @@ class BigNumberVis extends React.PureComponent<BigNumberVisProps, {}> {
       );
     }
     return null;
+  }
+
+  renderIcon(maxHeight: number) {
+    /*
+      No conditions now As image src is hard coded once upload image
+      functinality is complete add a condition if image url is available return image element
+      otherwise return null to display:none nothing
+    */
+    return (
+      <img
+        src="/static/assets/images/Video_Icon.png"
+        style={{
+          fontSize: maxHeight,
+          height: maxHeight,
+          marginBottom: maxHeight,
+        }}
+      />
+    );
   }
 
   renderTrendline(maxHeight: number) {
@@ -270,7 +292,7 @@ class BigNumberVis extends React.PureComponent<BigNumberVisProps, {}> {
   }
 
   render() {
-    const { showTrendLine, height, headerFontSize, subheaderFontSize } = this.props;
+    const { showTrendLine, height, headerFontSize, subheaderFontSize, iconSize } = this.props;
     const className = this.getClassName();
 
     if (showTrendLine) {
@@ -292,9 +314,10 @@ class BigNumberVis extends React.PureComponent<BigNumberVisProps, {}> {
     }
 
     return (
-      <div className={className} style={{ height }}>
-        {this.renderHeader(Math.ceil(headerFontSize * height))}
+      <div className={className} style={{ height, display: 'flex', alignItems: 'center' }}>
+        {this.renderIcon(Math.ceil(iconSize * height))}
         {this.renderSubheader(Math.ceil(subheaderFontSize * height))}
+        {this.renderHeader(Math.ceil(headerFontSize * height))}
       </div>
     );
   }
@@ -333,12 +356,14 @@ export default styled(BigNumberVis)`
       position: absolute;
       bottom: 0;
     }
+    color: #11172e;
   }
 
   .subheader-line {
-    font-weight: ${({ theme }) => theme.typography.weights.light};
+    font-weight: ${({ theme }) => theme.typography.weights.normal};
     line-height: 1em;
     padding-bottom: 0;
+    color: #7c90db;
   }
 
   &.is-fallback-value {
