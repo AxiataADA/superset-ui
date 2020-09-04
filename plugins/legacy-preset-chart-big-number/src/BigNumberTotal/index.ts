@@ -24,7 +24,7 @@ import thumbnail from './images/thumbnail.png';
 
 const metadata = new ChartMetadata({
   description: '',
-  name: t('Big Number'),
+  name: t('Score Card'),
   thumbnail,
   useLegacyApi: true,
 });

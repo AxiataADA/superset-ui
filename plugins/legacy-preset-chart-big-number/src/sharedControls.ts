@@ -25,31 +25,31 @@ export const headerFontSize: CustomControlItem = {
   name: 'header_font_size',
   config: {
     type: 'SelectControl',
-    label: t('Big Number Font Size'),
+    label: t('Count Font Size'),
     renderTrigger: true,
     clearable: false,
-    default: 0.4,
+    default: 0.15,
     // Values represent the percentage of space a header should take
     options: [
       {
         label: t('Tiny'),
-        value: 0.2,
+        value: 0.08,
       },
       {
         label: t('Small'),
-        value: 0.3,
+        value: 0.13,
       },
       {
         label: t('Normal'),
-        value: 0.4,
+        value: 0.15,
       },
       {
         label: t('Large'),
-        value: 0.5,
+        value: 0.17,
       },
       {
         label: t('Huge'),
-        value: 0.6,
+        value: 0.21,
       },
     ],
   },
@@ -59,7 +59,7 @@ export const subheaderFontSize: CustomControlItem = {
   name: 'subheader_font_size',
   config: {
     type: 'SelectControl',
-    label: t('Subheader Font Size'),
+    label: t('Text Font Size'),
     renderTrigger: true,
     clearable: false,
     default: 0.15,
@@ -67,23 +67,23 @@ export const subheaderFontSize: CustomControlItem = {
     options: [
       {
         label: t('Tiny'),
-        value: 0.125,
+        value: 0.05,
       },
       {
         label: t('Small'),
-        value: 0.15,
+        value: 0.1,
       },
       {
         label: t('Normal'),
-        value: 0.2,
+        value: 0.125,
       },
       {
         label: t('Large'),
-        value: 0.3,
+        value: 0.15,
       },
       {
         label: t('Huge'),
-        value: 0.4,
+        value: 0.2,
       },
     ],
   },
@@ -96,16 +96,16 @@ export const iconSize: CustomControlItem = {
     label: t('Icon Size'),
     renderTrigger: true,
     clearable: false,
-    default: 0.15,
+    default: 0.2,
     // Values represent the percentage of space a subheader should take
     options: [
       {
         label: t('Tiny'),
-        value: 0.125,
+        value: 0.14,
       },
       {
         label: t('Small'),
-        value: 0.15,
+        value: 0.18,
       },
       {
         label: t('Normal'),
@@ -113,11 +113,11 @@ export const iconSize: CustomControlItem = {
       },
       {
         label: t('Large'),
-        value: 0.3,
+        value: 0.22,
       },
       {
         label: t('Huge'),
-        value: 0.4,
+        value: 0.26,
       },
     ],
   },

@@ -79,6 +79,7 @@ type BigNumberVisProps = {
   toDatetime?: number;
   headerFontSize: number;
   subheader: string;
+  icon: string;
   subheaderFontSize: number;
   iconSize: number;
   showTrendLine?: boolean;
@@ -100,6 +101,7 @@ class BigNumberVis extends React.PureComponent<BigNumberVisProps, {}> {
     showTrendLine: false,
     startYAxisAtZero: true,
     subheader: '',
+    icon: '',
     subheaderFontSize: PROPORTION.SUBHEADER,
     iconSize: PROPORTION.ICON,
     timeRangeFixed: false,
@@ -157,6 +159,7 @@ class BigNumberVis extends React.PureComponent<BigNumberVisProps, {}> {
         style={{
           fontSize,
           height: maxHeight,
+          fontWeight: 600,
         }}
       >
         {text}
@@ -205,21 +208,20 @@ class BigNumberVis extends React.PureComponent<BigNumberVisProps, {}> {
   }
 
   renderIcon(maxHeight: number) {
-    /*
-      No conditions now As image src is hard coded once upload image
-      functinality is complete add a condition if image url is available return image element
-      otherwise return null to display:none nothing
-    */
-    return (
-      <img
-        src="/static/assets/images/Video_Icon.png"
-        style={{
-          fontSize: maxHeight,
-          height: maxHeight,
-          marginBottom: maxHeight,
-        }}
-      />
-    );
+    const { icon } = this.props;
+    if (icon) {
+      return (
+        <img
+          src={`/static/assets/images/Score Card Icon/${icon}.png`}
+          style={{
+            fontSize: maxHeight,
+            height: maxHeight,
+            marginBottom: maxHeight,
+          }}
+        />
+      );
+    }
+    return null;
   }
 
   renderTrendline(maxHeight: number) {

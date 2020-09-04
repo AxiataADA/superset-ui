@@ -27,7 +27,73 @@ export default {
       controlSetRows: [['metric'], ['adhoc_filters']],
     },
     {
-      label: t('Options'),
+      label: t('Icon Options'),
+      expanded: true,
+      controlSetRows: [
+        [
+          {
+            name: 'icon',
+            config: {
+              type: 'SelectControl',
+              default: 'Video',
+              renderTrigger: true,
+              clearable: true,
+              label: t('Icon'),
+              description: t('Icon for score card which will be deplayed at the top'),
+              options: [
+                {
+                  label: t('Video'),
+                  value: 'Video',
+                },
+                {
+                  label: t('View'),
+                  value: 'View',
+                },
+                {
+                  label: t('Like'),
+                  value: 'Like',
+                },
+                {
+                  label: t('Dislike'),
+                  value: 'Dislike',
+                },
+                {
+                  label: t('Share'),
+                  value: 'Share',
+                },
+                {
+                  label: t('Subscriber'),
+                  value: 'Subscriber',
+                },
+                {
+                  label: t('Tag'),
+                  value: 'Tag',
+                },
+                {
+                  label: t('Comment'),
+                  value: 'Comment',
+                },
+                {
+                  label: t('Format'),
+                  value: 'Format',
+                },
+                {
+                  label: t('Category'),
+                  value: 'Category',
+                },
+                {
+                  label: t('Theme'),
+                  value: 'Theme',
+                },
+              ],
+            },
+          },
+        ],
+        [iconSize],
+      ],
+    },
+    {
+      label: t('Text Options'),
       expanded: true,
       controlSetRows: [
         [
@@ -35,23 +101,25 @@ export default {
             name: 'subheader',
             config: {
               type: 'TextControl',
-              label: t('Subheader'),
-              description: t('Description text that shows up below your Big Number'),
+              renderTrigger: true,
+              default: 'Sample Text',
+              label: t('Text'),
+              description: t('Description text that shows up below your icon and above the count'),
             },
           },
         ],
-        ['y_axis_format'],
+        [subheaderFontSize],
       ],
     },
     {
-      label: t('Chart Options'),
+      label: t('Count Options'),
       expanded: true,
-      controlSetRows: [[headerFontSize], [subheaderFontSize], [iconSize]],
+      controlSetRows: [[headerFontSize], ['y_axis_format']],
     },
   ],
   controlOverrides: {
     y_axis_format: {
-      label: t('Number format'),
+      label: t('Count format'),
     },
   },
 };
