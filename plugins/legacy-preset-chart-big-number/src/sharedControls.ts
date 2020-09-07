@@ -62,7 +62,7 @@ export const subheaderFontSize: CustomControlItem = {
     label: t('Text Font Size'),
     renderTrigger: true,
     clearable: false,
-    default: 0.15,
+    default: 0.125,
     // Values represent the percentage of space a subheader should take
     options: [
       {
