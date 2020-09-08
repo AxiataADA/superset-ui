@@ -81,6 +81,13 @@ export default function transformProps(chartProps) {
     yAxisLabel,
     yAxisShowminmax,
     yLogScale,
+    icon,
+    donutRatio,
+    iconSize,
+    countFormat,
+    countSize,
+    countMarginTop,
+    bottomText,
   } = formData;
 
   let {
@@ -177,5 +184,12 @@ export default function transformProps(chartProps) {
     yAxisShowMinMax: yAxisShowminmax,
     yField: y,
     yIsLogScale: yLogScale,
+    icon,
+    donutRatio,
+    iconSize,
+    countFormat,
+    countSize,
+    countMarginTop,
+    bottomText,
   };
 }

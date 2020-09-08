@@ -54,7 +54,7 @@ export default {
             config: {
               type: 'SelectControl',
               freeForm: true,
-              label: t('Number format'),
+              label: t('Number format for lable'),
               renderTrigger: true,
               default: 'SMART_NUMBER',
               choices: D3_FORMAT_OPTIONS,
@@ -103,6 +103,219 @@ export default {
           },
         ],
         ['color_scheme', 'label_colors'],
+        [
+          {
+            name: 'donutRatio',
+            config: {
+              type: 'SelectControl',
+              label: t('Donut Inner Radius'),
+              renderTrigger: true,
+              default: 0.72,
+              clearable: false,
+              // Values represent the percentage of space a subheader should take
+              options: [
+                {
+                  label: t('Tiny'),
+                  value: 0.66,
+                },
+                {
+                  label: t('Small'),
+                  value: 0.69,
+                },
+                {
+                  label: t('Normal'),
+                  value: 0.72,
+                },
+                {
+                  label: t('Large'),
+                  value: 0.75,
+                },
+                {
+                  label: t('Huge'),
+                  value: 0.78,
+                },
+              ],
+              description: 'Only applied when "Donut" is selected',
+            },
+          },
+        ],
+      ],
+    },
+    {
+      label: t('Icon Options'),
+      expanded: true,
+      controlSetRows: [
+        [
+          {
+            name: 'icon',
+            config: {
+              type: 'SelectControl',
+              label: t('Icon'),
+              renderTrigger: true,
+              default: 'Youtube',
+              choices: [
+                ['Youtube', 'Youtube'],
+                ['Instagram', 'Instagram'],
+                ['Facebook', 'Facebook'],
+                ['Video', 'Video'],
+                ['View', 'View'],
+                ['Like', 'Like'],
+                ['Dislike', 'Dislike'],
+                ['Share', 'Share'],
+                ['Subscriber', 'Subscriber'],
+                ['Comment', 'Comment'],
+              ],
+              description: `${t('Show icon inside donut chart')} ${t(
+                'Only applies when "Donut" checkbox is selected.',
+              )}`,
+            },
+          },
+        ],
+        [
+          {
+            name: 'iconSize',
+            config: {
+              type: 'SelectControl',
+              label: t('Size'),
+              renderTrigger: true,
+              clearable: false,
+              default: 0.375,
+              // Values represent the percentage of space a subheader should take
+              options: [
+                {
+                  label: t('tiny'),
+                  value: 0.3,
+                },
+                {
+                  label: t('Small'),
+                  value: 0.35,
+                },
+                {
+                  label: t('Normal'),
+                  value: 0.375,
+                },
+                {
+                  label: t('Large'),
+                  value: 0.4,
+                },
+                {
+                  label: t('Huge'),
+                  value: 0.45,
+                },
+              ],
+              description: 'Select icon size from three options default is normal',
+            },
+          },
+        ],
+      ],
+    },
+    {
+      label: t('Total Count Options'),
+      expanded: true,
+      controlSetRows: [
+        [
+          {
+            name: 'countFormat',
+            config: {
+              type: 'SelectControl',
+              freeForm: true,
+              label: t('Format'),
+              renderTrigger: true,
+              default: 'SMART_NUMBER',
+              choices: D3_FORMAT_OPTIONS,
+            },
+          },
+        ],
+        [
+          {
+            name: 'countSize',
+            config: {
+              type: 'SelectControl',
+              label: t('Size'),
+              renderTrigger: true,
+              clearable: false,
+              default: 0.1,
+              // Values represent the percentage of space a subheader should take
+              options: [
+                {
+                  label: t('Tiny'),
+                  value: 0.05,
+                },
+                {
+                  label: t('Small'),
+                  value: 0.075,
+                },
+                {
+                  label: t('Normal'),
+                  value: 0.1,
+                },
+                {
+                  label: t('Large'),
+                  value: 0.125,
+                },
+                {
+                  label: t('Huge'),
+                  value: 0.15,
+                },
+              ],
+              description: 'Select icon size from six options default is normal',
+            },
+          },
+        ],
+        [
+          {
+            name: 'countMarginTop',
+            config: {
+              type: 'SelectControl',
+              label: t('Top Margin'),
+              renderTrigger: true,
+              clearable: false,
+              default: 0.1,
+              // Values represent the percentage of space a subheader should take
+              options: [
+                {
+                  label: t('Tiny'),
+                  value: 0,
+                },
+                {
+                  label: t('Small'),
+                  value: 0.05,
+                },
+                {
+                  label: t('Normal'),
+                  value: 0.1,
+                },
+                {
+                  label: t('Large'),
+                  value: 0.15,
+                },
+                {
+                  label: t('Huge'),
+                  value: 0.175,
+                },
+              ],
+              description: 'Select icon size from three options default is normal',
+            },
+          },
+        ],
+      ],
+    },
+    {
+      label: t('Bottom Text Options'),
+      expanded: true,
+      controlSetRows: [
+        [
+          {
+            name: 'bottomText',
+            config: {
+              type: 'TextControl',
+              renderTrigger: true,
+              default: 'Sample Text',
+              label: t('Text'),
+              description: t('Description text that shows up below your donut or pie chart'),
+            },
+          },
+        ],
       ],
     },
   ],

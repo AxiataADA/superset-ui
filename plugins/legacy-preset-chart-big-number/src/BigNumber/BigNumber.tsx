@@ -38,11 +38,11 @@ const CHART_MARGIN = {
 
 const PROPORTION = {
   // text size: proportion of the chart container sans trendline
-  HEADER: 0.125,
+  HEADER: 0.15,
   SUBHEADER: 0.125,
   ICON: 0.225,
   // trendline size: proportion of the whole chart container
-  TRENDLINE: 0.3,
+  TRENDLINE: 0.2,
 };
 
 type TimeSeriesDatum = {

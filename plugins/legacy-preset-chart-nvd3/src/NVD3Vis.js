@@ -216,6 +216,7 @@ const propTypes = {
   lineInterpolation: PropTypes.string,
   // 'pie' only
   isDonut: PropTypes.bool,
+  icon: PropTypes.string,
   isPieLabelOutside: PropTypes.bool,
   pieLabelType: PropTypes.oneOf(['key', 'value', 'percent', 'key_value', 'key_percent']),
   showLabels: PropTypes.bool,
@@ -288,6 +289,13 @@ function nvd3Vis(element, props) {
     yAxisShowMinMax = false,
     yField,
     yIsLogScale,
+    icon = '',
+    donutRatio,
+    iconSize,
+    countFormat,
+    countSize,
+    countMarginTop,
+    bottomText,
   } = props;
 
   const isExplore = document.querySelector('#explorer-container') !== null;
@@ -409,16 +417,22 @@ function nvd3Vis(element, props) {
         chart = nv.models.pieChart();
         colorKey = 'x';
         chart.valueFormat(numberFormatter);
+        chart.bottomText(bottomText);
         if (isDonut) {
+          const countFormatter = getNumberFormatter(countFormat);
           chart.donut(true);
-          chart.donutRatio(0.72);
+          chart.donutRatio(donutRatio);
+          chart.iconName(icon);
+          chart.iconSize(iconSize);
+          chart.titleFormat(countFormatter);
+          chart.titleSize(countSize);
+          chart.titleOffset(countMarginTop);
           let title = 0;
           //calculate the combine value on y axis and display that value in donut chart
-          if (props.data.length) {
+          if (props.data.length)
             props.data.forEach(item => {
               title += item.y;
             });
-          }
           chart.title(title);
         }
         chart.showLabels(showLabels);
