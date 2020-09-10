@@ -239,7 +239,6 @@ const formatter = getNumberFormatter();
 
 function nvd3Vis(element, props) {
   const {
-    data,
     width: maxWidth,
     height: maxHeight,
     annotationData,
@@ -300,8 +299,10 @@ function nvd3Vis(element, props) {
     countSize,
     countMarginTop,
     bottomText,
+    distBarXAxisLimit,
   } = props;
 
+  let { data } = props;
   const isExplore = document.querySelector('#explorer-container') !== null;
   const container = element;
   container.innerHTML = '';
@@ -397,6 +398,13 @@ function nvd3Vis(element, props) {
         break;
 
       case 'dist_bar':
+        console.log({ data });
+        if (!isNaN(parseInt(distBarXAxisLimit)) && data.length > 0) {
+          data = data.map(dataObject => ({
+            key: dataObject.key,
+            values: dataObject.values.slice(0, distBarXAxisLimit),
+          }));
+        }
         chart = nv.models
           .multiBarChart()
           .showControls(showControls)

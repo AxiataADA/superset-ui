@@ -18,6 +18,7 @@
  */
 import { t } from '@superset-ui/translation';
 import { validateNonEmpty } from '@superset-ui/validator';
+import { formatSelectOptions } from '@superset-ui/chart-controls';
 import {
   showLegend,
   showControls,
@@ -41,6 +42,21 @@ export default {
         ['groupby'],
         ['columns'],
         ['row_limit'],
+        [
+          {
+            name: 'distBarXAxisLimit',
+            config: {
+              type: 'SelectControl',
+              clearable: true,
+              freeForm: true,
+              label: t('Number of Bars'),
+              choices: formatSelectOptions(['auto', 5, 10, 15, 20]),
+              default: 'auto',
+              renderTrigger: true,
+              description: t('Number of bars shown on x axis'),
+            },
+          },
+        ],
         [
           {
             name: 'contribution',

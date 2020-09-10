@@ -90,6 +90,7 @@ export default function transformProps(chartProps) {
     countSize,
     countMarginTop,
     bottomText,
+    distBarXAxisLimit,
   } = formData;
 
   let {
@@ -195,5 +196,6 @@ export default function transformProps(chartProps) {
     countSize,
     countMarginTop,
     bottomText,
+    distBarXAxisLimit,
   };
 }
