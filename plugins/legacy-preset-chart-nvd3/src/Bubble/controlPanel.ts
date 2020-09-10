@@ -23,12 +23,14 @@ import {
   xAxisLabel,
   yAxisLabel,
   bottomMargin,
+  topMargin,
   xTicksLayout,
   xAxisFormat,
   yLogScale,
   xAxisShowMinmax,
   yAxisShowMinmax,
   leftMargin,
+  rightMargin,
 } from '../NVD3Controls';
 
 export default {
@@ -70,7 +72,8 @@ export default {
       label: t('X Axis'),
       expanded: true,
       controlSetRows: [
-        [xAxisLabel, leftMargin],
+        [xAxisLabel],
+        [leftMargin, rightMargin],
         [
           {
             name: xAxisFormat.name,
@@ -101,7 +104,8 @@ export default {
       label: t('Y Axis'),
       expanded: true,
       controlSetRows: [
-        [yAxisLabel, bottomMargin],
+        [yAxisLabel],
+        [topMargin, bottomMargin],
         ['y_axis_format', null],
         [yLogScale, yAxisShowMinmax],
       ],

@@ -163,11 +163,13 @@ const propTypes = {
   height: PropTypes.number,
   annotationData: PropTypes.object,
   annotationLayers: PropTypes.arrayOf(annotationLayerType),
+  topMargin: numberOrAutoType,
   bottomMargin: numberOrAutoType,
   colorScheme: PropTypes.string,
   comparisonType: PropTypes.string,
   contribution: PropTypes.bool,
   leftMargin: numberOrAutoType,
+  rightMargin: numberOrAutoType,
   onError: PropTypes.func,
   showLegend: PropTypes.bool,
   showMarkers: PropTypes.bool,
@@ -244,6 +246,7 @@ function nvd3Vis(element, props) {
     annotationLayers = [],
     areaStackedStyle,
     baseColor,
+    topMargin,
     bottomMargin,
     colorScheme,
     comparisonType,
@@ -253,6 +256,7 @@ function nvd3Vis(element, props) {
     isDonut,
     isPieLabelOutside,
     leftMargin,
+    rightMargin,
     lineInterpolation = 'linear',
     markerLabels,
     markerLines,
@@ -813,11 +817,17 @@ function nvd3Vis(element, props) {
         const maxYAxis2LabelWidth = getMaxLabelSize(svg, 'nv-y2');
         margins.right = maxYAxis2LabelWidth + marginPad;
       }
-      if (bottomMargin && bottomMargin !== 'auto') {
-        margins.bottom = parseInt(bottomMargin, 10);
+      if (topMargin && topMargin !== 'auto') {
+        margins.top = parseInt(topMargin, 10);
       }
       if (leftMargin && leftMargin !== 'auto') {
         margins.left = leftMargin;
+      }
+      if (bottomMargin && bottomMargin !== 'auto') {
+        margins.bottom = parseInt(bottomMargin, 10);
+      }
+      if (rightMargin && rightMargin !== 'auto') {
+        margins.right = rightMargin;
       }
 
       if (xAxisLabel && xAxisLabel !== '' && chart.xAxis) {

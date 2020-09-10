@@ -79,6 +79,20 @@ export const leftMargin = {
   },
 };
 
+export const rightMargin = {
+  name: 'right_margin',
+  config: {
+    type: 'SelectControl',
+    freeForm: true,
+    clearable: false,
+    label: t('Right Margin'),
+    choices: formatSelectOptions(['auto', 50, 75, 100, 125, 150, 200]),
+    default: 'auto',
+    renderTrigger: true,
+    description: t('Right margin, in pixels, allowing for more room for axis labels'),
+  },
+};
+
 export const yAxisShowMinmax = {
   name: 'y_axis_showminmax',
   config: {
@@ -159,6 +173,20 @@ export const xAxisLabel = {
     label: t('X Axis Label'),
     renderTrigger: true,
     default: '',
+  },
+};
+
+export const topMargin = {
+  name: 'top_margin',
+  config: {
+    type: 'SelectControl',
+    clearable: false,
+    freeForm: true,
+    label: t('Top Margin'),
+    choices: formatSelectOptions(['auto', 50, 75, 100, 125, 150, 200]),
+    default: 'auto',
+    renderTrigger: true,
+    description: t('Top margin, in pixels, allowing for more room for axis labels'),
   },
 };
 
