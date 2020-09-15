@@ -176,7 +176,7 @@ export default function DataTable<D extends object>({
                     {...props}
                   >
                     {column.render('Header')}
-                    {column.render('SortIcon')}
+                    {/*column.render('SortIcon')*/}
                   </th>
                 );
               })}
@@ -234,19 +234,23 @@ export default function DataTable<D extends object>({
   }
 
   return (
-    <div ref={wrapperRef} style={{ width: initialWidth, height: initialHeight }}>
+    <div
+      ref={wrapperRef}
+      style={{ margin: '20px 40px 40px', width: initialWidth - 80, height: initialHeight }}
+    >
       {hasGlobalControl ? (
         <div ref={globalControlRef} className="form-inline dt-controls">
           <div className="row">
             <div className="col-sm-6">
-              {hasPagination ? (
+              {/*hasPagination ? (
                 <SelectPageSize
                   total={data.length}
                   sizeOptions={pageSizeOptions}
                   currentSize={pageSize}
                   onChange={setPageSize}
                 />
-              ) : null}
+              ) : null*/}
+              Contributing Videos
             </div>
             {searchInput ? (
               <div className="col-sm-6">

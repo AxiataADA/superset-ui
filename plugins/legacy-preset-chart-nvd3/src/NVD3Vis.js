@@ -398,7 +398,6 @@ function nvd3Vis(element, props) {
         break;
 
       case 'dist_bar':
-        console.log({ data });
         if (!isNaN(parseInt(distBarXAxisLimit)) && data.length > 0) {
           data = data.map(dataObject => ({
             key: dataObject.key,

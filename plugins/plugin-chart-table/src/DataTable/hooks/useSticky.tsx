@@ -262,9 +262,11 @@ function StickyWrap({
   return (
     <div
       style={{
-        width: maxWidth,
+        width: maxWidth - 80,
         height: sticky.realHeight || maxHeight,
         overflow: 'hidden',
+        border: '2px solid #7C90DB',
+        borderRadius: '12px',
       }}
     >
       {headerTable}

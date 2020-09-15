@@ -11,12 +11,17 @@ export default styled.div`
   th,
   td {
     min-width: 4.3em;
+    text-align: center;
   }
 
   thead > tr > th {
-    padding-right: 1.4em;
     position: relative;
     background: #fff;
+    padding: 20px 5px;
+    background-color: #f8f8f8;
+    color: #4f62aa;
+    border-right: 1px #cfd8db solid;
+    border-bottom: none;
   }
   th svg {
     color: #ccc;
@@ -30,13 +35,14 @@ export default styled.div`
   .table > tbody > tr:first-of-type > td,
   .table > tbody > tr:first-of-type > th {
     border-top: 0;
+    border-bottom: 0;
   }
 
   .dt-controls {
     padding-bottom: 0.65em;
   }
   .dt-metric {
-    text-align: right;
+    text-align: center;
   }
   td.dt-is-filter {
     cursor: pointer;

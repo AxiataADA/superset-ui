@@ -190,14 +190,17 @@ export default function TableChart<D extends DataRecord = DataRecord>(
         const [isHtml, text] = formatValue(column, value);
         const style = {
           ...sharedCellProps.style,
-          background: valueRange
-            ? cellBar({
-                value: value as number,
-                valueRange,
-                alignPositiveNegative,
-                colorPositiveNegative,
-              })
-            : undefined,
+          // background: valueRange
+          //   ? cellBar({
+          //       value: value as number,
+          //       valueRange,
+          //       alignPositiveNegative,
+          //       colorPositiveNegative,
+          //     })
+          //   : undefined,
+          padding: '23px 5px',
+          borderRight: '1px #CFD8DB solid',
+          borderTop: '1px #CFD8DB solid',
         };
         return {
           // show raw number in title in case of numeric values
