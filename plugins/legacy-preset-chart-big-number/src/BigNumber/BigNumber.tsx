@@ -97,13 +97,13 @@ class BigNumberVis extends React.PureComponent<BigNumberVisProps, {}> {
     formatNumber: (num: number) => String(num),
     formatTime: smartDateVerboseFormatter.formatFunc,
     headerFontSize: PROPORTION.HEADER,
+    icon: '',
+    iconSize: PROPORTION.ICON,
     mainColor: BRAND_COLOR,
     showTrendLine: false,
     startYAxisAtZero: true,
     subheader: '',
-    icon: '',
     subheaderFontSize: PROPORTION.SUBHEADER,
-    iconSize: PROPORTION.ICON,
     timeRangeFixed: false,
   };
 
@@ -212,6 +212,7 @@ class BigNumberVis extends React.PureComponent<BigNumberVisProps, {}> {
     if (icon) {
       return (
         <img
+          alt="Icon"
           src={`/static/assets/images/Score Card Icon/${icon}.png`}
           style={{
             fontSize: maxHeight,

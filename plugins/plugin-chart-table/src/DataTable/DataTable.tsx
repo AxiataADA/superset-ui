@@ -31,7 +31,7 @@ import {
 } from 'react-table';
 import matchSorter from 'match-sorter';
 import GlobalFilter, { GlobalFilterProps } from './components/GlobalFilter';
-import SelectPageSize, { SizeOption } from './components/SelectPageSize';
+import { /* SelectPageSize , */ SizeOption } from './components/SelectPageSize';
 import SimplePagination from './components/Pagination';
 import useSticky from './hooks/useSticky';
 import useColumnCellProps from './hooks/useColumnCellProps';
@@ -42,7 +42,7 @@ export interface DataTableProps<D extends object> extends TableOptions<D> {
   pageSizeOptions?: SizeOption[]; // available page size options
   maxPageItemCount?: number;
   hooks?: PluginHook<D>[]; // any additional hooks
-  width?: string | number;
+  width?: any;
   height?: string | number;
   pageSize?: number;
   noResultsText?: string | ((filterString: string) => ReactNode);
@@ -138,7 +138,7 @@ export default function DataTable<D extends object>({
     setGlobalFilter,
     setPageSize: setPageSize_,
     wrapStickyTable,
-    state: { pageIndex, pageSize, globalFilter: filterValue, sticky = {} },
+    state: { pageIndex, /* pageSize, */ globalFilter: filterValue, sticky = {} },
   } = useTable<D>(
     {
       columns,
@@ -176,7 +176,7 @@ export default function DataTable<D extends object>({
                     {...props}
                   >
                     {column.render('Header')}
-                    {/*column.render('SortIcon')*/}
+                    {/* column.render('SortIcon') */}
                   </th>
                 );
               })}
@@ -232,6 +232,7 @@ export default function DataTable<D extends object>({
     pageSizeRef.current = [initialPageSize, data.length];
     setPageSize(initialPageSize);
   }
+  console.log(initialWidth, 'initialWidthinitialWidthinitialWidth');
 
   return (
     <div
@@ -242,14 +243,14 @@ export default function DataTable<D extends object>({
         <div ref={globalControlRef} className="form-inline dt-controls">
           <div className="row">
             <div className="col-sm-6">
-              {/*hasPagination ? (
+              {/* hasPagination ? (
                 <SelectPageSize
                   total={data.length}
                   sizeOptions={pageSizeOptions}
                   currentSize={pageSize}
                   onChange={setPageSize}
                 />
-              ) : null*/}
+              ) : null */}
               Contributing Videos
             </div>
             {searchInput ? (

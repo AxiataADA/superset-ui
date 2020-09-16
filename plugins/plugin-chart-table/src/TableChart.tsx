@@ -47,7 +47,7 @@ function getSortTypeByDataType(dataType: DataType): DefaultSortTypes {
 /**
  * Cell background to render columns as horizontal bar chart
  */
-function cellBar({
+/* function cellBar({
   value,
   valueRange,
   colorPositiveNegative = false,
@@ -81,7 +81,7 @@ function cellBar({
     `rgba(${r},0,0,0.2) ${perc1}%, rgba(${r},0,0,0.2) ${perc1 + perc2}%, ` +
     `rgba(0,0,0,0.01) ${perc1 + perc2}%, rgba(0,0,0,0.001) 100%)`
   );
-}
+} */
 
 function SortIcon({ column }: { column: ColumnInstance }) {
   const { isSorted, isSortedDesc } = column;
@@ -117,7 +117,7 @@ export default function TableChart<D extends DataRecord = DataRecord>(
     data,
     columns: columnsMeta,
     alignPositiveNegative = false,
-    colorPositiveNegative = false,
+    /* colorPositiveNegative = false, */
     includeSearch = false,
     pageSize = 0,
     showCellBars = true,
@@ -223,8 +223,8 @@ export default function TableChart<D extends DataRecord = DataRecord>(
       };
     },
     [
-      alignPositiveNegative,
-      colorPositiveNegative,
+      /* alignPositiveNegative,
+      colorPositiveNegative, */
       emitFilter,
       getValueRange,
       isActiveFilterValue,

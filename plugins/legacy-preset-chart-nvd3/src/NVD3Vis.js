@@ -398,7 +398,7 @@ function nvd3Vis(element, props) {
         break;
 
       case 'dist_bar':
-        if (!isNaN(parseInt(distBarXAxisLimit)) && data.length > 0) {
+        if (!Number.isNaN(parseInt(distBarXAxisLimit, 10)) && data.length > 0) {
           data = data.map(dataObject => ({
             key: dataObject.key,
             values: dataObject.values.slice(0, distBarXAxisLimit),
@@ -439,8 +439,8 @@ function nvd3Vis(element, props) {
           chart.titleSize(countSize);
           chart.titleOffset(countMarginTop);
           let title = 0;
-          //calculate the combine value on y axis and display that value in donut chart
-          if (props.data.length)
+          // calculate the combine value on y axis and display that value in donut chart
+          if (props.data.length > 0)
             props.data.forEach(item => {
               title += item.y;
             });
