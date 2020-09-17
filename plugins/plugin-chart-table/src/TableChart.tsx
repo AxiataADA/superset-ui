@@ -92,15 +92,64 @@ function SortIcon({ column }: { column: ColumnInstance }) {
   return sortIcon;
 }
 
-function SearchInput({ count, value, onChange }: SearchInputProps) {
+function SearchInput({
+  count,
+  value,
+  onChange,
+  exportCSV,
+  downloadAsImage,
+  tableHeader,
+}: SearchInputProps) {
   return (
     <span className="dt-global-filter">
-      {t('Search')}{' '}
-      <input
-        className="form-control input-sm"
-        placeholder={t('%s records...', count)}
-        value={value}
-        onChange={onChange}
+      {/*<img
+        alt="Reset"
+        src={`/static/assets/images/icons/Reset Table Filter.png`}
+        style={{
+          width: '16px',
+          height: '16px',
+        }}
+      />
+      <img
+        alt="Filter"
+        src={`/static/assets/images/icons/Table Filter.png`}
+        style={{
+          width: '16px',
+          height: '16px',
+          margin: '0px 15px',
+        }}
+      />*/}
+      <div className="table-search-input-with-icon">
+        <div className="table-search-input-box-icon">
+          <i className="fa fa-search" />
+        </div>
+        <input
+          className="table-search-input form-control input-sm"
+          placeholder={t('Search...')}
+          value={value}
+          onChange={onChange}
+        />
+      </div>
+      <img
+        onClick={downloadAsImage('.dashboard-component-chart-holder', tableHeader)}
+        alt="Filter"
+        src={`/static/assets/images/icons/PDF.png`}
+        style={{
+          width: '24px',
+          height: '30px',
+          margin: '0px 10px 0px 25px',
+          cursor: 'pointer',
+        }}
+      />
+      <img
+        onClick={exportCSV}
+        alt="Filter"
+        src={`/static/assets/images/icons/XLS.png`}
+        style={{
+          width: '24px',
+          height: '30px',
+          cursor: 'pointer',
+        }}
       />
     </span>
   );
@@ -126,6 +175,10 @@ export default function TableChart<D extends DataRecord = DataRecord>(
     onChangeFilter,
     filters: initialFilters,
     sticky = true, // whether to use sticky header
+    tableHeader,
+    tableDescription,
+    exportCSV,
+    downloadAsImage,
   } = props;
 
   const [filters, setFilters] = useState(initialFilters);
@@ -201,6 +254,9 @@ export default function TableChart<D extends DataRecord = DataRecord>(
           padding: '23px 5px',
           borderRight: '1px #CFD8DB solid',
           borderTop: '1px #CFD8DB solid',
+          color: '#11172E',
+          fontSize: '13px',
+          fontWeight: 600,
         };
         return {
           // show raw number in title in case of numeric values
@@ -256,6 +312,10 @@ export default function TableChart<D extends DataRecord = DataRecord>(
         }
         // not in use in Superset, but needed for unit tests
         sticky={sticky}
+        tableHeader={tableHeader}
+        tableDescription={tableDescription}
+        exportCSV={exportCSV}
+        downloadAsImage={downloadAsImage}
       />
     </Styles>
   );

@@ -23,7 +23,10 @@ import useAsyncState from '../utils/useAsyncState';
 export interface SearchInputProps {
   count: number;
   value: string;
+  tableHeader: string;
   onChange: ChangeEventHandler<HTMLInputElement>;
+  exportCSV: ChangeEventHandler<HTMLInputElement>;
+  downloadAsImage: ChangeEventHandler<HTMLInputElement>;
 }
 
 export interface GlobalFilterProps<D extends object> {
@@ -31,19 +34,55 @@ export interface GlobalFilterProps<D extends object> {
   // filter value cannot be `undefined` otherwise React will report component
   // control type undefined error
   filterValue: string;
+  tableHeader: string;
   setGlobalFilter: (filterValue: FilterValue) => void;
   searchInput?: ComponentType<SearchInputProps>;
+  exportCSV: ChangeEventHandler<HTMLInputElement>;
+  downloadAsImage: ChangeEventHandler<HTMLInputElement>;
 }
 
-function DefaultSearchInput({ count, value, onChange }: SearchInputProps) {
+function DefaultSearchInput({ count, value, onChange, exportCSV }: SearchInputProps) {
   return (
     <span className="dt-global-filter">
-      Search{' '}
+      {/*<img
+        alt="Reset"
+        src={`/static/assets/images/icons/Reset Table Filter.png`}
+        style={{
+          width: '16px',
+          height: '16px',
+        }}
+      />
+      <img
+        alt="Filter"
+        src={`/static/assets/images/icons/Table Filter.png`}
+        style={{
+          width: '16px',
+          height: '16px',
+          margin: '0px 15px',
+        }}
+      />*/}
       <input
         className="form-control input-sm"
         placeholder={`${count} records...`}
         value={value}
         onChange={onChange}
+      />
+      <img
+        alt="Filter"
+        src={`/static/assets/images/icons/PDF.png`}
+        style={{
+          width: '24px',
+          height: '30px',
+          margin: '0px 15px 0px 25px',
+        }}
+      />
+      <img
+        alt="Filter"
+        src={`/static/assets/images/icons/XLS.png`}
+        style={{
+          width: '24px',
+          height: '30px',
+        }}
       />
     </span>
   );
@@ -54,6 +93,9 @@ export default (React.memo as <T>(fn: T) => T)(function GlobalFilter<D extends o
   filterValue = '',
   searchInput,
   setGlobalFilter,
+  exportCSV,
+  downloadAsImage,
+  tableHeader,
 }: GlobalFilterProps<D>) {
   const count = preGlobalFilteredRows.length;
   const [value, setValue] = useAsyncState(
@@ -75,6 +117,9 @@ export default (React.memo as <T>(fn: T) => T)(function GlobalFilter<D extends o
         e.preventDefault();
         setValue(target.value);
       }}
+      exportCSV={exportCSV}
+      downloadAsImage={downloadAsImage}
+      tableHeader={tableHeader}
     />
   );
 });

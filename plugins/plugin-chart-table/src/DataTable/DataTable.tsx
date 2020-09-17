@@ -36,8 +36,161 @@ import SimplePagination from './components/Pagination';
 import useSticky from './hooks/useSticky';
 import useColumnCellProps from './hooks/useColumnCellProps';
 
+function getRequiredDateFormat(dateString: string): string {
+  const newDate = new Date(new Date(dateString.trim()) + 'UTC');
+  const monthsArray = [
+    'Jan ',
+    'Feb ',
+    'Mar ',
+    'Apr ',
+    'May ',
+    'Jun ',
+    'Jul ',
+    'Aug ',
+    'Sep ',
+    'Oct ',
+    'Nov ',
+    'Dec ',
+  ];
+  const date = newDate.getDate(),
+    year = newDate.getFullYear(),
+    month = newDate.getMonth();
+
+  return monthsArray[month] + date + ', ' + year;
+}
+
+function getColorObject(): object {
+  const colorArray = [
+    {
+      background:
+        'transparent linear-gradient(180deg, #9B72D2 0%, #613EA6 100%) 0% 0% no-repeat padding-box',
+      color: 'white',
+    },
+    {
+      background:
+        'transparent linear-gradient(180deg, #D2E9F3 0%, #A6CEE3 100%) 0% 0% no-repeat padding-box',
+    },
+    {
+      background:
+        'transparent linear-gradient(180deg, #38A7FF 0%, #1A6EFE 100%) 0% 0% no-repeat padding-box',
+      color: 'white',
+    },
+    {
+      background:
+        'transparent linear-gradient(180deg, #A6C9F3 0%, #6D99E2 100%) 0% 0% no-repeat padding-box',
+      color: 'white',
+    },
+    {
+      background:
+        'transparent linear-gradient(180deg, #FF44B8 0%, #FF2182 100%) 0% 0% no-repeat padding-box',
+      color: 'white',
+    },
+  ];
+  return colorArray[Math.floor(Math.random() * 5)];
+}
+
+function getTableHeaderContent(headerContent: string): string {
+  let metricsName = headerContent
+    .replace(
+      /\b(\w*SUM\w*)\b|\b(\w*COUNT\w*)\b|\b(\w*COUNT_DISTINCT\w*)\b|\b(\w*AVG\w*)\b|\b(\w*MAX\w*)\b|\b(\w*MIN\w*)\b/g,
+      '',
+    )
+    .replace(/\(/g, '')
+    .replace(/\)/g, '');
+  const headerTextMappingObject = {
+    platform: 'Platform',
+    video_platform: 'Platform',
+    videos: 'Videos',
+    videos_count: 'Videos',
+    videos_diff: 'Videos',
+    owned_videos: 'Videos',
+    total_videos: 'Videos',
+    earned_viewsvideos: 'Videos',
+    views: 'Views',
+    views_count: 'Views',
+    views_diff: 'Views',
+    owned_views: 'Views',
+    total_views: 'Views',
+    earned_viewsviews: 'Views',
+    creators: 'Creators',
+    creators_count: 'Creators',
+    creators_diff: 'Creators',
+    owned_creators: 'Creators',
+    total_creators: 'Creators',
+    earned_viewscreators: 'Creators',
+    likes: 'Likes',
+    likes_count: 'Likes',
+    likes_diff: 'Likes',
+    owned_likes: 'Likes',
+    total_likes: 'Likes',
+    earned_viewslikes: 'Likes',
+    dislikes: 'Dislikes',
+    dislikes_count: 'Dislikes',
+    dislikes_diff: 'Dislikes',
+    owned_dislikes: 'Dislikes',
+    total_dislikes: 'Dislikes',
+    earned_viewsdislikes: 'Dislikes',
+    comments: 'Comments',
+    comments_count: 'Comments',
+    comments_diff: 'Comments',
+    owned_comments: 'Comments',
+    total_comments: 'Comments',
+    earned_viewscomments: 'Comments',
+    fb_shares: 'fb_Shares',
+    fb_shares_count: 'fb_Shares',
+    fb_shares_diff: 'fb_Shares',
+    owned_fb_shares: 'fb_Shares',
+    total_fb_shares: 'fb_Shares',
+    earned_viewsfb_shares: 'fb_Shares',
+    shares: 'Shares',
+    shares_count: 'Shares',
+    shares_diff: 'Shares',
+    owned_shares: 'Shares',
+    total_shares: 'Shares',
+    earned_viewsshares: 'Shares',
+    subscribers: 'Subscriberscribers',
+    subscribers_count: 'Subscriberscribers',
+    subscribers_diff: 'Subscriberscribers',
+    owned_subscribers: 'Subscriberscribers',
+    total_subscribers: 'Subscriberscribers',
+    earned_viewssubscribers: 'Subscriberscribers',
+    subs: 'Subscribers',
+    subs_count: 'Subscribers',
+    subs_diff: 'Subscribers',
+    owned_subs: 'Subscribers',
+    total_subs: 'Subscribers',
+    earned_viewssubs: 'Subscribers',
+    topic_title: 'Social Account',
+    organization: 'Brand',
+    published_date: 'Date Published',
+    video_title: 'Video',
+    video_title_link: 'Video',
+    likes_per_views: 'Likes per 1000 Views',
+    dislikes_per_views: 'Dislikes per 1000 Views',
+    comments_per_views: 'Comments per 1000 views',
+    shares_per_views: 'Shares per 1000 views',
+    anticipation: 'Anticipation',
+    joy: 'Joy',
+    surprise: 'Surprise',
+    trust: 'Trust',
+    anger: 'Anger',
+    disgust: 'Disgust',
+    fear: 'Fear',
+    sadness: 'Sadness',
+    format: 'Format',
+    theme: 'Theme',
+    category: 'Category',
+    tag: 'Tags',
+    tags: 'Tags',
+  };
+  return headerTextMappingObject[metricsName ? metricsName.toLowerCase() : metricsName]
+    ? headerTextMappingObject[metricsName ? metricsName.toLowerCase() : metricsName]
+    : headerContent;
+}
+
 export interface DataTableProps<D extends object> extends TableOptions<D> {
   tableClassName?: string;
+  tableHeader: string;
   searchInput?: boolean | GlobalFilterProps<D>['searchInput'];
   pageSizeOptions?: SizeOption[]; // available page size options
   maxPageItemCount?: number;
@@ -69,6 +222,10 @@ export default function DataTable<D extends object>({
   searchInput = true,
   noResultsText = 'No data found',
   hooks,
+  tableHeader,
+  tableDescription,
+  exportCSV,
+  downloadAsImage,
   wrapperRef: userWrapperRef,
   ...moreUseTableOptions
 }: DataTableProps<D>) {
@@ -150,6 +307,7 @@ export default function DataTable<D extends object>({
     },
     ...tableHooks,
   );
+
   // make setPageSize accept 0
   const setPageSize = (size: number) => {
     // keep the original size if data is empty
@@ -169,13 +327,32 @@ export default function DataTable<D extends object>({
                 const { key: headerKey, className, ...props } = column.getHeaderProps(
                   column.getSortByToggleProps(),
                 );
+
+                if (column.Header.includes('platform')) {
+                  return (
+                    <th
+                      key={headerKey || column.id}
+                      className={column.isSorted ? `${className || ''} is-sorted` : className}
+                      {...props}
+                      style={{
+                        ...props.style,
+                        borderRight: 'none',
+                        padding: '20px 0px',
+                      }}
+                      onClick={() => {}}
+                      title=""
+                    />
+                  );
+                }
+
                 return (
                   <th
                     key={headerKey || column.id}
                     className={column.isSorted ? `${className || ''} is-sorted` : className}
                     {...props}
+                    onClick={() => {}}
                   >
-                    {column.render('Header')}
+                    {getTableHeaderContent(column.Header)}
                     {/* column.render('SortIcon') */}
                   </th>
                 );
@@ -197,6 +374,61 @@ export default function DataTable<D extends object>({
                   const key = cellKey || cell.column.id;
                   if (cellProps.dangerouslySetInnerHTML) {
                     return <td key={key} {...restProps} />;
+                  }
+                  if (cell.column.Header === 'published_date') {
+                    return (
+                      <td key={key} {...restProps}>
+                        {getRequiredDateFormat(cellContent)}
+                      </td>
+                    );
+                  }
+                  if (cell.column.Header === 'organization') {
+                    const colorObject = getColorObject();
+                    return (
+                      <td
+                        key={key}
+                        {...restProps}
+                        style={{ ...restProps.style, padding: '15px 0px' }}
+                      >
+                        <span
+                          style={{
+                            background: colorObject.background,
+                            padding: '7px',
+                            borderRadius: '15px',
+                            color: colorObject.color ? colorObject.color : '',
+                            display: 'inline-block',
+                            width: '90px',
+                          }}
+                        >
+                          {cellContent}
+                        </span>
+                      </td>
+                    );
+                  }
+
+                  if (cell.column.Header.includes('platform')) {
+                    const platformObject = {
+                      youtube: 'Youtube',
+                      facebook: 'Facebook',
+                      instagram: 'Instagram',
+                    };
+                    return (
+                      <td
+                        key={key}
+                        {...restProps}
+                        style={{ ...restProps.style, padding: '22px 0px', borderRight: 'none' }}
+                      >
+                        <img
+                          alt="Platform"
+                          src={`/static/assets/images/Donut Chart Icon/${
+                            platformObject[cellContent.toLowerCase()]
+                          }.png`}
+                          style={{
+                            height: '20px',
+                          }}
+                        />
+                      </td>
+                    );
                   }
                   // If cellProps renderes textContent already, then we don't have to
                   // render `Cell`. This saves some time for large tables.
@@ -232,13 +464,9 @@ export default function DataTable<D extends object>({
     pageSizeRef.current = [initialPageSize, data.length];
     setPageSize(initialPageSize);
   }
-  console.log(initialWidth, 'initialWidthinitialWidthinitialWidth');
 
   return (
-    <div
-      ref={wrapperRef}
-      style={{ margin: '20px 40px 40px', width: initialWidth - 80, height: initialHeight }}
-    >
+    <div ref={wrapperRef} style={{ width: initialWidth, height: initialHeight }}>
       {hasGlobalControl ? (
         <div ref={globalControlRef} className="form-inline dt-controls">
           <div className="row">
@@ -251,11 +479,24 @@ export default function DataTable<D extends object>({
                   onChange={setPageSize}
                 />
               ) : null */}
-              Contributing Videos
+              <span style={{ fontSize: '24px' }}>{tableHeader || ''}</span>
+              <img
+                title={tableDescription || ''}
+                alt="Description"
+                src={`/static/assets/images/icons/Table Description.png`}
+                style={{
+                  width: '16px',
+                  height: '16px',
+                  margin: tableHeader ? '-5px 0px 0px 7.5px' : '0px 0px 0px 7.5px',
+                }}
+              />
             </div>
             {searchInput ? (
               <div className="col-sm-6">
                 <GlobalFilter<D>
+                  exportCSV={exportCSV}
+                  downloadAsImage={downloadAsImage}
+                  tableHeader={tableHeader}
                   searchInput={typeof searchInput === 'boolean' ? undefined : searchInput}
                   preGlobalFilteredRows={preGlobalFilteredRows}
                   setGlobalFilter={setGlobalFilter}
@@ -275,6 +516,7 @@ export default function DataTable<D extends object>({
           pageCount={pageCount}
           currentPage={pageIndex}
           onPageChange={gotoPage}
+          totalCount={data.length}
         />
       ) : null}
     </div>

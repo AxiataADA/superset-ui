@@ -262,7 +262,7 @@ function StickyWrap({
   return (
     <div
       style={{
-        width: maxWidth - 80,
+        width: maxWidth,
         height: sticky.realHeight || maxHeight,
         overflow: 'hidden',
         border: '2px solid #7C90DB',

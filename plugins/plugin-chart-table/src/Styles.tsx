@@ -20,6 +20,7 @@ export default styled.div`
     padding: 20px 5px;
     background-color: #f8f8f8;
     color: #4f62aa;
+    font-size: 13px;
     border-right: 1px #cfd8db solid;
     border-bottom: none;
   }
@@ -57,12 +58,13 @@ export default styled.div`
 
   .dt-global-filter {
     float: right;
+    display: flex;
   }
 
   .dt-pagination {
     text-align: right;
     /* use padding instead of margin so clientHeight can capture it */
-    padding-top: 0.5em;
+    padding-top: 15px;
   }
   .dt-pagination .pagination {
     margin: 0;
@@ -76,5 +78,52 @@ export default styled.div`
   .dt-no-results {
     text-align: center;
     padding: 1em 0.6em;
+  }
+
+  .table-search-input-with-icon {
+    position: relative;
+    width: 230px;
+    height: 30px;
+    border: 1px solid #7c90db;
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .table-search-input-box-icon {
+    height: 100%;
+    position: absolute;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #4f62aa;
+    padding: 0px 12px;
+    font-size: 13px;
+  }
+
+  .table-search-input {
+    border: none;
+    margin-left: 25px;
+    width: 205px;
+
+    &::placeholder {
+      color: #7c90db;
+      for-size: 13px;
+    }
+
+    &:-ms-input-placeholder {
+      color: #7c90db;
+      for-size: 13px;
+    }
+
+    &::-ms-input-placeholder {
+      color: #7c90db;
+      for-size: 13px;
+    }
+
+    &:focus {
+      outline: none;
+      box-shadow: none;
+    }
   }
 `;

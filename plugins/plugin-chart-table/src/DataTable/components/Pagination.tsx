@@ -64,12 +64,52 @@ export function generatePageItems(total: number, current: number, width: number)
 
 export default React.memo(
   React.forwardRef(function Pagination(
-    { style, pageCount, currentPage = 0, maxPageItemCount = 9, onPageChange }: PaginationProps,
+    {
+      style,
+      pageCount,
+      currentPage = 0,
+      maxPageItemCount = 9,
+      onPageChange,
+      totalCount,
+    }: PaginationProps,
     ref: React.Ref<HTMLDivElement>,
   ) {
-    const pageItems = generatePageItems(pageCount, currentPage, maxPageItemCount);
+    const pageItems = generatePageItems(pageCount, currentPage, maxPageItemCount - 2);
+
     return (
-      <div ref={ref} className="dt-pagination" style={style}>
+      <div
+        ref={ref}
+        className="dt-pagination"
+        style={{
+          ...style,
+          display: 'flex',
+          justifyContent: 'flex-end',
+        }}
+      >
+        <div style={{ padding: '5px 0px', fontSize: '13px', opacity: '0.5', marginRight: '30px' }}>
+          {(totalCount || 0) + ' Total Videos'}
+        </div>
+        <button
+          className="button-focus-off"
+          style={{
+            padding: '0px 9px',
+            color: 'black',
+            borderRadius: '2px',
+            border: 'none',
+            margin: '0px 2px',
+            backgroundColor: '#F8F8F8',
+          }}
+          onClick={e => {
+            e.preventDefault();
+            onPageChange(currentPage - 1);
+          }}
+          disabled={currentPage === 0}
+        >
+          <i
+            style={{ opacity: currentPage === 0 ? '0.2' : '0.6' }}
+            className="fa fa-chevron-left"
+          />
+        </button>
         <ul className="pagination pagination-sm">
           {pageItems.map((item, i) =>
             typeof item === 'number' ? (
@@ -82,17 +122,55 @@ export default React.memo(
                     e.preventDefault();
                     onPageChange(item);
                   }}
+                  style={{
+                    color: currentPage === item ? 'white' : 'black',
+                    borderRadius: '2px',
+                    border: 'none',
+                    margin: '0px 2px',
+                    backgroundColor: currentPage === item ? '#7C90DB' : '#F8F8F8',
+                  }}
                 >
                   {item + 1}
                 </a>
               </li>
             ) : (
               <li key={item} className="dt-pagination-ellipsis">
-                <span>…</span>
+                <span
+                  style={{
+                    color: 'black',
+                    borderRadius: '2px',
+                    border: 'none',
+                    margin: '0px 2px',
+                    backgroundColor: '#F8F8F8',
+                  }}
+                >
+                  …
+                </span>
               </li>
             ),
           )}
         </ul>
+        <button
+          className="button-focus-off"
+          style={{
+            padding: '0px 9px',
+            color: 'black',
+            borderRadius: '2px',
+            border: 'none',
+            margin: '0px 2px',
+            backgroundColor: '#F8F8F8',
+          }}
+          onClick={e => {
+            e.preventDefault();
+            onPageChange(currentPage + 1);
+          }}
+          disabled={currentPage === pageCount - 1}
+        >
+          <i
+            style={{ opacity: currentPage === pageCount - 1 ? '0.2' : '0.6' }}
+            className="fa fa-chevron-right"
+          />
+        </button>
       </div>
     );
   }),

@@ -195,6 +195,7 @@ export default function transformProps(chartProps: TableChartProps): TableChartT
     height,
     width,
     formData,
+    hooks,
     queryData,
     initialValues: filters = {},
     hooks: { onAddFilter: onChangeFilter },
@@ -208,7 +209,11 @@ export default function transformProps(chartProps: TableChartProps): TableChartT
     pageLength: pageSize = 0,
     tableFilter,
     orderDesc: sortDesc = false,
+    sliceName: tableHeader,
+    tableDescription,
   } = formData;
+
+  const { exportCSV, downloadAsImage } = hooks;
 
   const [metrics, percentMetrics, columns] = processColumns(chartProps);
   const data = processDataRecords(queryData?.data?.records, columns);
@@ -229,5 +234,9 @@ export default function transformProps(chartProps: TableChartProps): TableChartT
     filters,
     emitFilter: tableFilter === true,
     onChangeFilter,
+    tableHeader,
+    tableDescription,
+    exportCSV,
+    downloadAsImage,
   };
 }

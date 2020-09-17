@@ -248,6 +248,18 @@ const config: ControlPanelConfig = {
         ],
         [
           {
+            name: 'tableDescription',
+            config: {
+              type: 'TextControl',
+              renderTrigger: true,
+              default: '',
+              label: t('Table Description'),
+              description: t('Description text that shows up when you hover over the info icon'),
+            },
+          },
+        ],
+        [
+          {
             name: 'include_search',
             config: {
               type: 'CheckboxControl',
