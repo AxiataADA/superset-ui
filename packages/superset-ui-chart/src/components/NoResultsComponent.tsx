@@ -35,15 +35,29 @@ const NoResultsComponent = ({ className, height, id, width }: Props) => {
   const shouldRenderBody = typeof width === 'string' || width > MIN_WIDTH_FOR_BODY;
 
   return (
-    <div
-      className={className}
-      id={id}
-      style={containerStyles}
-      title={shouldRenderBody ? undefined : BODY_STRING}
-    >
-      <div style={MESSAGE_STYLES}>
-        <div style={TITLE_STYLES}>No Results</div>
-        {shouldRenderBody && <div style={BODY_STYLES}>{BODY_STRING}</div>}
+    <div style={{ height, textAlign: 'center' }}>
+      <div>
+        <img
+          alt="Icon"
+          src={`/static/assets/images/icons/No Data.png`}
+          style={{
+            height: 0.55 * height,
+            marginBottom: 0.075 * height + 'px',
+            marginTop: 0.075 * height + 'px',
+          }}
+        />
+      </div>
+      <div
+        style={{
+          color: '#11172e',
+          fontFamily: "'Roboto', sans-serif",
+          fontSize: 0.15 * height + 'px',
+          fontWeight: 700,
+          height: 0.15 * height,
+          fontWeight: 600,
+        }}
+      >
+        No Data
       </div>
     </div>
   );

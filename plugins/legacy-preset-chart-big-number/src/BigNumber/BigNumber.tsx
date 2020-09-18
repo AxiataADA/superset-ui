@@ -295,8 +295,40 @@ class BigNumberVis extends React.PureComponent<BigNumberVisProps, {}> {
   }
 
   render() {
-    const { showTrendLine, height, headerFontSize, subheaderFontSize, iconSize } = this.props;
+    const {
+      bigNumber,
+      showTrendLine,
+      height,
+      headerFontSize,
+      subheaderFontSize,
+      iconSize,
+    } = this.props;
     const className = this.getClassName();
+
+    if (bigNumber === null) {
+      return (
+        <div className={className} style={{ height, display: 'flex', alignItems: 'center' }}>
+          <img
+            alt="Icon"
+            src={`/static/assets/images/icons/No Data.png`}
+            style={{
+              height: 0.55 * height,
+              marginBottom: 0.075 * height + 'px',
+            }}
+          />
+          <div
+            className="header-line"
+            style={{
+              fontSize: 0.15 * height + 'px',
+              height: 0.15 * height,
+              fontWeight: 600,
+            }}
+          >
+            No Data
+          </div>
+        </div>
+      );
+    }
 
     if (showTrendLine) {
       const chartHeight = Math.floor(PROPORTION.TRENDLINE * height);
@@ -360,6 +392,7 @@ export default styled(BigNumberVis)`
       bottom: 0;
     }
     color: #11172e;
+    font-family: 'Roboto', sans-serif;
   }
 
   .subheader-line {
@@ -367,6 +400,7 @@ export default styled(BigNumberVis)`
     line-height: 1em;
     padding-bottom: 0;
     color: #7c90db;
+    font-family: 'Roboto', sans-serif;
   }
 
   &.is-fallback-value {

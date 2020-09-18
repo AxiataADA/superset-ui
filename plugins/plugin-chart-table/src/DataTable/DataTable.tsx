@@ -35,6 +35,7 @@ import { /* SelectPageSize , */ SizeOption } from './components/SelectPageSize';
 import SimplePagination from './components/Pagination';
 import useSticky from './hooks/useSticky';
 import useColumnCellProps from './hooks/useColumnCellProps';
+let brandColorMappingObject = {};
 
 function getRequiredDateFormat(dateString: string): string {
   const newDate = new Date(new Date(dateString.trim()) + 'UTC');
@@ -59,7 +60,7 @@ function getRequiredDateFormat(dateString: string): string {
   return monthsArray[month] + date + ', ' + year;
 }
 
-function getColorObject(): object {
+function getColorObject(brand: string): object {
   const colorArray = [
     {
       background:
@@ -86,7 +87,26 @@ function getColorObject(): object {
       color: 'white',
     },
   ];
-  return colorArray[Math.floor(Math.random() * 5)];
+
+  if (brandColorMappingObject[brand]) {
+    return brandColorMappingObject[brand];
+  } else {
+    if (!brandColorMappingObject.count) {
+      brandColorMappingObject.count = 1;
+      brandColorMappingObject[brand] = colorArray[0];
+      return colorArray[0];
+    } else if (brandColorMappingObject.count < 5) {
+      brandColorMappingObject[brand] = colorArray[brandColorMappingObject.count];
+      brandColorMappingObject.count++;
+      return brandColorMappingObject[brand];
+    } else if (brandColorMappingObject.count <= 5) {
+      brandColorMappingObject.count = 1;
+      brandColorMappingObject[brand] = colorArray[0];
+      return colorArray[0];
+    }
+  }
+
+  return colorArray[0];
 }
 
 function getTableHeaderContent(headerContent: string): string {
@@ -98,6 +118,11 @@ function getTableHeaderContent(headerContent: string): string {
     .replace(/\(/g, '')
     .replace(/\)/g, '');
   const headerTextMappingObject = {
+    negative_sentiment_valence: 'Negative Sentiment',
+    neutral_sentiment_valence: 'Neutral Sentiment',
+    positive_sentiment_valence: 'Positive Sentiment',
+    crawled_date: 'As of Date',
+    created_date: 'As of Date',
     platform: 'Platform',
     video_platform: 'Platform',
     videos: 'Videos',
@@ -106,6 +131,12 @@ function getTableHeaderContent(headerContent: string): string {
     owned_videos: 'Videos',
     total_videos: 'Videos',
     earned_viewsvideos: 'Videos',
+    video: 'Videos',
+    video_count: 'Videos',
+    video_diff: 'Videos',
+    owned_video: 'Videos',
+    total_video: 'Videos',
+    earned_viewsvideo: 'Videos',
     views: 'Views',
     views_count: 'Views',
     views_diff: 'Views',
@@ -345,6 +376,25 @@ export default function DataTable<D extends object>({
                   );
                 }
 
+                if (column.Header === 'organization') {
+                  return (
+                    <th
+                      key={headerKey || column.id}
+                      className={column.isSorted ? `${className || ''} is-sorted` : className}
+                      {...props}
+                      onClick={() => {}}
+                      style={{
+                        ...props.style,
+                        paddingRight: '30px',
+                        paddingLeft: '30px',
+                      }}
+                    >
+                      {getTableHeaderContent(column.Header)}
+                      {/* column.render('SortIcon') */}
+                    </th>
+                  );
+                }
+
                 return (
                   <th
                     key={headerKey || column.id}
@@ -375,20 +425,22 @@ export default function DataTable<D extends object>({
                   if (cellProps.dangerouslySetInnerHTML) {
                     return <td key={key} {...restProps} />;
                   }
+
                   if (cell.column.Header === 'published_date') {
                     return (
-                      <td key={key} {...restProps}>
+                      <td width={200} key={key} {...restProps}>
                         {getRequiredDateFormat(cellContent)}
                       </td>
                     );
                   }
+
                   if (cell.column.Header === 'organization') {
-                    const colorObject = getColorObject();
+                    const colorObject = getColorObject(cellContent);
                     return (
                       <td
                         key={key}
                         {...restProps}
-                        style={{ ...restProps.style, padding: '15px 0px' }}
+                        style={{ ...restProps.style, padding: '15px 30px' }}
                       >
                         <span
                           style={{

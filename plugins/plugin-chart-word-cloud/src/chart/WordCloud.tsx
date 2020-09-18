@@ -67,7 +67,7 @@ class WordCloud extends React.PureComponent<
     },
     defaultEncoding: {
       color: { value: 'black' },
-      fontFamily: { value: this.props.theme.typography.families.sansSerif },
+      fontFamily: { value: "'Roboto', sans-serif " },
       fontSize: { value: 20 },
       fontWeight: { value: 'bold' },
       text: { value: '' },

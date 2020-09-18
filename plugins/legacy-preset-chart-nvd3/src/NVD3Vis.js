@@ -438,13 +438,8 @@ function nvd3Vis(element, props) {
           chart.titleFormat(countFormatter);
           chart.titleSize(countSize);
           chart.titleOffset(countMarginTop);
-          let title = 0;
-          // calculate the combine value on y axis and display that value in donut chart
-          if (props.data.length > 0)
-            props.data.forEach(item => {
-              title += item.y;
-            });
-          chart.title(title);
+          const total = d3.sum(data, d => d.y);
+          chart.title(total);
         }
         chart.showLabels(showLabels);
         chart.labelsOutside(isPieLabelOutside);

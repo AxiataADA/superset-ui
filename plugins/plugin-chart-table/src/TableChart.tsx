@@ -131,7 +131,11 @@ function SearchInput({
         />
       </div>
       <img
-        onClick={downloadAsImage('.dashboard-component-chart-holder', tableHeader)}
+        onClick={() => {
+          if (downloadAsImage && typeof downloadAsImage === 'function') {
+            downloadAsImage('.dashboard-component-chart-holder', tableHeader);
+          }
+        }}
         alt="Filter"
         src={`/static/assets/images/icons/PDF.png`}
         style={{
@@ -142,7 +146,11 @@ function SearchInput({
         }}
       />
       <img
-        onClick={exportCSV}
+        onClick={() => {
+          if (exportCSV && typeof exportCSV === 'function') {
+            exportCSV();
+          }
+        }}
         alt="Filter"
         src={`/static/assets/images/icons/XLS.png`}
         style={{

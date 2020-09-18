@@ -110,29 +110,29 @@ export default {
               type: 'SelectControl',
               label: t('Donut Inner Radius'),
               renderTrigger: true,
-              default: 0.72,
+              default: 17,
               clearable: false,
               // Values represent the percentage of space a subheader should take
               options: [
                 {
                   label: t('Tiny'),
-                  value: 0.66,
+                  value: 19,
                 },
                 {
                   label: t('Small'),
-                  value: 0.69,
+                  value: 17,
                 },
                 {
                   label: t('Normal'),
-                  value: 0.72,
+                  value: 15,
                 },
                 {
                   label: t('Large'),
-                  value: 0.75,
+                  value: 13,
                 },
                 {
                   label: t('Huge'),
-                  value: 0.78,
+                  value: 11,
                 },
               ],
               description: 'Only applied when "Donut" is selected',

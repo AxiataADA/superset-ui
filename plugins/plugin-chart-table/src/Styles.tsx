@@ -21,6 +21,7 @@ export default styled.div`
     background-color: #f8f8f8;
     color: #4f62aa;
     font-size: 13px;
+    font-family: 'Roboto', sans-serif;
     border-right: 1px #cfd8db solid;
     border-bottom: none;
   }
@@ -99,24 +100,28 @@ export default styled.div`
     color: #4f62aa;
     padding: 0px 12px;
     font-size: 13px;
+    font-family: 'Roboto', sans-serif;
   }
 
   .table-search-input {
     border: none;
     margin-left: 25px;
     width: 205px;
-
+    font-family: 'Roboto', sans-serif;
     &::placeholder {
       color: #7c90db;
       for-size: 13px;
+      font-family: 'Roboto', sans-serif;
     }
 
     &:-ms-input-placeholder {
+      font-family: 'Roboto', sans-serif;
       color: #7c90db;
       for-size: 13px;
     }
 
     &::-ms-input-placeholder {
+      font-family: 'Roboto', sans-serif;
       color: #7c90db;
       for-size: 13px;
     }
