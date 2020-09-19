@@ -312,15 +312,14 @@ class BigNumberVis extends React.PureComponent<BigNumberVisProps, {}> {
             alt="Icon"
             src={`/static/assets/images/icons/No Data.png`}
             style={{
-              height: 0.55 * height,
-              marginBottom: 0.075 * height + 'px',
+              height: '25px',
+              marginBottom: '10px',
             }}
           />
           <div
             className="header-line"
             style={{
-              fontSize: 0.15 * height + 'px',
-              height: 0.15 * height,
+              fontSize: '9px',
               fontWeight: 600,
             }}
           >
