@@ -196,6 +196,7 @@ function getTableHeaderContent(headerContent: string): string {
     published_date: 'Date Published',
     video_title: 'Video',
     video_title_link: 'Video',
+    video_id: 'Video',
     likes_per_views: 'Likes per 1000 Views',
     dislikes_per_views: 'Dislikes per 1000 Views',
     comments_per_views: 'Comments per 1000 views',
