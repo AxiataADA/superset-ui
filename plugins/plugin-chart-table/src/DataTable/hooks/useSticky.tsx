@@ -261,6 +261,7 @@ function StickyWrap({
 
   return (
     <div
+      id={`custom-table`}
       style={{
         width: maxWidth,
         height: sticky.realHeight || maxHeight,

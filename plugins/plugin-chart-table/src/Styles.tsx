@@ -131,4 +131,10 @@ export default styled.div`
       box-shadow: none;
     }
   }
+
+  .sort-column-icon {
+    margin: 15px 5px;
+    color: #7c90db !important;
+    font-size: 14px;
+  }
 `;

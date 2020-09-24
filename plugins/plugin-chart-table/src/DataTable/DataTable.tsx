@@ -137,6 +137,7 @@ function getTableHeaderContent(headerContent: string): string {
     owned_video: 'Videos',
     total_video: 'Videos',
     earned_viewsvideo: 'Videos',
+    Video_id: 'Videos',
     views: 'Views',
     views_count: 'Views',
     views_diff: 'Views',
@@ -382,7 +383,6 @@ export default function DataTable<D extends object>({
                       key={headerKey || column.id}
                       className={column.isSorted ? `${className || ''} is-sorted` : className}
                       {...props}
-                      onClick={() => {}}
                       style={{
                         ...props.style,
                         paddingRight: '30px',
@@ -390,7 +390,7 @@ export default function DataTable<D extends object>({
                       }}
                     >
                       {getTableHeaderContent(column.Header)}
-                      {/* column.render('SortIcon') */}
+                      {column.render('SortIcon')}
                     </th>
                   );
                 }
@@ -400,10 +400,9 @@ export default function DataTable<D extends object>({
                     key={headerKey || column.id}
                     className={column.isSorted ? `${className || ''} is-sorted` : className}
                     {...props}
-                    onClick={() => {}}
                   >
                     {getTableHeaderContent(column.Header)}
-                    {/* column.render('SortIcon') */}
+                    {column.render('SortIcon')}
                   </th>
                 );
               })}
@@ -449,7 +448,7 @@ export default function DataTable<D extends object>({
                             borderRadius: '15px',
                             color: colorObject.color ? colorObject.color : '',
                             display: 'inline-block',
-                            width: '90px',
+                            width: '150px',
                           }}
                         >
                           {cellContent}

@@ -22,7 +22,8 @@ import { extent as d3Extent, max as d3Max } from 'd3-array';
 import { FaSort, FaSortUp as FaSortAsc, FaSortDown as FaSortDesc } from 'react-icons/fa';
 import { t } from '@superset-ui/translation';
 import { DataRecordValue, DataRecord } from '@superset-ui/chart';
-
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 import { TableChartTransformedProps, DataType, DataColumnMeta } from './types';
 import DataTable, { DataTableProps, SearchInputProps, SizeOption } from './DataTable';
 import Styles from './Styles';
@@ -85,9 +86,13 @@ function getSortTypeByDataType(dataType: DataType): DefaultSortTypes {
 
 function SortIcon({ column }: { column: ColumnInstance }) {
   const { isSorted, isSortedDesc } = column;
-  let sortIcon = <FaSort />;
+  let sortIcon = null;
   if (isSorted) {
-    sortIcon = isSortedDesc ? <FaSortDesc /> : <FaSortAsc />;
+    sortIcon = isSortedDesc ? (
+      <FaSortDesc className="sort-column-icon" />
+    ) : (
+      <FaSortAsc className="sort-column-icon" />
+    );
   }
   return sortIcon;
 }
@@ -132,9 +137,18 @@ function SearchInput({
       </div>
       <img
         onClick={() => {
-          if (downloadAsImage && typeof downloadAsImage === 'function') {
-            downloadAsImage('.dashboard-component-chart-holder', tableHeader);
-          }
+          html2canvas(document.querySelector('#custom-table')).then(canvas => {
+            const imgData = canvas.toDataURL('image/png');
+
+            const pdf = new jsPDF({
+              orientation: 'landscape',
+            });
+            let width = pdf.internal.pageSize.getWidth();
+            let height = pdf.internal.pageSize.getHeight();
+
+            pdf.addImage(imgData, 'PNG', 10, 10, width - 20, height - 20);
+            pdf.save('download.pdf');
+          });
         }}
         alt="Filter"
         src={`/static/assets/images/icons/PDF.png`}
