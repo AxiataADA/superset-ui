@@ -180,12 +180,12 @@ function getTableHeaderContent(headerContent: string): string {
     owned_shares: 'Shares',
     total_shares: 'Shares',
     earned_viewsshares: 'Shares',
-    subscribers: 'Subscriberscribers',
-    subscribers_count: 'Subscriberscribers',
-    subscribers_diff: 'Subscriberscribers',
-    owned_subscribers: 'Subscriberscribers',
-    total_subscribers: 'Subscriberscribers',
-    earned_viewssubscribers: 'Subscriberscribers',
+    subscribers: 'Subscribers',
+    subscribers_count: 'Subscribers',
+    subscribers_diff: 'Subscribers',
+    owned_subscribers: 'Subscribers',
+    total_subscribers: 'Subscribers',
+    earned_viewssubscribers: 'Subscribers',
     subs: 'Subscribers',
     subs_count: 'Subscribers',
     subs_diff: 'Subscribers',
@@ -197,6 +197,7 @@ function getTableHeaderContent(headerContent: string): string {
     published_date: 'Date Published',
     video_title: 'Video',
     video_title_link: 'Video',
+    video_id: 'Video',
     likes_per_views: 'Likes per 1000 Views',
     dislikes_per_views: 'Dislikes per 1000 Views',
     comments_per_views: 'Comments per 1000 views',
@@ -214,6 +215,8 @@ function getTableHeaderContent(headerContent: string): string {
     category: 'Category',
     tag: 'Tags',
     tags: 'Tags',
+    creator_name: 'Creator',
+    engagement_ratio: 'Engagement',
   };
   return headerTextMappingObject[metricsName ? metricsName.toLowerCase() : metricsName]
     ? headerTextMappingObject[metricsName ? metricsName.toLowerCase() : metricsName]
@@ -467,7 +470,11 @@ export default function DataTable<D extends object>({
                       <td
                         key={key}
                         {...restProps}
-                        style={{ ...restProps.style, padding: '22px 0px', borderRight: 'none' }}
+                        style={{
+                          ...restProps.style,
+                          padding: '22px 0px',
+                          borderRight: 'none',
+                        }}
                       >
                         <img
                           alt="Platform"
