@@ -157,7 +157,7 @@ function SearchInput({
               imgData,
               'PNG',
               10,
-              yOffSet > 0 ? yOffSet : 10,
+              yOffSet > 0 || yOffSet < newHeight / 2 ? yOffSet : 10,
               width - 20,
               height > newHeight ? newHeight - 20 : height,
               null,
