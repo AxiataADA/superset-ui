@@ -102,8 +102,8 @@ function SearchInput({
   value,
   onChange,
   exportCSV,
-  downloadAsImage,
   tableHeader,
+  uniqueTableIdForPDFDownload,
 }: SearchInputProps) {
   return (
     <span className="dt-global-filter">
@@ -137,20 +137,27 @@ function SearchInput({
       </div>
       <img
         onClick={() => {
-          html2canvas(document.querySelector('#custom-table')).then(canvas => {
-            const imgData = canvas.toDataURL('image/png');
-
-            const pdf = new jsPDF({
-              orientation: 'landscape',
-            });
+          html2canvas(
+            document.querySelector('#' + 'custom-table' + uniqueTableIdForPDFDownload),
+          ).then(canvas => {
+            let wid: number;
+            let hgt: number;
+            const imgData = canvas.toDataURL(
+              'image/png',
+              (wid = canvas.width),
+              (hgt = canvas.height),
+            );
+            var hratio = hgt / wid;
+            const pdf = new jsPDF('l', 'pt', 'a4');
             let width = pdf.internal.pageSize.getWidth();
-            let height = pdf.internal.pageSize.getHeight();
-
-            pdf.addImage(imgData, 'PNG', 10, 10, width - 20, height - 20);
-            pdf.save('download.pdf');
+            var newHeight = pdf.internal.pageSize.getHeight();
+            let height = (width - 20) * hratio;
+            let yOffSet = (newHeight - height) / 2;
+            pdf.addImage(imgData, 'PNG', 10, yOffSet, width - 20, height, null, 'MEDIUM');
+            pdf.save(tableHeader + '.pdf');
           });
         }}
-        alt="Filter"
+        alt="PDF"
         src={`/static/assets/images/icons/PDF.png`}
         style={{
           width: '24px',
@@ -165,7 +172,7 @@ function SearchInput({
             exportCSV();
           }
         }}
-        alt="Filter"
+        alt="XLS"
         src={`/static/assets/images/icons/XLS.png`}
         style={{
           width: '24px',
@@ -200,7 +207,6 @@ export default function TableChart<D extends DataRecord = DataRecord>(
     tableHeader,
     tableDescription,
     exportCSV,
-    downloadAsImage,
   } = props;
 
   const [filters, setFilters] = useState(initialFilters);
@@ -337,7 +343,6 @@ export default function TableChart<D extends DataRecord = DataRecord>(
         tableHeader={tableHeader}
         tableDescription={tableDescription}
         exportCSV={exportCSV}
-        downloadAsImage={downloadAsImage}
       />
     </Styles>
   );

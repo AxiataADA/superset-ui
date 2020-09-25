@@ -118,6 +118,7 @@ function getTableHeaderContent(headerContent: string): string {
     .replace(/\(/g, '')
     .replace(/\)/g, '');
   const headerTextMappingObject = {
+    fb_shares: 'Shares',
     negative_sentiment_valence: 'Negative Sentiment',
     neutral_sentiment_valence: 'Neutral Sentiment',
     positive_sentiment_valence: 'Positive Sentiment',
@@ -242,6 +243,16 @@ export interface RenderHTMLCellProps extends HTMLProps<HTMLTableCellElement> {
   cellContent: ReactNode;
 }
 
+function createUniqueId() {
+  let result = '';
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const charactersLength = characters.length;
+  for (let i = 0; i < 10; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+}
+
 // Be sure to pass our updateMyData and the skipReset option
 export default function DataTable<D extends object>({
   tableClassName,
@@ -260,10 +271,11 @@ export default function DataTable<D extends object>({
   tableHeader,
   tableDescription,
   exportCSV,
-  downloadAsImage,
   wrapperRef: userWrapperRef,
   ...moreUseTableOptions
 }: DataTableProps<D>) {
+  const uniqueTableIdForPDFDownload = createUniqueId();
+
   const tableHooks: PluginHook<D>[] = [
     useGlobalFilter,
     useSortBy,
@@ -339,6 +351,7 @@ export default function DataTable<D extends object>({
       getTableSize: defaultGetTableSize,
       globalFilter: defaultGlobalFilter,
       ...moreUseTableOptions,
+      uniqueTableIdForPDFDownload,
     },
     ...tableHooks,
   );
@@ -553,8 +566,8 @@ export default function DataTable<D extends object>({
               <div className="col-sm-6">
                 <GlobalFilter<D>
                   exportCSV={exportCSV}
-                  downloadAsImage={downloadAsImage}
                   tableHeader={tableHeader}
+                  uniqueTableIdForPDFDownload={uniqueTableIdForPDFDownload}
                   searchInput={typeof searchInput === 'boolean' ? undefined : searchInput}
                   preGlobalFilteredRows={preGlobalFilteredRows}
                   setGlobalFilter={setGlobalFilter}

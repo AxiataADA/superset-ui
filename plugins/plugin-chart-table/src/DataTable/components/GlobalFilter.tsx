@@ -24,9 +24,9 @@ export interface SearchInputProps {
   count: number;
   value: string;
   tableHeader: string;
+  uniqueTableIdForPDFDownload: string;
   onChange: ChangeEventHandler<HTMLInputElement>;
   exportCSV: ChangeEventHandler<HTMLInputElement>;
-  downloadAsImage: ChangeEventHandler<HTMLInputElement>;
 }
 
 export interface GlobalFilterProps<D extends object> {
@@ -35,13 +35,20 @@ export interface GlobalFilterProps<D extends object> {
   // control type undefined error
   filterValue: string;
   tableHeader: string;
+  uniqueTableIdForPDFDownload: string;
   setGlobalFilter: (filterValue: FilterValue) => void;
   searchInput?: ComponentType<SearchInputProps>;
   exportCSV: ChangeEventHandler<HTMLInputElement>;
-  downloadAsImage: ChangeEventHandler<HTMLInputElement>;
 }
 
-function DefaultSearchInput({ count, value, onChange, exportCSV }: SearchInputProps) {
+function DefaultSearchInput({
+  count,
+  value,
+  onChange,
+  exportCSV,
+  tableHeader,
+  uniqueTableIdForPDFDownload,
+}: SearchInputProps) {
   return (
     <span className="dt-global-filter">
       {/*<img
@@ -68,20 +75,48 @@ function DefaultSearchInput({ count, value, onChange, exportCSV }: SearchInputPr
         onChange={onChange}
       />
       <img
-        alt="Filter"
+        onClick={() => {
+          html2canvas(
+            document.querySelector('#' + 'custom-table' + uniqueTableIdForPDFDownload),
+          ).then(canvas => {
+            let wid: number;
+            let hgt: number;
+            const imgData = canvas.toDataURL(
+              'image/png',
+              (wid = canvas.width),
+              (hgt = canvas.height),
+            );
+            var hratio = hgt / wid;
+            const pdf = new jsPDF('l', 'pt', 'a4');
+            let width = pdf.internal.pageSize.getWidth();
+            var newHeight = pdf.internal.pageSize.getHeight();
+            let height = (width - 20) * hratio;
+            let yOffSet = (newHeight - height) / 2;
+            pdf.addImage(imgData, 'PNG', 10, yOffSet, width - 20, height, null, 'MEDIUM');
+            pdf.save(tableHeader + '.pdf');
+          });
+        }}
+        alt="PDF"
         src={`/static/assets/images/icons/PDF.png`}
         style={{
           width: '24px',
           height: '30px',
-          margin: '0px 15px 0px 25px',
+          margin: '0px 10px 0px 25px',
+          cursor: 'pointer',
         }}
       />
       <img
-        alt="Filter"
+        onClick={() => {
+          if (exportCSV && typeof exportCSV === 'function') {
+            exportCSV();
+          }
+        }}
+        alt="XLS"
         src={`/static/assets/images/icons/XLS.png`}
         style={{
           width: '24px',
           height: '30px',
+          cursor: 'pointer',
         }}
       />
     </span>
@@ -96,6 +131,7 @@ export default (React.memo as <T>(fn: T) => T)(function GlobalFilter<D extends o
   exportCSV,
   downloadAsImage,
   tableHeader,
+  uniqueTableIdForPDFDownload,
 }: GlobalFilterProps<D>) {
   const count = preGlobalFilteredRows.length;
   const [value, setValue] = useAsyncState(
@@ -118,8 +154,8 @@ export default (React.memo as <T>(fn: T) => T)(function GlobalFilter<D extends o
         setValue(target.value);
       }}
       exportCSV={exportCSV}
-      downloadAsImage={downloadAsImage}
       tableHeader={tableHeader}
+      uniqueTableIdForPDFDownload={uniqueTableIdForPDFDownload}
     />
   );
 });

@@ -105,6 +105,7 @@ function StickyWrap({
   height: maxHeight,
   children: table,
   setStickyState,
+  uniqueTableIdForPDFDownload,
 }: {
   width: number;
   height: number;
@@ -261,7 +262,7 @@ function StickyWrap({
 
   return (
     <div
-      id={`custom-table`}
+      id={'custom-table' + uniqueTableIdForPDFDownload}
       style={{
         width: maxWidth,
         height: sticky.realHeight || maxHeight,
@@ -284,6 +285,7 @@ function useInstance<D extends object>(instance: TableInstance<D>) {
     data,
     page,
     rows,
+    uniqueTableIdForPDFDownload,
     getTableSize = () => undefined,
   } = instance;
 
@@ -317,7 +319,13 @@ function useInstance<D extends object>(instance: TableInstance<D>) {
       return table;
     }
     return (
-      <StickyWrap width={width} height={height} sticky={sticky} setStickyState={setStickyState}>
+      <StickyWrap
+        uniqueTableIdForPDFDownload={uniqueTableIdForPDFDownload}
+        width={width}
+        height={height}
+        sticky={sticky}
+        setStickyState={setStickyState}
+      >
         {table}
       </StickyWrap>
     );
