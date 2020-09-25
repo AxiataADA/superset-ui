@@ -153,7 +153,16 @@ function SearchInput({
             var newHeight = pdf.internal.pageSize.getHeight();
             let height = (width - 20) * hratio;
             let yOffSet = (newHeight - height) / 2;
-            pdf.addImage(imgData, 'PNG', 10, yOffSet, width - 20, height, null, 'MEDIUM');
+            pdf.addImage(
+              imgData,
+              'PNG',
+              10,
+              yOffSet > 0 ? yOffSet : 10,
+              width - 20,
+              height > newHeight ? newHeight - 20 : height,
+              null,
+              'MEDIUM',
+            );
             pdf.save(tableHeader + '.pdf');
           });
         }}
