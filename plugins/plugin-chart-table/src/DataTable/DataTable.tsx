@@ -100,11 +100,11 @@ function getColorObject(brand: string): object {
       brandColorMappingObject.count = 1;
       brandColorMappingObject[brand] = colorArray[0];
       return colorArray[0];
-    } else if (brandColorMappingObject.count < 5) {
+    } else if (brandColorMappingObject.count < 6) {
       brandColorMappingObject[brand] = colorArray[brandColorMappingObject.count];
       brandColorMappingObject.count++;
       return brandColorMappingObject[brand];
-    } else if (brandColorMappingObject.count <= 5) {
+    } else if (brandColorMappingObject.count <= 6) {
       brandColorMappingObject.count = 1;
       brandColorMappingObject[brand] = colorArray[0];
       return colorArray[0];
