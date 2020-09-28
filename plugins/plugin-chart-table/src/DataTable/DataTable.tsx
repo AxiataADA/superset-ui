@@ -86,6 +86,11 @@ function getColorObject(brand: string): object {
         'transparent linear-gradient(180deg, #FF44B8 0%, #FF2182 100%) 0% 0% no-repeat padding-box',
       color: 'white',
     },
+    {
+      background:
+        'transparent linear-gradient(180deg, #FF44B880 0%, #FF44B8 100%) 0% 0% no-repeat padding-box',
+      color: 'white',
+    },
   ];
 
   if (brandColorMappingObject[brand]) {
@@ -118,7 +123,6 @@ function getTableHeaderContent(headerContent: string): string {
     .replace(/\(/g, '')
     .replace(/\)/g, '');
   const headerTextMappingObject = {
-    fb_shares: 'Shares',
     negative_sentiment_valence: 'Negative Sentiment',
     neutral_sentiment_valence: 'Neutral Sentiment',
     positive_sentiment_valence: 'Positive Sentiment',
@@ -169,12 +173,12 @@ function getTableHeaderContent(headerContent: string): string {
     owned_comments: 'Comments',
     total_comments: 'Comments',
     earned_viewscomments: 'Comments',
-    fb_shares: 'fb_Shares',
-    fb_shares_count: 'fb_Shares',
-    fb_shares_diff: 'fb_Shares',
-    owned_fb_shares: 'fb_Shares',
-    total_fb_shares: 'fb_Shares',
-    earned_viewsfb_shares: 'fb_Shares',
+    fb_shares: 'Shares',
+    fb_shares_count: 'Shares',
+    fb_shares_diff: 'Shares',
+    owned_fb_shares: 'Shares',
+    total_fb_shares: 'Shares',
+    earned_viewsfb_shares: 'Shares',
     shares: 'Shares',
     shares_count: 'Shares',
     shares_diff: 'Shares',

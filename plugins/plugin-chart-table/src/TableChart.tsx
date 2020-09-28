@@ -137,9 +137,10 @@ function SearchInput({
       </div>
       <img
         onClick={() => {
-          html2canvas(
-            document.querySelector('#' + 'custom-table' + uniqueTableIdForPDFDownload),
-          ).then(canvas => {
+          html2canvas(document.querySelector('#' + 'custom-table' + uniqueTableIdForPDFDownload), {
+            scrollX: 0,
+            scrollY: -window.scrollY,
+          }).then(canvas => {
             let wid: number;
             let hgt: number;
             const imgData = canvas.toDataURL(
