@@ -300,6 +300,7 @@ function nvd3Vis(element, props) {
     countMarginTop,
     bottomText,
     distBarXAxisLimit,
+    getKeyOrLableContent,
   } = props;
 
   let { data } = props;
@@ -400,8 +401,13 @@ function nvd3Vis(element, props) {
       case 'dist_bar':
         if (!Number.isNaN(parseInt(distBarXAxisLimit, 10)) && data.length > 0) {
           data = data.map(dataObject => ({
-            key: dataObject.key,
+            key: getKeyOrLableContent(dataObject.key),
             values: dataObject.values.slice(0, distBarXAxisLimit),
+          }));
+        } else {
+          data = data.map(dataObject => ({
+            key: getKeyOrLableContent(dataObject.key),
+            values: dataObject.values,
           }));
         }
         chart = nv.models
@@ -472,6 +478,9 @@ function nvd3Vis(element, props) {
         break;
 
       case 'bubble':
+        xField.label = getKeyOrLableContent(xField.label);
+        yField.label = getKeyOrLableContent(yField.label);
+        sizeField.label = getKeyOrLableContent(sizeField.label);
         chart = nv.models.scatterChart();
         chart.showDistX(false);
         chart.showDistY(false);

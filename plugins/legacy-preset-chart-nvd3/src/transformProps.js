@@ -37,7 +37,7 @@ const grabD3Format = (datasource, targetMetric) => {
 export default function transformProps(chartProps) {
   const { width, height, annotationData, datasource, formData, hooks, queryData } = chartProps;
 
-  const { onAddFilter = NOOP, onError = NOOP } = hooks;
+  const { onAddFilter = NOOP, onError = NOOP, getKeyOrLableContent } = hooks;
 
   const {
     annotationLayers,
@@ -197,5 +197,6 @@ export default function transformProps(chartProps) {
     countMarginTop,
     bottomText,
     distBarXAxisLimit,
+    getKeyOrLableContent,
   };
 }

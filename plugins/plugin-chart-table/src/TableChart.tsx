@@ -217,6 +217,7 @@ export default function TableChart<D extends DataRecord = DataRecord>(
     tableHeader,
     tableDescription,
     exportCSV,
+    getKeyOrLableContent,
   } = props;
 
   const [filters, setFilters] = useState(initialFilters);
@@ -353,6 +354,7 @@ export default function TableChart<D extends DataRecord = DataRecord>(
         tableHeader={tableHeader}
         tableDescription={tableDescription}
         exportCSV={exportCSV}
+        getKeyOrLableContent={getKeyOrLableContent}
       />
     </Styles>
   );

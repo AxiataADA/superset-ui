@@ -213,7 +213,7 @@ export default function transformProps(chartProps: TableChartProps): TableChartT
     tableDescription,
   } = formData;
 
-  const { exportCSV, downloadAsImage } = hooks;
+  const { exportCSV, getKeyOrLableContent } = hooks;
 
   const [metrics, percentMetrics, columns] = processColumns(chartProps);
   const data = processDataRecords(queryData?.data?.records, columns);
@@ -237,6 +237,6 @@ export default function transformProps(chartProps: TableChartProps): TableChartT
     tableHeader,
     tableDescription,
     exportCSV,
-    downloadAsImage,
+    getKeyOrLableContent,
   };
 }

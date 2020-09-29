@@ -114,120 +114,6 @@ function getColorObject(brand: string): object {
   return colorArray[0];
 }
 
-function getTableHeaderContent(headerContent: string): string {
-  let metricsName = headerContent
-    .replace(
-      /\b(\w*SUM\w*)\b|\b(\w*COUNT\w*)\b|\b(\w*COUNT_DISTINCT\w*)\b|\b(\w*AVG\w*)\b|\b(\w*MAX\w*)\b|\b(\w*MIN\w*)\b/g,
-      '',
-    )
-    .replace(/\(/g, '')
-    .replace(/\)/g, '');
-  const headerTextMappingObject = {
-    negative_sentiment_valence: 'Negative Sentiment',
-    neutral_sentiment_valence: 'Neutral Sentiment',
-    positive_sentiment_valence: 'Positive Sentiment',
-    crawled_date: 'As of Date',
-    created_date: 'As of Date',
-    platform: 'Platform',
-    video_platform: 'Platform',
-    videos: 'Videos',
-    videos_count: 'Videos',
-    videos_diff: 'Videos',
-    owned_videos: 'Videos',
-    total_videos: 'Videos',
-    earned_viewsvideos: 'Videos',
-    video: 'Videos',
-    video_count: 'Videos',
-    video_diff: 'Videos',
-    owned_video: 'Videos',
-    total_video: 'Videos',
-    earned_viewsvideo: 'Videos',
-    Video_id: 'Videos',
-    views: 'Views',
-    views_count: 'Views',
-    views_diff: 'Views',
-    owned_views: 'Views',
-    total_views: 'Views',
-    earned_viewsviews: 'Views',
-    creators: 'Creators',
-    creators_count: 'Creators',
-    creators_diff: 'Creators',
-    owned_creators: 'Creators',
-    total_creators: 'Creators',
-    earned_viewscreators: 'Creators',
-    likes: 'Likes',
-    likes_count: 'Likes',
-    likes_diff: 'Likes',
-    owned_likes: 'Likes',
-    total_likes: 'Likes',
-    earned_viewslikes: 'Likes',
-    dislikes: 'Dislikes',
-    dislikes_count: 'Dislikes',
-    dislikes_diff: 'Dislikes',
-    owned_dislikes: 'Dislikes',
-    total_dislikes: 'Dislikes',
-    earned_viewsdislikes: 'Dislikes',
-    comments: 'Comments',
-    comments_count: 'Comments',
-    comments_diff: 'Comments',
-    owned_comments: 'Comments',
-    total_comments: 'Comments',
-    earned_viewscomments: 'Comments',
-    fb_shares: 'Shares',
-    fb_shares_count: 'Shares',
-    fb_shares_diff: 'Shares',
-    owned_fb_shares: 'Shares',
-    total_fb_shares: 'Shares',
-    earned_viewsfb_shares: 'Shares',
-    shares: 'Shares',
-    shares_count: 'Shares',
-    shares_diff: 'Shares',
-    owned_shares: 'Shares',
-    total_shares: 'Shares',
-    earned_viewsshares: 'Shares',
-    subscribers: 'Subscribers',
-    subscribers_count: 'Subscribers',
-    subscribers_diff: 'Subscribers',
-    owned_subscribers: 'Subscribers',
-    total_subscribers: 'Subscribers',
-    earned_viewssubscribers: 'Subscribers',
-    subs: 'Subscribers',
-    subs_count: 'Subscribers',
-    subs_diff: 'Subscribers',
-    owned_subs: 'Subscribers',
-    total_subs: 'Subscribers',
-    earned_viewssubs: 'Subscribers',
-    topic_title: 'Social Account',
-    organization: 'Brand',
-    published_date: 'Date Published',
-    video_title: 'Video',
-    video_title_link: 'Video',
-    video_id: 'Video',
-    likes_per_views: 'Likes per 1000 Views',
-    dislikes_per_views: 'Dislikes per 1000 Views',
-    comments_per_views: 'Comments per 1000 views',
-    shares_per_views: 'Shares per 1000 views',
-    anticipation: 'Anticipation',
-    joy: 'Joy',
-    surprise: 'Surprise',
-    trust: 'Trust',
-    anger: 'Anger',
-    disgust: 'Disgust',
-    fear: 'Fear',
-    sadness: 'Sadness',
-    format: 'Format',
-    theme: 'Theme',
-    category: 'Category',
-    tag: 'Tags',
-    tags: 'Tags',
-    creator_name: 'Creator',
-    engagement_ratio: 'Engagement',
-  };
-  return headerTextMappingObject[metricsName ? metricsName.toLowerCase() : metricsName]
-    ? headerTextMappingObject[metricsName ? metricsName.toLowerCase() : metricsName]
-    : headerContent;
-}
-
 export interface DataTableProps<D extends object> extends TableOptions<D> {
   tableClassName?: string;
   tableHeader: string;
@@ -275,6 +161,7 @@ export default function DataTable<D extends object>({
   tableHeader,
   tableDescription,
   exportCSV,
+  getKeyOrLableContent,
   wrapperRef: userWrapperRef,
   ...moreUseTableOptions
 }: DataTableProps<D>) {
@@ -409,7 +296,7 @@ export default function DataTable<D extends object>({
                         paddingLeft: '30px',
                       }}
                     >
-                      {getTableHeaderContent(column.Header)}
+                      {getKeyOrLableContent(column.Header)}
                       {column.render('SortIcon')}
                     </th>
                   );
@@ -421,7 +308,7 @@ export default function DataTable<D extends object>({
                     className={column.isSorted ? `${className || ''} is-sorted` : className}
                     {...props}
                   >
-                    {getTableHeaderContent(column.Header)}
+                    {getKeyOrLableContent(column.Header)}
                     {column.render('SortIcon')}
                   </th>
                 );
