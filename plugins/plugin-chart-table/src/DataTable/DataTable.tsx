@@ -30,12 +30,14 @@ import {
   Row,
 } from 'react-table';
 import matchSorter from 'match-sorter';
+import { CategoricalColorNamespace } from '@superset-ui/color';
 import GlobalFilter, { GlobalFilterProps } from './components/GlobalFilter';
 import { /* SelectPageSize , */ SizeOption } from './components/SelectPageSize';
 import SimplePagination from './components/Pagination';
 import useSticky from './hooks/useSticky';
 import useColumnCellProps from './hooks/useColumnCellProps';
 let brandColorMappingObject = {};
+const { getScale } = CategoricalColorNamespace;
 
 function getRequiredDateFormat(dateString: string): string {
   const newDate = new Date(new Date(dateString.trim()) + 'UTC');
@@ -60,58 +62,9 @@ function getRequiredDateFormat(dateString: string): string {
   return monthsArray[month] + date + ', ' + year;
 }
 
-function getColorObject(brand: string): object {
-  const colorArray = [
-    {
-      background:
-        'transparent linear-gradient(180deg, #9B72D2 0%, #613EA6 100%) 0% 0% no-repeat padding-box',
-      color: 'white',
-    },
-    {
-      background:
-        'transparent linear-gradient(180deg, #D2E9F3 0%, #A6CEE3 100%) 0% 0% no-repeat padding-box',
-    },
-    {
-      background:
-        'transparent linear-gradient(180deg, #38A7FF 0%, #1A6EFE 100%) 0% 0% no-repeat padding-box',
-      color: 'white',
-    },
-    {
-      background:
-        'transparent linear-gradient(180deg, #A6C9F3 0%, #6D99E2 100%) 0% 0% no-repeat padding-box',
-      color: 'white',
-    },
-    {
-      background:
-        'transparent linear-gradient(180deg, #FF44B8 0%, #FF2182 100%) 0% 0% no-repeat padding-box',
-      color: 'white',
-    },
-    {
-      background:
-        'transparent linear-gradient(180deg, #FF44B880 0%, #FF44B8 100%) 0% 0% no-repeat padding-box',
-      color: 'white',
-    },
-  ];
-
-  if (brandColorMappingObject[brand]) {
-    return brandColorMappingObject[brand];
-  } else {
-    if (!brandColorMappingObject.count) {
-      brandColorMappingObject.count = 1;
-      brandColorMappingObject[brand] = colorArray[0];
-      return colorArray[0];
-    } else if (brandColorMappingObject.count < 6) {
-      brandColorMappingObject[brand] = colorArray[brandColorMappingObject.count];
-      brandColorMappingObject.count++;
-      return brandColorMappingObject[brand];
-    } else if (brandColorMappingObject.count <= 6) {
-      brandColorMappingObject.count = 1;
-      brandColorMappingObject[brand] = colorArray[0];
-      return colorArray[0];
-    }
-  }
-
-  return colorArray[0];
+function getTextColor(color: string): object {
+  const blackArray = ['#A6CEE3'];
+  return blackArray.includes(color);
 }
 
 export interface DataTableProps<D extends object> extends TableOptions<D> {
@@ -162,11 +115,13 @@ export default function DataTable<D extends object>({
   tableDescription,
   exportCSV,
   getKeyOrLableContent,
+  getColorGradientArray,
+  colorScheme,
   wrapperRef: userWrapperRef,
   ...moreUseTableOptions
 }: DataTableProps<D>) {
   const uniqueTableIdForPDFDownload = createUniqueId();
-
+  const colorFunction = getScale(colorScheme);
   const tableHooks: PluginHook<D>[] = [
     useGlobalFilter,
     useSortBy,
@@ -341,7 +296,9 @@ export default function DataTable<D extends object>({
                   }
 
                   if (cell.column.Header === 'organization') {
-                    const colorObject = getColorObject(cellContent);
+                    const color = colorFunction(cellContent);
+                    const gradientArray = getColorGradientArray(color);
+                    const textColor = getTextColor(color);
                     return (
                       <td
                         key={key}
@@ -350,10 +307,16 @@ export default function DataTable<D extends object>({
                       >
                         <span
                           style={{
-                            background: colorObject.background,
+                            background: gradientArray
+                              ? 'transparent linear-gradient(180deg, ' +
+                                gradientArray[1] +
+                                ' 0%, ' +
+                                gradientArray[0] +
+                                ' 100%) 0% 0% no-repeat padding-box'
+                              : color,
                             padding: '7px',
                             borderRadius: '15px',
-                            color: colorObject.color ? colorObject.color : '',
+                            color: textColor ? 'black' : 'white',
                             display: 'inline-block',
                             width: '150px',
                           }}

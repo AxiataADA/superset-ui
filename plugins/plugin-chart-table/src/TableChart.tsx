@@ -218,6 +218,8 @@ export default function TableChart<D extends DataRecord = DataRecord>(
     tableDescription,
     exportCSV,
     getKeyOrLableContent,
+    getColorGradientArray,
+    colorScheme,
   } = props;
 
   const [filters, setFilters] = useState(initialFilters);
@@ -355,6 +357,8 @@ export default function TableChart<D extends DataRecord = DataRecord>(
         tableDescription={tableDescription}
         exportCSV={exportCSV}
         getKeyOrLableContent={getKeyOrLableContent}
+        getColorGradientArray={getColorGradientArray}
+        colorScheme={colorScheme}
       />
     </Styles>
   );

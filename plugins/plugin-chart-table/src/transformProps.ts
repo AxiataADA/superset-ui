@@ -211,9 +211,10 @@ export default function transformProps(chartProps: TableChartProps): TableChartT
     orderDesc: sortDesc = false,
     sliceName: tableHeader,
     tableDescription,
+    colorScheme,
   } = formData;
 
-  const { exportCSV, getKeyOrLableContent } = hooks;
+  const { exportCSV, getKeyOrLableContent, getColorGradientArray } = hooks;
 
   const [metrics, percentMetrics, columns] = processColumns(chartProps);
   const data = processDataRecords(queryData?.data?.records, columns);
@@ -238,5 +239,7 @@ export default function transformProps(chartProps: TableChartProps): TableChartT
     tableDescription,
     exportCSV,
     getKeyOrLableContent,
+    getColorGradientArray,
+    colorScheme,
   };
 }
