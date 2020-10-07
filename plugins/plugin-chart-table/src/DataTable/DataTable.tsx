@@ -210,174 +210,307 @@ export default function DataTable<D extends object>({
     }
   };
 
-  const renderTable = () => (
-    <table {...getTableProps({ className: tableClassName })}>
-      <thead>
-        {headerGroups.map(headerGroup => {
-          const { key: headerGroupKey, ...headerGroupProps } = headerGroup.getHeaderGroupProps();
-          return (
-            <tr key={headerGroupKey || headerGroup.id} {...headerGroupProps}>
-              {headerGroup.headers.map(column => {
-                const { key: headerKey, className, ...props } = column.getHeaderProps(
-                  column.getSortByToggleProps(),
-                );
+  const renderTable = () => {
+    let positiveSentimentColumnName;
+    let neutralSentimentColumnName;
+    let negativeSentimentColumnName;
 
-                if (column.Header.includes('platform')) {
-                  return (
-                    <th
-                      key={headerKey || column.id}
-                      className={column.isSorted ? `${className || ''} is-sorted` : className}
-                      {...props}
-                      style={{
-                        ...props.style,
-                        borderRight: 'none',
-                        padding: '20px 0px',
-                      }}
-                      onClick={() => {}}
-                      title=""
-                    />
+    columns.forEach(i => {
+      if (i && i.Header.includes('positive_sentiment_valence'))
+        positiveSentimentColumnName = i.Header;
+      if (i && i.Header.includes('neutral_sentiment_valence'))
+        neutralSentimentColumnName = i.Header;
+      if (i && i.Header.includes('negative_sentiment_valence'))
+        negativeSentimentColumnName = i.Header;
+    });
+
+    const isSentimentColumnPresent =
+      positiveSentimentColumnName && neutralSentimentColumnName && negativeSentimentColumnName;
+    return (
+      <table {...getTableProps({ className: tableClassName })}>
+        <thead>
+          {headerGroups.map(headerGroup => {
+            const { key: headerGroupKey, ...headerGroupProps } = headerGroup.getHeaderGroupProps();
+            return (
+              <tr key={headerGroupKey || headerGroup.id} {...headerGroupProps}>
+                {headerGroup.headers.map(column => {
+                  const { key: headerKey, className, ...props } = column.getHeaderProps(
+                    column.getSortByToggleProps(),
                   );
-                }
 
-                if (column.Header === 'organization') {
+                  if (column.Header.includes('platform')) {
+                    return (
+                      <th
+                        key={headerKey || column.id}
+                        className={column.isSorted ? `${className || ''} is-sorted` : className}
+                        {...props}
+                        style={{
+                          ...props.style,
+                          borderRight: 'none',
+                          padding: '20px 0px',
+                        }}
+                        onClick={() => {}}
+                        title=""
+                      />
+                    );
+                  }
+
+                  // hide all the sentiment cell except positive which will show colored bar will have to change this functinality fior dynamic usage
+                  if (
+                    isSentimentColumnPresent &&
+                    (column.Header.includes('negative_sentiment_valence') ||
+                      column.Header.includes('neutral_sentiment_valence'))
+                  ) {
+                    return null;
+                  }
+
+                  if (column.Header === 'organization') {
+                    return (
+                      <th
+                        key={headerKey || column.id}
+                        className={column.isSorted ? `${className || ''} is-sorted` : className}
+                        {...props}
+                        style={{
+                          ...props.style,
+                          paddingRight: '30px',
+                          paddingLeft: '30px',
+                        }}
+                      >
+                        {getKeyOrLableContent(column.Header)}
+                        {column.render('SortIcon')}
+                      </th>
+                    );
+                  }
+
+                  if (column.Header.includes('positive_sentiment_valence')) {
+                    return (
+                      <th
+                        key={headerKey || column.id}
+                        className={column.isSorted ? `${className || ''} is-sorted` : className}
+                        {...props}
+                        style={{
+                          ...props.style,
+                          paddingRight: '20px',
+                          paddingLeft: '20px',
+                        }}
+                      >
+                        {getKeyOrLableContent(column.Header)}
+                        {column.render('SortIcon')}
+                      </th>
+                    );
+                  }
+
                   return (
                     <th
                       key={headerKey || column.id}
                       className={column.isSorted ? `${className || ''} is-sorted` : className}
                       {...props}
-                      style={{
-                        ...props.style,
-                        paddingRight: '30px',
-                        paddingLeft: '30px',
-                      }}
                     >
                       {getKeyOrLableContent(column.Header)}
                       {column.render('SortIcon')}
                     </th>
                   );
-                }
-
-                return (
-                  <th
-                    key={headerKey || column.id}
-                    className={column.isSorted ? `${className || ''} is-sorted` : className}
-                    {...props}
-                  >
-                    {getKeyOrLableContent(column.Header)}
-                    {column.render('SortIcon')}
-                  </th>
-                );
-              })}
-            </tr>
-          );
-        })}
-      </thead>
-      <tbody {...getTableBodyProps()}>
-        {page && page.length > 0 ? (
-          page.map(row => {
-            prepareRow(row);
-            const { key: rowKey, ...rowProps } = row.getRowProps();
-            return (
-              <tr key={rowKey || row.id} {...rowProps}>
-                {row.cells.map(cell => {
-                  const cellProps = cell.getCellProps() as TableCellProps & RenderHTMLCellProps;
-                  const { key: cellKey, cellContent, ...restProps } = cellProps;
-                  const key = cellKey || cell.column.id;
-                  if (cellProps.dangerouslySetInnerHTML) {
-                    return <td key={key} {...restProps} />;
-                  }
-
-                  if (cell.column.Header === 'published_date') {
-                    return (
-                      <td width={200} key={key} {...restProps}>
-                        {getRequiredDateFormat(cellContent)}
-                      </td>
-                    );
-                  }
-
-                  if (cell.column.Header === 'organization') {
-                    const color = colorFunction(cellContent);
-                    const gradientArray = getColorGradientArray(color);
-                    const textColor = getTextColor(color);
-                    return (
-                      <td
-                        key={key}
-                        {...restProps}
-                        style={{ ...restProps.style, padding: '15px 30px' }}
-                      >
-                        <span
-                          style={{
-                            background: gradientArray
-                              ? 'transparent linear-gradient(180deg, ' +
-                                gradientArray[1] +
-                                ' 0%, ' +
-                                gradientArray[0] +
-                                ' 100%) 0% 0% no-repeat padding-box'
-                              : color,
-                            padding: '7px',
-                            borderRadius: '15px',
-                            color: textColor ? 'black' : 'white',
-                            display: 'inline-block',
-                            width: '150px',
-                          }}
-                        >
-                          {cellContent}
-                        </span>
-                      </td>
-                    );
-                  }
-
-                  if (cell.column.Header.includes('platform')) {
-                    const platformObject = {
-                      youtube: 'Youtube',
-                      facebook: 'Facebook',
-                      instagram: 'Instagram',
-                    };
-                    return (
-                      <td
-                        key={key}
-                        {...restProps}
-                        style={{
-                          ...restProps.style,
-                          padding: '22px 0px',
-                          borderRight: 'none',
-                        }}
-                      >
-                        <img
-                          alt="Platform"
-                          src={`/static/assets/images/Donut Chart Icon/${
-                            platformObject[cellContent.toLowerCase()]
-                          }.png`}
-                          style={{
-                            height: '20px',
-                          }}
-                        />
-                      </td>
-                    );
-                  }
-                  // If cellProps renderes textContent already, then we don't have to
-                  // render `Cell`. This saves some time for large tables.
-                  return (
-                    <td key={key} {...restProps}>
-                      {cellContent || cell.render('Cell')}
-                    </td>
-                  );
                 })}
               </tr>
             );
-          })
-        ) : (
-          <tr>
-            <td className="dt-no-results" colSpan={columns.length}>
-              {typeof noResultsText === 'function'
-                ? noResultsText(filterValue as string)
-                : noResultsText}
-            </td>
-          </tr>
-        )}
-      </tbody>
-    </table>
-  );
+          })}
+        </thead>
+        <tbody {...getTableBodyProps()}>
+          {page && page.length > 0 ? (
+            page.map(row => {
+              prepareRow(row);
+              const { key: rowKey, ...rowProps } = row.getRowProps();
+              return (
+                <tr key={rowKey || row.id} {...rowProps}>
+                  {row.cells.map(cell => {
+                    const cellProps = cell.getCellProps() as TableCellProps & RenderHTMLCellProps;
+                    const { key: cellKey, cellContent, ...restProps } = cellProps;
+                    const key = cellKey || cell.column.id;
+                    if (cellProps.dangerouslySetInnerHTML) {
+                      return <td key={key} {...restProps} />;
+                    }
+
+                    if (cell.column.Header === 'published_date') {
+                      return (
+                        <td width={200} key={key} {...restProps}>
+                          {getRequiredDateFormat(cellContent)}
+                        </td>
+                      );
+                    }
+
+                    if (cell.column.Header === 'organization') {
+                      const color = colorFunction(cellContent);
+                      const gradientArray = getColorGradientArray(color);
+                      const textColor = getTextColor(color);
+                      return (
+                        <td
+                          key={key}
+                          {...restProps}
+                          style={{ ...restProps.style, padding: '15px 30px' }}
+                        >
+                          <span
+                            style={{
+                              background: gradientArray
+                                ? 'transparent linear-gradient(180deg, ' +
+                                  gradientArray[1] +
+                                  ' 0%, ' +
+                                  gradientArray[0] +
+                                  ' 100%) 0% 0% no-repeat padding-box'
+                                : color,
+                              padding: '7px',
+                              borderRadius: '15px',
+                              color: textColor ? 'black' : 'white',
+                              display: 'inline-block',
+                              width: '150px',
+                            }}
+                          >
+                            {cellContent}
+                          </span>
+                        </td>
+                      );
+                    }
+
+                    if (cell.column.Header.includes('platform')) {
+                      const platformObject = {
+                        youtube: 'Youtube',
+                        facebook: 'Facebook',
+                        instagram: 'Instagram',
+                      };
+                      return (
+                        <td
+                          key={key}
+                          {...restProps}
+                          style={{
+                            ...restProps.style,
+                            padding: '22px 0px',
+                            borderRight: 'none',
+                          }}
+                        >
+                          <img
+                            alt="Platform"
+                            src={`/static/assets/images/Donut Chart Icon/${
+                              platformObject[cellContent.toLowerCase()]
+                            }.png`}
+                            style={{
+                              height: '20px',
+                            }}
+                          />
+                        </td>
+                      );
+                    }
+
+                    // hide all the sentiment cell except positive which will show colored bar will have to change this functinality fior dynamic usage
+                    if (
+                      isSentimentColumnPresent &&
+                      (cell.column.Header.includes('negative_sentiment_valence') ||
+                        cell.column.Header.includes('neutral_sentiment_valence'))
+                    ) {
+                      return null;
+                    }
+
+                    if (cell.column.Header.includes('positive_sentiment_valence')) {
+                      const positive = row.original[positiveSentimentColumnName] || 0;
+                      const neutral = row.original[neutralSentimentColumnName] || 0;
+                      const negative = row.original[negativeSentimentColumnName] || 0;
+                      const totalSentiment = positive + neutral + negative;
+                      const positivePercentage =
+                        totalSentiment > 0
+                          ? Number(((positive / totalSentiment) * 100).toFixed(1))
+                          : 0;
+                      const neutralPercentage =
+                        totalSentiment > 0
+                          ? Number(((neutral / totalSentiment) * 100).toFixed(1))
+                          : 0;
+                      const negativePercentage =
+                        totalSentiment > 0
+                          ? Number(((negative / totalSentiment) * 100).toFixed(1))
+                          : 0;
+                      return (
+                        <td
+                          key={key}
+                          {...restProps}
+                          style={{ ...restProps.style, padding: '24px 20px' }}
+                          title=""
+                        >
+                          {totalSentiment > 0 ? (
+                            <span style={{ width: '150px', height: '15px' }}>
+                              <span
+                                style={{
+                                  borderRadius: '15px 0px 0px 15px',
+                                  background: '#2ACCB2',
+                                  padding: '0px ' + (130 * positivePercentage) / 200 + 'px',
+                                }}
+                                title={'Positive: ' + positivePercentage + '%'}
+                              />
+                              <span
+                                style={{
+                                  borderRadius:
+                                    (130 * positivePercentage) / 200 === 0
+                                      ? '15px 0px 0px 15px'
+                                      : '',
+                                  background: 'linear-gradient( 90deg, #2ACCB2, #E9DE90 )',
+                                  padding: '0px 5px',
+                                }}
+                                title={'Positive: ' + positivePercentage + '%'}
+                              />
+                              <span
+                                style={{
+                                  background: '#E9DE90',
+                                  padding: '0px ' + (130 * neutralPercentage) / 200 + 'px',
+                                }}
+                                title={'Neutral: ' + neutralPercentage + '%'}
+                              />
+                              <span
+                                style={{
+                                  borderRadius:
+                                    (130 * negativePercentage) / 200 === 0
+                                      ? '0px 15px 15px 0px'
+                                      : '',
+                                  background: 'linear-gradient( 90deg, #E9DE90, #FF4545 )',
+                                  padding: '0px 5px',
+                                }}
+                                title={'Negative: ' + negativePercentage + '%'}
+                              />
+                              <span
+                                style={{
+                                  borderRadius: '0px 15px 15px 0px',
+                                  background: '#FF4545',
+                                  padding: '0px ' + (130 * negativePercentage) / 200 + 'px',
+                                }}
+                                title={'Negative: ' + negativePercentage + '%'}
+                              />
+                            </span>
+                          ) : (
+                            <span>N/A</span>
+                          )}
+                        </td>
+                      );
+                    }
+
+                    // If cellProps renderes textContent already, then we don't have to
+                    // render `Cell`. This saves some time for large tables.
+                    return (
+                      <td key={key} {...restProps}>
+                        {cellContent || cell.render('Cell')}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })
+          ) : (
+            <tr>
+              <td className="dt-no-results" colSpan={columns.length}>
+                {typeof noResultsText === 'function'
+                  ? noResultsText(filterValue as string)
+                  : noResultsText}
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    );
+  };
 
   // force upate the pageSize when it's been update from the initial state
   if (
