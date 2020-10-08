@@ -39,6 +39,23 @@ import useColumnCellProps from './hooks/useColumnCellProps';
 let brandColorMappingObject = {};
 const { getScale } = CategoricalColorNamespace;
 
+function getBarGradient(
+  barName: string,
+  positivePercentage: number,
+  neutralPercentage: number,
+  negativePercentage: number,
+): string {
+  if (barName === 'positive') {
+    if (neutralPercentage > 0) return '#E9DE90';
+    if (negativePercentage > 0) return '#FF4545';
+    return '#2ACCB2';
+  } else if (barName === 'negative') {
+    if (neutralPercentage > 0) return '#E9DE90';
+    if (positivePercentage > 0) return '#2ACCB2';
+    return '#FF4545';
+  }
+}
+
 function getRequiredDateFormat(dateString: string): string {
   const newDate = new Date(new Date(dateString.trim()) + 'UTC');
   const monthsArray = [
@@ -433,53 +450,47 @@ export default function DataTable<D extends object>({
                           title=""
                         >
                           {totalSentiment > 0 ? (
-                            <span style={{ width: '150px', height: '15px' }}>
+                            <div
+                              style={{
+                                borderRadius: '15px',
+                                overflow: 'hidden',
+                                width: '100%',
+                                minWidth: '150px',
+                                height: '15px',
+                              }}
+                            >
                               <span
                                 style={{
-                                  borderRadius: '15px 0px 0px 15px',
-                                  background: '#2ACCB2',
-                                  padding: '0px ' + (130 * positivePercentage) / 200 + 'px',
-                                }}
-                                title={'Positive: ' + positivePercentage + '%'}
-                              />
-                              <span
-                                style={{
-                                  borderRadius:
-                                    (130 * positivePercentage) / 200 === 0
-                                      ? '15px 0px 0px 15px'
-                                      : '',
-                                  background: 'linear-gradient( 90deg, #2ACCB2, #E9DE90 )',
-                                  padding: '0px 5px',
+                                  background: `linear-gradient( 90deg, #2ACCB2, #2ACCB2 80%, ${getBarGradient(
+                                    'positive',
+                                    positivePercentage,
+                                    neutralPercentage,
+                                    negativePercentage,
+                                  )})`,
+                                  padding: '0px ' + positivePercentage / 2 + '%',
                                 }}
                                 title={'Positive: ' + positivePercentage + '%'}
                               />
                               <span
                                 style={{
                                   background: '#E9DE90',
-                                  padding: '0px ' + (130 * neutralPercentage) / 200 + 'px',
+                                  padding: '0px ' + neutralPercentage / 2 + '%',
                                 }}
                                 title={'Neutral: ' + neutralPercentage + '%'}
                               />
                               <span
                                 style={{
-                                  borderRadius:
-                                    (130 * negativePercentage) / 200 === 0
-                                      ? '0px 15px 15px 0px'
-                                      : '',
-                                  background: 'linear-gradient( 90deg, #E9DE90, #FF4545 )',
-                                  padding: '0px 5px',
+                                  background: `linear-gradient( 90deg, ${getBarGradient(
+                                    'negative',
+                                    positivePercentage,
+                                    neutralPercentage,
+                                    negativePercentage,
+                                  )}, #FF4545 20%, #FF4545)`,
+                                  padding: '0px ' + negativePercentage / 2 + '%',
                                 }}
                                 title={'Negative: ' + negativePercentage + '%'}
                               />
-                              <span
-                                style={{
-                                  borderRadius: '0px 15px 15px 0px',
-                                  background: '#FF4545',
-                                  padding: '0px ' + (130 * negativePercentage) / 200 + 'px',
-                                }}
-                                title={'Negative: ' + negativePercentage + '%'}
-                              />
-                            </span>
+                            </div>
                           ) : (
                             <span>N/A</span>
                           )}
