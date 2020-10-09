@@ -36,7 +36,7 @@
     "lodash": "^4.17.11",
     "mathjs": "^3.20.2",
     "moment": "^2.20.1",
-    "nvd3-fork": "github:dev-saurabh-coditation/nvd3#version_2.0.3",
+    "nvd3-fork": "github:AxiataADA/nvd3#v_1.0.0",
     "prop-types": "^15.6.2",
     "urijs": "^1.18.10"
   },
