@@ -233,11 +233,11 @@ export default function DataTable<D extends object>({
     let negativeSentimentColumnName;
 
     columns.forEach(i => {
-      if (i && i.Header.includes('positive_sentiment_valence'))
+      if (i && i.Header.toLowerCase().includes('positive_sentiment_valence'))
         positiveSentimentColumnName = i.Header;
-      if (i && i.Header.includes('neutral_sentiment_valence'))
+      else if (i && i.Header.toLowerCase().includes('neutral_sentiment_valence'))
         neutralSentimentColumnName = i.Header;
-      if (i && i.Header.includes('negative_sentiment_valence'))
+      else if (i && i.Header.toLowerCase().includes('negative_sentiment_valence'))
         negativeSentimentColumnName = i.Header;
     });
 
@@ -275,8 +275,8 @@ export default function DataTable<D extends object>({
                   // hide all the sentiment cell except positive which will show colored bar will have to change this functinality fior dynamic usage
                   if (
                     isSentimentColumnPresent &&
-                    (column.Header.includes('negative_sentiment_valence') ||
-                      column.Header.includes('neutral_sentiment_valence'))
+                    (column.Header.toLowerCase().includes('negative_sentiment_valence') ||
+                      column.Header.toLowerCase().includes('neutral_sentiment_valence'))
                   ) {
                     return null;
                   }
@@ -299,7 +299,7 @@ export default function DataTable<D extends object>({
                     );
                   }
 
-                  if (column.Header.includes('positive_sentiment_valence')) {
+                  if (column.Header.toLowerCase().includes('positive_sentiment_valence')) {
                     return (
                       <th
                         key={headerKey || column.id}
@@ -419,13 +419,13 @@ export default function DataTable<D extends object>({
                     // hide all the sentiment cell except positive which will show colored bar will have to change this functinality fior dynamic usage
                     if (
                       isSentimentColumnPresent &&
-                      (cell.column.Header.includes('negative_sentiment_valence') ||
-                        cell.column.Header.includes('neutral_sentiment_valence'))
+                      (cell.column.Header.toLowerCase().includes('negative_sentiment_valence') ||
+                        cell.column.Header.toLowerCase().includes('neutral_sentiment_valence'))
                     ) {
                       return null;
                     }
 
-                    if (cell.column.Header.includes('positive_sentiment_valence')) {
+                    if (cell.column.Header.toLowerCase().includes('positive_sentiment_valence')) {
                       const positive = row.original[positiveSentimentColumnName] || 0;
                       const neutral = row.original[neutralSentimentColumnName] || 0;
                       const negative = row.original[negativeSentimentColumnName] || 0;
