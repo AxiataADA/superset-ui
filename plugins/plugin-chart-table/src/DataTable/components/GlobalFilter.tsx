@@ -128,10 +128,15 @@ export default (React.memo as <T>(fn: T) => T)(function GlobalFilter<D extends o
   filterValue = '',
   searchInput,
   setGlobalFilter,
+  filterComponentArray,
   exportCSV,
   downloadAsImage,
   tableHeader,
   uniqueTableIdForPDFDownload,
+  columnFilter,
+  getKeyOrLableContent,
+  globalSelectControl,
+  applyColumnFilter,
 }: GlobalFilterProps<D>) {
   const count = preGlobalFilteredRows.length;
   const [value, setValue] = useAsyncState(
@@ -153,9 +158,16 @@ export default (React.memo as <T>(fn: T) => T)(function GlobalFilter<D extends o
         e.preventDefault();
         setValue(target.value);
       }}
+      filterComponentArray={filterComponentArray}
       exportCSV={exportCSV}
       tableHeader={tableHeader}
       uniqueTableIdForPDFDownload={uniqueTableIdForPDFDownload}
+      columnFilter={columnFilter}
+      applyColumnFilter={applyColumnFilter}
+      getKeyOrLableContent={getKeyOrLableContent}
+      globalSelectControl={globalSelectControl}
+      preGlobalFilteredRows={preGlobalFilteredRows}
+      setValue={setValue}
     />
   );
 });

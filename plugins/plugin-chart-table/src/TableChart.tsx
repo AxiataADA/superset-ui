@@ -22,6 +22,7 @@ import { extent as d3Extent, max as d3Max } from 'd3-array';
 import { FaSort, FaSortUp as FaSortAsc, FaSortDown as FaSortDesc } from 'react-icons/fa';
 import { t } from '@superset-ui/translation';
 import { DataRecordValue, DataRecord } from '@superset-ui/chart';
+import { Modal, Button } from 'react-bootstrap';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { TableChartTransformedProps, DataType, DataColumnMeta } from './types';
@@ -29,7 +30,6 @@ import DataTable, { DataTableProps, SearchInputProps, SizeOption } from './DataT
 import Styles from './Styles';
 import formatValue from './utils/formatValue';
 import { PAGE_SIZE_OPTIONS } from './controlPanel';
-
 type ValueRange = [number, number];
 
 /**
@@ -97,100 +97,289 @@ function SortIcon({ column }: { column: ColumnInstance }) {
   return sortIcon;
 }
 
+// This is a custom filter UI for selecting
+// multiple option from a list
+const SelectControl = ({
+  column: { filterValue, id },
+  globalSelectControl: GlobalSelectControl,
+  appliedFilersObject,
+  updateSearchInputFilterArray,
+  columnLabel,
+  preGlobalFilteredRows,
+}) => {
+  const options = React.useMemo(() => {
+    const options = new Set();
+    preGlobalFilteredRows.forEach(row => {
+      options.add(row.values[id]);
+    });
+    return [...options.values()];
+  }, [id, preGlobalFilteredRows]);
+
+  return (
+    <GlobalSelectControl
+      className="tableFilterModalSelector"
+      options={options.map((option, i) => ({ value: i, label: option }))}
+      onChange={e => {
+        updateSearchInputFilterArray(id, e && e.length ? e.map(i => i.label) : undefined);
+      }}
+      autoSize={false}
+      value={
+        appliedFilersObject && appliedFilersObject.value
+          ? appliedFilersObject.value.map(i => ({
+              value: options && options.length ? options.indexOf(i) : null,
+              label: i,
+            }))
+          : null
+      }
+      isMulti
+      placeholder={`Select ${columnLabel}`}
+      maxMenuHeight={150}
+    />
+  );
+};
+
 function SearchInput({
   count,
   value,
   onChange,
+  setValue,
   exportCSV,
   tableHeader,
   uniqueTableIdForPDFDownload,
+  filterComponentArray,
+  columnFilter,
+  getKeyOrLableContent,
+  globalSelectControl,
+  applyColumnFilter,
+  preGlobalFilteredRows,
+  data,
 }: SearchInputProps) {
+  const [show, setShow] = useState(false);
+  const [searchInputFilterArray, setSearchInputFilterArray] = useState(columnFilter || []);
+
+  const updateSearchInputFilterArray = (id, value) => {
+    let isValueUpdated = false;
+    const tempSearchInputFilterArray = JSON.parse(JSON.stringify(searchInputFilterArray));
+    tempSearchInputFilterArray.forEach(i => {
+      if (i.id === id) {
+        i.value = value;
+        isValueUpdated = true;
+      }
+    });
+    if (!isValueUpdated) {
+      tempSearchInputFilterArray.push({ id, value });
+      isValueUpdated = true;
+    }
+    setSearchInputFilterArray(tempSearchInputFilterArray);
+  };
+
   return (
-    <span className="dt-global-filter">
-      {/*<img
-        alt="Reset"
-        src={`/static/assets/images/icons/Reset Table Filter.png`}
-        style={{
-          width: '16px',
-          height: '16px',
-        }}
-      />
-      <img
-        alt="Filter"
-        src={`/static/assets/images/icons/Table Filter.png`}
-        style={{
-          width: '16px',
-          height: '16px',
-          margin: '0px 15px',
-        }}
-      />*/}
-      <div className="table-search-input-with-icon">
-        <div className="table-search-input-box-icon">
-          <i className="fa fa-search" />
-        </div>
-        <input
-          className="table-search-input form-control input-sm"
-          placeholder={t('Search...')}
-          value={value}
-          onChange={onChange}
+    <>
+      <span className="dt-global-filter">
+        <img
+          alt="Reset"
+          src={`/static/assets/images/icons/Reset Table Filter.png`}
+          style={{
+            width: '16px',
+            height: '16px',
+            margin: '8px 0px',
+            cursor: 'pointer',
+            marginRight: filterComponentArray && filterComponentArray.length > 0 ? '0px' : '15px',
+          }}
+          onClick={() => {
+            setSearchInputFilterArray([]);
+            applyColumnFilter([]);
+            setValue('');
+          }}
         />
-      </div>
-      <img
-        onClick={() => {
-          html2canvas(document.querySelector('#' + 'custom-table' + uniqueTableIdForPDFDownload), {
-            scrollX: 0,
-            scrollY: -window.scrollY,
-          }).then(canvas => {
-            let wid: number;
-            let hgt: number;
-            const imgData = canvas.toDataURL(
-              'image/png',
-              (wid = canvas.width),
-              (hgt = canvas.height),
-            );
-            var hratio = hgt / wid;
-            const pdf = new jsPDF('l', 'pt', 'a4');
-            let width = pdf.internal.pageSize.getWidth();
-            var newHeight = pdf.internal.pageSize.getHeight();
-            let height = (width - 20) * hratio;
-            let yOffSet = (newHeight - height) / 2;
-            pdf.addImage(
-              imgData,
-              'PNG',
-              10,
-              yOffSet > 0 || yOffSet < newHeight / 2 ? yOffSet : 10,
-              width - 20,
-              height > newHeight ? newHeight - 20 : height,
-              null,
-              'MEDIUM',
-            );
-            pdf.save(tableHeader + '.pdf');
-          });
-        }}
-        alt="PDF"
-        src={`/static/assets/images/icons/PDF.png`}
+        {filterComponentArray && filterComponentArray.length > 0 && (
+          <img
+            alt="Filter"
+            src={`/static/assets/images/icons/Table Filter.png`}
+            style={{
+              width: '17px',
+              height: '16px',
+              margin: '8px 15px',
+              cursor: 'pointer',
+            }}
+            onClick={() => setShow(!show)}
+          />
+        )}
+        <div className="table-search-input-with-icon">
+          <div className="table-search-input-box-icon">
+            <i className="fa fa-search" />
+          </div>
+          <input
+            className="table-search-input form-control input-sm"
+            placeholder={t('Search...')}
+            value={value}
+            onChange={onChange}
+          />
+        </div>
+        <img
+          onClick={() => {
+            html2canvas(
+              document.querySelector('#' + 'custom-table' + uniqueTableIdForPDFDownload),
+              {
+                scrollX: 0,
+                scrollY: -window.scrollY,
+              },
+            ).then(canvas => {
+              let wid: number;
+              let hgt: number;
+              const imgData = canvas.toDataURL(
+                'image/png',
+                (wid = canvas.width),
+                (hgt = canvas.height),
+              );
+              var hratio = hgt / wid;
+              const pdf = new jsPDF('l', 'pt', 'a4');
+              let width = pdf.internal.pageSize.getWidth();
+              var newHeight = pdf.internal.pageSize.getHeight();
+              let height = (width - 20) * hratio;
+              let yOffSet = (newHeight - height) / 2;
+              pdf.addImage(
+                imgData,
+                'PNG',
+                10,
+                yOffSet > 0 || yOffSet < newHeight / 2 ? yOffSet : 10,
+                width - 20,
+                height > newHeight ? newHeight - 20 : height,
+                null,
+                'MEDIUM',
+              );
+              pdf.save(tableHeader + '.pdf');
+            });
+          }}
+          alt="PDF"
+          src={`/static/assets/images/icons/PDF.png`}
+          style={{
+            width: '24px',
+            height: '30px',
+            margin: '0px 10px 0px 25px',
+            cursor: 'pointer',
+          }}
+        />
+        <img
+          onClick={() => {
+            if (exportCSV && typeof exportCSV === 'function') {
+              exportCSV();
+            }
+          }}
+          alt="XLS"
+          src={`/static/assets/images/icons/XLS.png`}
+          style={{
+            width: '24px',
+            height: '30px',
+            cursor: 'pointer',
+          }}
+        />
+      </span>
+      <Modal
+        className="tableFilterModal"
         style={{
-          width: '24px',
-          height: '30px',
-          margin: '0px 10px 0px 25px',
-          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          marginLeft: '19vw',
         }}
-      />
-      <img
-        onClick={() => {
-          if (exportCSV && typeof exportCSV === 'function') {
-            exportCSV();
-          }
+        show={show}
+        onHide={() => {
+          setShow(false);
+          setSearchInputFilterArray(columnFilter || []);
         }}
-        alt="XLS"
-        src={`/static/assets/images/icons/XLS.png`}
-        style={{
-          width: '24px',
-          height: '30px',
-          cursor: 'pointer',
-        }}
-      />
-    </span>
+        bsStyle="large"
+      >
+        <Modal.Header
+          style={{
+            padding: '25px 23px 26px',
+            borderBottom: 'none',
+          }}
+          closeButton
+        >
+          <Modal.Title
+            style={{
+              color: '#202C56',
+              fontFamily: "'Roboto', sans-serif",
+              fontWeight: '700',
+              fontSize: '22px',
+              margin: '0px 0px 0px 27px',
+            }}
+          >
+            {t('Table Filter Configuration')}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body
+          style={{
+            padding: '0px 50px',
+          }}
+        >
+          <hr style={{ margin: '0px 0px 30px 0px', borderTop: '#D3DBF6 1px solid' }} />
+          {filterComponentArray &&
+            filterComponentArray.map(column => {
+              const appliedFilers = searchInputFilterArray.filter(i => i.id === column.id);
+              const columnLabel = getKeyOrLableContent(column.Header);
+              return (
+                <div style={{ marginBottom: '30px', display: 'flex' }} key={column.Header}>
+                  <div
+                    style={{
+                      fontFamily: "'Roboto', sans-serif",
+                      textAlign: 'left',
+                      letterSpacing: '0px',
+                      color: '#202C56',
+                      opacity: '1',
+                      fontWeight: '700',
+                      fontSize: '15px',
+                      width: '25%',
+                      display: 'flex',
+                      alignItems: 'center',
+                    }}
+                  >
+                    {columnLabel}
+                  </div>
+                  <div style={{ width: '75%' }}>
+                    {
+                      <SelectControl
+                        columnLabel={columnLabel}
+                        globalSelectControl={globalSelectControl}
+                        column={column}
+                        appliedFilersObject={appliedFilers ? appliedFilers[0] || {} : {}}
+                        updateSearchInputFilterArray={updateSearchInputFilterArray}
+                        preGlobalFilteredRows={preGlobalFilteredRows}
+                      />
+                    }
+                  </div>
+                </div>
+              );
+            })}
+          <hr style={{ margin: '0px', borderTop: '#D3DBF6 1px solid' }} />
+        </Modal.Body>
+        <Modal.Footer style={{ padding: '40px', display: 'flex', justifyContent: 'center' }}>
+          <Button
+            type="button"
+            id="btn_modal_save"
+            className="btn pull-left"
+            style={{
+              textTransform: 'unset',
+              height: '35px',
+              width: '147px',
+              background:
+                'transparent linear-gradient(270deg, #B3C3EF 0%, #7C90DB 100%) 0% 0% no-repeat padding-box',
+              borderRadius: '18px',
+              border: 'none',
+              color: 'white',
+              fontWeight: '700',
+              fontSize: '13px',
+            }}
+            onClick={() => {
+              applyColumnFilter(searchInputFilterArray);
+              setShow(false);
+            }}
+          >
+            {t('Apply')}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </>
   );
 }
 
@@ -204,6 +393,8 @@ export default function TableChart<D extends DataRecord = DataRecord>(
     width,
     data,
     columns: columnsMeta,
+    fixedColumns,
+    filterColumns,
     alignPositiveNegative = false,
     /* colorPositiveNegative = false, */
     includeSearch = false,
@@ -219,6 +410,7 @@ export default function TableChart<D extends DataRecord = DataRecord>(
     exportCSV,
     getKeyOrLableContent,
     getColorGradientArray,
+    globalSelectControl,
     colorScheme,
   } = props;
 
@@ -269,6 +461,14 @@ export default function TableChart<D extends DataRecord = DataRecord>(
   const getColumnConfigs = useCallback(
     (column: DataColumnMeta, i: number): Column<D> => {
       const { key, label, dataType } = column;
+
+      // seaching if current column custom filter is present or not if preset addingg a key canCustomFilter true
+      let isFilterColumn = null;
+      if (filterColumns && filterColumns.length) {
+        filterColumns.map(i => {
+          if (label.includes(i)) isFilterColumn = label;
+        });
+      }
       const valueRange = showCellBars && getValueRange(key);
       const cellProps: Column<D>['cellProps'] = ({ value: value_ }, sharedCellProps) => {
         let className = '';
@@ -313,10 +513,17 @@ export default function TableChart<D extends DataRecord = DataRecord>(
         id: String(i), // to allow duplicate column keys
         accessor: key,
         Header: label,
+        Filter: SelectControl,
+        filter: (rows, id, filterValue) => {
+          return rows.filter(row => {
+            return filterValue.includes(row.values[id]);
+          });
+        },
         SortIcon,
         sortDescFirst: sortDesc,
         sortType: getSortTypeByDataType(dataType),
         cellProps,
+        canCustomFilter: isFilterColumn ? true : false,
       };
     },
     [
@@ -359,6 +566,9 @@ export default function TableChart<D extends DataRecord = DataRecord>(
         getKeyOrLableContent={getKeyOrLableContent}
         getColorGradientArray={getColorGradientArray}
         colorScheme={colorScheme}
+        fixedColumns={fixedColumns}
+        filterColumns={filterColumns}
+        globalSelectControl={globalSelectControl}
       />
     </Styles>
   );

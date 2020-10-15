@@ -16,12 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import React, { useCallback, useRef, ReactNode, HTMLProps, MutableRefObject } from 'react';
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useRef,
+  ReactNode,
+  HTMLProps,
+  MutableRefObject,
+} from 'react';
 import {
   useTable,
   usePagination,
   useSortBy,
   useGlobalFilter,
+  useFilters,
   PluginHook,
   TableCellProps,
   TableOptions,
@@ -75,7 +84,6 @@ function getRequiredDateFormat(dateString: string): string {
   const date = newDate.getDate(),
     year = newDate.getFullYear(),
     month = newDate.getMonth();
-
   return monthsArray[month] + date + ', ' + year;
 }
 
@@ -118,6 +126,8 @@ export default function DataTable<D extends object>({
   tableClassName,
   columns,
   data,
+  fixedColumns,
+  filterColumns,
   width: initialWidth = '100%',
   height: initialHeight = 300,
   pageSize: initialPageSize = 0,
@@ -134,13 +144,17 @@ export default function DataTable<D extends object>({
   getKeyOrLableContent,
   getColorGradientArray,
   colorScheme,
+  globalSelectControl,
   wrapperRef: userWrapperRef,
   ...moreUseTableOptions
 }: DataTableProps<D>) {
+  const [filterComponentArray, setFilterComponentArray] = useState([]);
+
   const uniqueTableIdForPDFDownload = createUniqueId();
   const colorFunction = getScale(colorScheme);
   const tableHooks: PluginHook<D>[] = [
     useGlobalFilter,
+    useFilters,
     useSortBy,
     usePagination,
     useColumnCellProps,
@@ -203,9 +217,16 @@ export default function DataTable<D extends object>({
     gotoPage,
     preGlobalFilteredRows,
     setGlobalFilter,
+    setAllFilters,
     setPageSize: setPageSize_,
     wrapStickyTable,
-    state: { pageIndex, /* pageSize, */ globalFilter: filterValue, sticky = {} },
+    state: {
+      pageIndex,
+      /* pageSize, */ globalFilter: filterValue,
+      sticky = {},
+      filters: customFilters,
+    },
+    state,
   } = useTable<D>(
     {
       columns,
@@ -218,6 +239,42 @@ export default function DataTable<D extends object>({
     },
     ...tableHooks,
   );
+
+  const [columnFilter, setColumnFilter] = useState(customFilters || []);
+
+  const applyColumnFilter = filterArray => {
+    setColumnFilter(filterArray);
+    setAllFilters(filterArray);
+  };
+
+  useEffect(() => {
+    const tempFilterComponentArray = [];
+    headerGroups.forEach(headerGroup => {
+      headerGroup.headers.forEach(column => {
+        if (column.canCustomFilter) {
+          columns.forEach(i => {
+            let isFilterColumn = null;
+            filterColumns.forEach(j => {
+              if (j && i && i.Header.toLowerCase().includes(j)) isFilterColumn = i.Header;
+            });
+
+            if (isFilterColumn) {
+              const filterComponent = tempFilterComponentArray.filter(i => {
+                return i === column;
+              });
+
+              if (!filterComponent || !filterComponent.length) {
+                tempFilterComponentArray.push(column);
+              }
+            }
+          });
+        }
+      });
+    });
+    if (tempFilterComponentArray.length) {
+      setFilterComponentArray(tempFilterComponentArray);
+    }
+  }, [filterColumns, headerGroups]);
 
   // make setPageSize accept 0
   const setPageSize = (size: number) => {
@@ -287,6 +344,7 @@ export default function DataTable<D extends object>({
                         key={headerKey || column.id}
                         className={column.isSorted ? `${className || ''} is-sorted` : className}
                         {...props}
+                        onClick={() => {}}
                         style={{
                           ...props.style,
                           paddingRight: '30px',
@@ -305,6 +363,7 @@ export default function DataTable<D extends object>({
                         key={headerKey || column.id}
                         className={column.isSorted ? `${className || ''} is-sorted` : className}
                         {...props}
+                        onClick={() => {}}
                         style={{
                           ...props.style,
                           paddingRight: '20px',
@@ -321,6 +380,7 @@ export default function DataTable<D extends object>({
                     <th
                       key={headerKey || column.id}
                       className={column.isSorted ? `${className || ''} is-sorted` : className}
+                      onClick={() => {}}
                       {...props}
                     >
                       {getKeyOrLableContent(column.Header)}
@@ -570,6 +630,11 @@ export default function DataTable<D extends object>({
                   preGlobalFilteredRows={preGlobalFilteredRows}
                   setGlobalFilter={setGlobalFilter}
                   filterValue={filterValue}
+                  filterComponentArray={filterComponentArray}
+                  columnFilter={columnFilter}
+                  applyColumnFilter={applyColumnFilter}
+                  getKeyOrLableContent={getKeyOrLableContent}
+                  globalSelectControl={globalSelectControl}
                 />
               </div>
             ) : null}

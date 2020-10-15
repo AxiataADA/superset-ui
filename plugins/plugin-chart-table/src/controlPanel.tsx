@@ -104,6 +104,48 @@ const all_columns: typeof sharedControls.groupby = {
   visibility: isRawMode,
 };
 
+const filter_columns: typeof sharedControls.groupby = {
+  type: 'SelectControl',
+  label: t('Filter Columns'),
+  description: t('Filters to display based on column'),
+  multi: true,
+  freeForm: true,
+  allowAll: true,
+  commaChoosesOption: false,
+  default: [],
+  optionRenderer: c => <ColumnOption showType column={c} />,
+  valueRenderer: c => <ColumnOption column={c} />,
+  valueKey: 'column_name',
+  mapStateToProps: ({ datasource, controls }) => {
+    return {
+      options: datasource?.columns || [],
+      queryMode: getQueryMode(controls),
+    };
+  },
+  visibility: isAggMode,
+};
+
+const fixed_columns: typeof sharedControls.groupby = {
+  type: 'SelectControl',
+  label: t('Fixed Columns'),
+  description: t('Fixed column to display based on column header'),
+  multi: true,
+  freeForm: true,
+  allowAll: true,
+  commaChoosesOption: false,
+  default: [],
+  optionRenderer: c => <ColumnOption showType column={c} />,
+  valueRenderer: c => <ColumnOption column={c} />,
+  valueKey: 'column_name',
+  mapStateToProps: ({ datasource, controls }) => {
+    return {
+      options: datasource?.columns || [],
+      queryMode: getQueryMode(controls),
+    };
+  },
+  visibility: isAggMode,
+};
+
 const percent_metrics: typeof sharedControls.metrics = {
   type: 'MetricsControl',
   label: t('Percentage Metrics'),
@@ -153,6 +195,18 @@ const config: ControlPanelConfig = {
           {
             name: 'all_columns',
             config: all_columns,
+          },
+        ],
+        [
+          {
+            name: 'filter_columns',
+            config: filter_columns,
+          },
+        ],
+        [
+          {
+            name: 'fixed_columns',
+            config: fixed_columns,
           },
         ],
         [
