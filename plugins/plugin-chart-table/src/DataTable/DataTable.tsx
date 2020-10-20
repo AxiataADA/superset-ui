@@ -31,6 +31,7 @@ import {
   useSortBy,
   useGlobalFilter,
   useFilters,
+  useBlockLayout,
   PluginHook,
   TableCellProps,
   TableOptions,
@@ -38,15 +39,586 @@ import {
   IdType,
   Row,
 } from 'react-table';
+import { useSticky } from 'react-table-sticky';
+import styled from 'styled-components';
 import matchSorter from 'match-sorter';
 import { CategoricalColorNamespace } from '@superset-ui/color';
 import GlobalFilter, { GlobalFilterProps } from './components/GlobalFilter';
 import { /* SelectPageSize , */ SizeOption } from './components/SelectPageSize';
 import SimplePagination from './components/Pagination';
-import useSticky from './hooks/useSticky';
+import useStickyHeader from './hooks/useSticky';
 import useColumnCellProps from './hooks/useColumnCellProps';
+import useMountedMemo from './utils/useMountedMemo';
 let brandColorMappingObject = {};
 const { getScale } = CategoricalColorNamespace;
+
+const Styles = styled.div`
+  .table {
+    margin-bottom: 0px;
+    .tr {
+      :last-child {
+        .td {
+          border-bottom: 0;
+        }
+      }
+    }
+
+    .th {
+      background-color: #f8f8f8;
+      color: #4f62aa;
+      height: 47px;
+    }
+
+    .td {
+      background-color: #fff;
+      padding: 25px;
+      height: 65px;
+    }
+
+    .th,
+    .td {
+      border-bottom: 1px solid #cfd8db;
+      border-right: 1px solid #cfd8db;
+      overflow: hidden;
+      text-align: center;
+      font-size: 13px;
+      font-family: 'Roboto', sans-serif;
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+
+      :last-child {
+        border-right: 0;
+      }
+    }
+
+    &.sticky {
+      overflow: scroll;
+      .header,
+      .footer {
+        position: sticky;
+        z-index: 1;
+        width: fit-content;
+      }
+
+      .header {
+        top: 0;
+      }
+
+      .footer {
+        bottom: 0;
+      }
+
+      .body {
+        position: relative;
+        z-index: 0;
+      }
+
+      [data-sticky-td] {
+        position: sticky;
+      }
+    }
+
+    ::-webkit-scrollbar-track {
+      margin-left: ${props => props.theme.marginLeftForHorizontalScroll};
+    }
+  }
+`;
+
+function CustomsTable({
+  columns,
+  data,
+  initialState,
+  defaultGetTableSize,
+  defaultGlobalFilter,
+  moreUseTableOptions,
+  uniqueTableIdForPDFDownload,
+  tableHooks,
+  paginationRef,
+  maxPageItemCount,
+  hasPagination,
+  searchInput,
+  tableHeader,
+  tableDescription,
+  exportCSV,
+  globalControlRef,
+  hasGlobalControl,
+  filterComponentArray,
+  columnFilter,
+  getKeyOrLableContent,
+  globalSelectControl,
+  setColumnFilter,
+  colorScheme,
+  getColorGradientArray,
+  tHeadControlRef,
+  tBodyControlRef,
+  noResultsText,
+  columnsMeta,
+  marginLeftForHorizontalScroll,
+}) {
+  const colorFunction = getScale(colorScheme);
+  const defaultColumn = React.useMemo(
+    () => ({
+      minWidth: 135,
+      maxWidth: 400,
+    }),
+    [],
+  );
+
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    page,
+    pageCount,
+    gotoPage,
+    preGlobalFilteredRows,
+    setGlobalFilter,
+    setAllFilters,
+    setPageSize: setPageSize_,
+    rows,
+    prepareRow,
+    getTableSize = () => undefined,
+    state: { pageIndex, globalFilter: filterValue, filters: customFilters },
+    state,
+  } = useTable(
+    {
+      columns,
+      data,
+      initialState,
+      getTableSize: defaultGetTableSize,
+      globalFilter: defaultGlobalFilter,
+      ...moreUseTableOptions,
+      uniqueTableIdForPDFDownload,
+      defaultColumn,
+    },
+    ...tableHooks,
+    useBlockLayout,
+    useSticky,
+  );
+
+  const [maxWidth, setMaxWidth] = useState('100%');
+  const [maxHeight, setMaxHeight] = useState('80%');
+
+  useEffect(() => {
+    const sizeObject = getTableSize();
+    if ((sizeObject.width, sizeObject.height)) {
+      setMaxWidth(sizeObject.width);
+      setMaxHeight(sizeObject.height);
+    }
+  }, [page]);
+
+  const applyColumnFilter = filterArray => {
+    setColumnFilter(filterArray);
+    setAllFilters(filterArray);
+  };
+
+  let positiveSentimentColumnName;
+  let neutralSentimentColumnName;
+  let negativeSentimentColumnName;
+  let platformColumnName;
+  let videoTitleColumnName;
+  console.log({ data, columns, headerGroups, page });
+
+  columnsMeta.forEach(i => {
+    if (i && i.key.toLowerCase().includes('positive_sentiment_valence'))
+      positiveSentimentColumnName = i.key;
+    else if (i && i.key.toLowerCase().includes('neutral_sentiment_valence'))
+      neutralSentimentColumnName = i.key;
+    else if (i && i.key.toLowerCase().includes('negative_sentiment_valence'))
+      negativeSentimentColumnName = i.key;
+    else if (i && i.key.toLowerCase().includes('platform')) platformColumnName = i.key;
+    else if (i && i.key.toLowerCase().includes('video_title')) videoTitleColumnName = i.key;
+  });
+
+  const isVideoAndPlatformPresent = platformColumnName && videoTitleColumnName;
+  const isSentimentColumnPresent =
+    positiveSentimentColumnName && neutralSentimentColumnName && negativeSentimentColumnName;
+
+  return (
+    <Styles theme={{ marginLeftForHorizontalScroll }}>
+      {hasGlobalControl ? (
+        <div ref={globalControlRef} className="form-inline dt-controls">
+          <div className="row">
+            <div className="col-sm-6">
+              {/* hasPagination ? (
+                <SelectPageSize
+                  total={data.length}
+                  sizeOptions={pageSizeOptions}
+                  currentSize={pageSize}
+                  onChange={setPageSize}
+                />
+              ) : null */}
+              <span style={{ fontSize: '24px' }}>{tableHeader || ''}</span>
+              <img
+                title={tableDescription || ''}
+                alt="Description"
+                src={`/static/assets/images/icons/Table Description.png`}
+                style={{
+                  width: '16px',
+                  height: '16px',
+                  margin: tableHeader ? '-5px 0px 0px 7.5px' : '0px 0px 0px 7.5px',
+                }}
+              />
+            </div>
+            {searchInput ? (
+              <div className="col-sm-6">
+                <GlobalFilter
+                  exportCSV={exportCSV}
+                  tableHeader={tableHeader}
+                  uniqueTableIdForPDFDownload={uniqueTableIdForPDFDownload}
+                  searchInput={typeof searchInput === 'boolean' ? undefined : searchInput}
+                  preGlobalFilteredRows={preGlobalFilteredRows}
+                  setGlobalFilter={setGlobalFilter}
+                  filterValue={filterValue}
+                  filterComponentArray={filterComponentArray}
+                  columnFilter={columnFilter}
+                  applyColumnFilter={applyColumnFilter}
+                  getKeyOrLableContent={getKeyOrLableContent}
+                  globalSelectControl={globalSelectControl}
+                />
+              </div>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
+      <div
+        id={'custom-table' + uniqueTableIdForPDFDownload}
+        style={{
+          overflow: 'hidden',
+          border: '2px solid #7C90DB',
+          borderRadius: '12px',
+        }}
+      >
+        <div
+          {...getTableProps()}
+          className="table sticky"
+          style={{
+            width: maxWidth ? maxWidth : '100%',
+            height: maxHeight ? maxHeight : '100%',
+          }}
+        >
+          <div ref={tHeadControlRef} className="header">
+            {headerGroups.map(headerGroup => (
+              <div {...headerGroup.getHeaderGroupProps()} className="tr">
+                {headerGroup.headers.map(column => {
+                  const headerRestProps = column.getHeaderProps(column.getSortByToggleProps());
+                  // if platform and video_title are both available then combine those both columns
+                  if (isVideoAndPlatformPresent && column.Header.includes('platform')) {
+                    return null;
+                  }
+
+                  // hide all the sentiment cell except positive which will show colored bar will have to change this functinality fior dynamic usage
+                  if (
+                    isSentimentColumnPresent &&
+                    (column.Header.toLowerCase().includes('negative_sentiment_valence') ||
+                      column.Header.toLowerCase().includes('neutral_sentiment_valence'))
+                  ) {
+                    return null;
+                  }
+
+                  if (column.Header.includes('organization')) {
+                    return (
+                      <div {...headerRestProps} className="th">
+                        <span>
+                          {getKeyOrLableContent(column.Header)}
+                          {column.render('SortIcon')}
+                        </span>
+                      </div>
+                    );
+                  }
+
+                  if (column.Header.includes('video_title')) {
+                    return (
+                      <div {...headerRestProps} className="th">
+                        <span>
+                          {getKeyOrLableContent(column.Header)}
+                          {column.render('SortIcon')}
+                        </span>
+                      </div>
+                    );
+                  }
+
+                  if (column.Header.includes('published_date')) {
+                    return (
+                      <div {...headerRestProps} className="th">
+                        <span>
+                          {getKeyOrLableContent(column.Header)}
+                          {column.render('SortIcon')}
+                        </span>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div {...headerRestProps} className="th">
+                      <span>
+                        {getKeyOrLableContent(column.Header)}
+                        {column.render('SortIcon')}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+
+          <div ref={tBodyControlRef} {...getTableBodyProps()} className="body">
+            {page && page.length > 0 ? (
+              page.map((row, i) => {
+                prepareRow(row);
+                return (
+                  <div {...row.getRowProps()} className="tr">
+                    {row.cells.map(cell => {
+                      const cellProps = cell.getCellProps();
+                      const { key: cellKey, cellContent, ...restProps } = cellProps;
+                      const key = cellKey || cell.column.id;
+
+                      if (cellProps.dangerouslySetInnerHTML) {
+                        return <div className="td" key={key} {...restProps} />;
+                      }
+
+                      if (cell.column.Header === 'published_date') {
+                        return (
+                          <div className="td" key={key} {...restProps}>
+                            {getRequiredDateFormat(cellContent)}
+                          </div>
+                        );
+                      }
+
+                      if (cell.column.Header === 'organization') {
+                        const color = colorFunction(cellContent);
+                        const gradientArray = getColorGradientArray(color);
+                        const textColor = getTextColor(color);
+                        return (
+                          <div className="td" key={key} {...restProps}>
+                            <span
+                              style={{
+                                background: gradientArray
+                                  ? 'transparent linear-gradient(180deg, ' +
+                                    gradientArray[1] +
+                                    ' 0%, ' +
+                                    gradientArray[0] +
+                                    ' 100%) 0% 0% no-repeat padding-box'
+                                  : color,
+                                padding: '7px',
+                                borderRadius: '15px',
+                                color: textColor ? 'black' : 'white',
+                                display: 'inline-block',
+                                width: '160px',
+                              }}
+                            >
+                              {cellContent}
+                            </span>
+                          </div>
+                        );
+                      }
+
+                      if (isVideoAndPlatformPresent && cell.column.Header.includes('video_title')) {
+                        const platformName = row.original[platformColumnName] || '';
+                        const platformObject = {
+                          youtube: 'Youtube',
+                          facebook: 'Facebook',
+                          instagram: 'Instagram',
+                        };
+                        return (
+                          <div className="td" key={key} {...restProps}>
+                            <span
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                              }}
+                            >
+                              {platformName && (
+                                <img
+                                  alt="Platform"
+                                  src={`/static/assets/images/Donut Chart Icon/${
+                                    platformObject[platformName.toLowerCase()]
+                                  }.png`}
+                                  style={{
+                                    height: '20px',
+                                    marginRight: '20px',
+                                  }}
+                                />
+                              )}
+                              <span
+                                style={{
+                                  width: '150px',
+                                  height: '2.4em',
+                                  overflow: 'hidden',
+                                  textAlign: 'left',
+                                }}
+                              >
+                                {cellContent}
+                              </span>
+                            </span>
+                          </div>
+                        );
+                      }
+
+                      if (isVideoAndPlatformPresent && cell.column.Header.includes('platform')) {
+                        return null;
+                      } else if (cell.column.Header.includes('platform')) {
+                        const platformObject = {
+                          youtube: 'Youtube',
+                          facebook: 'Facebook',
+                          instagram: 'Instagram',
+                        };
+                        return (
+                          <div className="td" key={key} {...restProps}>
+                            <img
+                              alt="Platform"
+                              src={`/static/assets/images/Donut Chart Icon/${
+                                platformObject[cellContent.toLowerCase()]
+                              }.png`}
+                              style={{
+                                height: '20px',
+                              }}
+                            />
+                          </div>
+                        );
+                      }
+
+                      // hide all the sentiment cell except positive which will show colored bar will have to change this functinality fior dynamic usage
+                      if (
+                        isSentimentColumnPresent &&
+                        (cell.column.Header.toLowerCase().includes('negative_sentiment_valence') ||
+                          cell.column.Header.toLowerCase().includes('neutral_sentiment_valence'))
+                      ) {
+                        return null;
+                      }
+
+                      if (cell.column.Header.toLowerCase().includes('positive_sentiment_valence')) {
+                        const positive = row.original[positiveSentimentColumnName] || 0;
+                        const neutral = row.original[neutralSentimentColumnName] || 0;
+                        const negative = row.original[negativeSentimentColumnName] || 0;
+                        const totalSentiment = positive + neutral + negative;
+                        const positivePercentage =
+                          totalSentiment > 0
+                            ? Number(((positive / totalSentiment) * 100).toFixed(1))
+                            : 0;
+                        const neutralPercentage =
+                          totalSentiment > 0
+                            ? Number(((neutral / totalSentiment) * 100).toFixed(1))
+                            : 0;
+                        const negativePercentage =
+                          totalSentiment > 0
+                            ? Number(((negative / totalSentiment) * 100).toFixed(1))
+                            : 0;
+                        return (
+                          <div
+                            className="td"
+                            key={key}
+                            {...restProps}
+                            title=""
+                            style={{
+                              ...restProps,
+                              display: 'flex',
+                              alignItems: 'center',
+                              padding: '0px 25px',
+                              borderBottom: '1px solid #CFD8DB',
+                            }}
+                          >
+                            {totalSentiment > 0 ? (
+                              <div
+                                style={{
+                                  borderRadius: '15px',
+                                  overflow: 'hidden',
+                                  width: '150px',
+                                  height: '15px',
+                                }}
+                              >
+                                <span
+                                  style={{
+                                    background: `linear-gradient( 90deg, #2ACCB2, #2ACCB2 80%, ${getBarGradient(
+                                      'positive',
+                                      positivePercentage,
+                                      neutralPercentage,
+                                      negativePercentage,
+                                    )})`,
+                                    padding: '0px ' + positivePercentage / 2 + '%',
+                                  }}
+                                  title={'Positive: ' + positivePercentage + '%'}
+                                />
+                                <span
+                                  style={{
+                                    background: '#E9DE90',
+                                    padding: '0px ' + neutralPercentage / 2 + '%',
+                                  }}
+                                  title={'Neutral: ' + neutralPercentage + '%'}
+                                />
+                                <span
+                                  style={{
+                                    background: `linear-gradient( 90deg, ${getBarGradient(
+                                      'negative',
+                                      positivePercentage,
+                                      neutralPercentage,
+                                      negativePercentage,
+                                    )}, #FF4545 20%, #FF4545)`,
+                                    padding: '0px ' + negativePercentage / 2 + '%',
+                                  }}
+                                  title={'Negative: ' + negativePercentage + '%'}
+                                />
+                              </div>
+                            ) : (
+                              <span
+                                style={{
+                                  width: '150px',
+                                  color: '#11172E',
+                                  fontSize: '13px',
+                                  fontWeight: 600,
+                                  fontFamily: "'Roboto', sans-serif",
+                                }}
+                              >
+                                N/A
+                              </span>
+                            )}
+                          </div>
+                        );
+                      }
+
+                      if (cell.column.Header.toLowerCase().includes('published_date')) {
+                        return (
+                          <div key={key} {...restProps} className="td">
+                            {cellContent}
+                          </div>
+                        );
+                      }
+                      return (
+                        <div key={key} {...restProps} className="td">
+                          {cellContent}
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })
+            ) : (
+              <div className="tr">
+                <div className="dt-no-results td" colSpan={columns.length}>
+                  {typeof noResultsText === 'function'
+                    ? noResultsText(filterValue as string)
+                    : noResultsText}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+      {hasPagination ? (
+        <SimplePagination
+          ref={paginationRef}
+          maxPageItemCount={maxPageItemCount}
+          pageCount={pageCount}
+          currentPage={pageIndex}
+          onPageChange={gotoPage}
+          totalCount={data.length}
+        />
+      ) : null}
+    </Styles>
+  );
+}
 
 function getBarGradient(
   barName: string,
@@ -145,6 +717,8 @@ export default function DataTable<D extends object>({
   getColorGradientArray,
   colorScheme,
   globalSelectControl,
+  columnsMeta,
+  marginLeftForHorizontalScroll,
   wrapperRef: userWrapperRef,
   ...moreUseTableOptions
 }: DataTableProps<D>) {
@@ -158,7 +732,7 @@ export default function DataTable<D extends object>({
     useSortBy,
     usePagination,
     useColumnCellProps,
-    doSticky ? useSticky : [],
+    doSticky ? useStickyHeader : [],
     hooks || [],
   ].flat();
   const sortByRef = useRef([]); // cache initial `sortby` so sorting doesn't trigger page reset
@@ -175,6 +749,8 @@ export default function DataTable<D extends object>({
 
   const defaultWrapperRef = useRef<HTMLDivElement>(null);
   const globalControlRef = useRef<HTMLDivElement>(null);
+  const tHeadControlRef = useRef<HTMLDivElement>(null);
+  const tBodyControlRef = useRef<HTMLDivElement>(null);
   const paginationRef = useRef<HTMLDivElement>(null);
   const wrapperRef = userWrapperRef || defaultWrapperRef;
 
@@ -182,16 +758,34 @@ export default function DataTable<D extends object>({
     if (wrapperRef.current) {
       // `initialWidth` and `initialHeight` could be also parameters like `100%`
       // `Number` reaturns `NaN` on them, then we fallback to computed size
+      console.log(
+        'aaaaaaaaaaaaaaaaaaaaa',
+        tHeadControlRef.current?.clientHeight,
+        tBodyControlRef.current?.clientHeight,
+      );
+
       const width = Number(initialWidth) || wrapperRef.current.clientWidth;
       const height =
+        (tHeadControlRef.current?.clientHeight || 0) +
+        (tBodyControlRef.current?.clientHeight || 0) +
+        6;
+      const maxHeight =
         (Number(initialHeight) || wrapperRef.current.clientHeight) -
         (globalControlRef.current?.clientHeight || 0) -
         (paginationRef.current?.clientHeight || 0);
-      return { width, height };
+      return { width, height: height > maxHeight ? maxHeight : height };
     }
     return undefined;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialHeight, initialWidth, wrapperRef, hasPagination, hasGlobalControl]);
+  }, [
+    initialHeight,
+    initialWidth,
+    wrapperRef,
+    hasPagination,
+    hasGlobalControl,
+    tHeadControlRef,
+    tBodyControlRef,
+  ]);
 
   const defaultGlobalFilter: FilterType<D> = useCallback(
     (rows: Row<D>[], columnIds: IdType<D>[], filterValue: string) => {
@@ -204,6 +798,15 @@ export default function DataTable<D extends object>({
         threshold: matchSorter.rankings.ACRONYM,
       }) as typeof rows;
     },
+    [],
+  );
+
+  const defaultColumn = React.useMemo(
+    () => ({
+      minWidth: 150,
+      width: 150,
+      maxWidth: 400,
+    }),
     [],
   );
 
@@ -236,8 +839,10 @@ export default function DataTable<D extends object>({
       globalFilter: defaultGlobalFilter,
       ...moreUseTableOptions,
       uniqueTableIdForPDFDownload,
+      defaultColumn,
     },
     ...tableHooks,
+    useSticky,
   );
 
   const [columnFilter, setColumnFilter] = useState(customFilters || []);
@@ -288,6 +893,8 @@ export default function DataTable<D extends object>({
     let positiveSentimentColumnName;
     let neutralSentimentColumnName;
     let negativeSentimentColumnName;
+    let platformColumnName;
+    let videoTitleColumnName;
 
     columns.forEach(i => {
       if (i && i.Header.toLowerCase().includes('positive_sentiment_valence'))
@@ -296,290 +903,393 @@ export default function DataTable<D extends object>({
         neutralSentimentColumnName = i.Header;
       else if (i && i.Header.toLowerCase().includes('negative_sentiment_valence'))
         negativeSentimentColumnName = i.Header;
+      else if (i && i.Header.toLowerCase().includes('platform')) platformColumnName = i.Header;
+      else if (i && i.Header.toLowerCase().includes('video_title')) videoTitleColumnName = i.Header;
     });
 
+    const isVideoAndPlatformPresent = platformColumnName && videoTitleColumnName;
     const isSentimentColumnPresent =
       positiveSentimentColumnName && neutralSentimentColumnName && negativeSentimentColumnName;
     return (
-      <table {...getTableProps({ className: tableClassName })}>
-        <thead>
-          {headerGroups.map(headerGroup => {
-            const { key: headerGroupKey, ...headerGroupProps } = headerGroup.getHeaderGroupProps();
-            return (
-              <tr key={headerGroupKey || headerGroup.id} {...headerGroupProps}>
-                {headerGroup.headers.map(column => {
-                  const { key: headerKey, className, ...props } = column.getHeaderProps(
-                    column.getSortByToggleProps(),
-                  );
-
-                  if (column.Header.includes('platform')) {
-                    return (
-                      <th
-                        key={headerKey || column.id}
-                        className={column.isSorted ? `${className || ''} is-sorted` : className}
-                        {...props}
-                        style={{
-                          ...props.style,
-                          borderRight: 'none',
-                          padding: '20px 0px',
-                        }}
-                        onClick={() => {}}
-                        title=""
-                      />
-                    );
-                  }
-
-                  // hide all the sentiment cell except positive which will show colored bar will have to change this functinality fior dynamic usage
-                  if (
-                    isSentimentColumnPresent &&
-                    (column.Header.toLowerCase().includes('negative_sentiment_valence') ||
-                      column.Header.toLowerCase().includes('neutral_sentiment_valence'))
-                  ) {
-                    return null;
-                  }
-
-                  if (column.Header === 'organization') {
-                    return (
-                      <th
-                        key={headerKey || column.id}
-                        className={column.isSorted ? `${className || ''} is-sorted` : className}
-                        {...props}
-                        onClick={() => {}}
-                        style={{
-                          ...props.style,
-                          paddingRight: '30px',
-                          paddingLeft: '30px',
-                        }}
-                      >
-                        {getKeyOrLableContent(column.Header)}
-                        {column.render('SortIcon')}
-                      </th>
-                    );
-                  }
-
-                  if (column.Header.toLowerCase().includes('positive_sentiment_valence')) {
-                    return (
-                      <th
-                        key={headerKey || column.id}
-                        className={column.isSorted ? `${className || ''} is-sorted` : className}
-                        {...props}
-                        onClick={() => {}}
-                        style={{
-                          ...props.style,
-                          paddingRight: '20px',
-                          paddingLeft: '20px',
-                        }}
-                      >
-                        {getKeyOrLableContent(column.Header)}
-                        {column.render('SortIcon')}
-                      </th>
-                    );
-                  }
-
-                  return (
-                    <th
-                      key={headerKey || column.id}
-                      className={column.isSorted ? `${className || ''} is-sorted` : className}
-                      onClick={() => {}}
-                      {...props}
-                    >
-                      {getKeyOrLableContent(column.Header)}
-                      {column.render('SortIcon')}
-                    </th>
-                  );
-                })}
-              </tr>
-            );
-          })}
-        </thead>
-        <tbody {...getTableBodyProps()}>
-          {page && page.length > 0 ? (
-            page.map(row => {
-              prepareRow(row);
-              const { key: rowKey, ...rowProps } = row.getRowProps();
+      <Styles>
+        <div {...getTableProps()} className="table sticky">
+          <div className="header">
+            {headerGroups.map(headerGroup => {
+              const {
+                key: headerGroupKey,
+                ...headerGroupProps
+              } = headerGroup.getHeaderGroupProps();
               return (
-                <tr key={rowKey || row.id} {...rowProps}>
-                  {row.cells.map(cell => {
-                    const cellProps = cell.getCellProps() as TableCellProps & RenderHTMLCellProps;
-                    const { key: cellKey, cellContent, ...restProps } = cellProps;
-                    const key = cellKey || cell.column.id;
-                    if (cellProps.dangerouslySetInnerHTML) {
-                      return <td key={key} {...restProps} />;
-                    }
+                <div className="tr" key={headerGroupKey || headerGroup.id} {...headerGroupProps}>
+                  {headerGroup.headers.map(column => {
+                    const { key: headerKey, className, ...props } = column.getHeaderProps(
+                      column.getSortByToggleProps(),
+                    );
 
-                    if (cell.column.Header === 'published_date') {
+                    if (isVideoAndPlatformPresent && column.Header.includes('platform')) {
+                      return null;
+                    } else if (column.Header.includes('platform')) {
                       return (
-                        <td width={200} key={key} {...restProps}>
-                          {getRequiredDateFormat(cellContent)}
-                        </td>
-                      );
-                    }
-
-                    if (cell.column.Header === 'organization') {
-                      const color = colorFunction(cellContent);
-                      const gradientArray = getColorGradientArray(color);
-                      const textColor = getTextColor(color);
-                      return (
-                        <td
-                          key={key}
-                          {...restProps}
-                          style={{ ...restProps.style, padding: '15px 30px' }}
-                        >
-                          <span
-                            style={{
-                              background: gradientArray
-                                ? 'transparent linear-gradient(180deg, ' +
-                                  gradientArray[1] +
-                                  ' 0%, ' +
-                                  gradientArray[0] +
-                                  ' 100%) 0% 0% no-repeat padding-box'
-                                : color,
-                              padding: '7px',
-                              borderRadius: '15px',
-                              color: textColor ? 'black' : 'white',
-                              display: 'inline-block',
-                              width: '150px',
-                            }}
-                          >
-                            {cellContent}
-                          </span>
-                        </td>
-                      );
-                    }
-
-                    if (cell.column.Header.includes('platform')) {
-                      const platformObject = {
-                        youtube: 'Youtube',
-                        facebook: 'Facebook',
-                        instagram: 'Instagram',
-                      };
-                      return (
-                        <td
-                          key={key}
-                          {...restProps}
+                        <div
+                          key={headerKey || column.id}
+                          className={
+                            column.isSorted
+                              ? `${className || ''} is-sorted` + ' th'
+                              : className + ' th'
+                          }
+                          {...props}
                           style={{
-                            ...restProps.style,
-                            padding: '22px 0px',
+                            ...props.style,
                             borderRight: 'none',
+                            padding: '20px 0px',
                           }}
-                        >
-                          <img
-                            alt="Platform"
-                            src={`/static/assets/images/Donut Chart Icon/${
-                              platformObject[cellContent.toLowerCase()]
-                            }.png`}
-                            style={{
-                              height: '20px',
-                            }}
-                          />
-                        </td>
+                          onClick={() => {}}
+                          title=""
+                        />
                       );
                     }
 
                     // hide all the sentiment cell except positive which will show colored bar will have to change this functinality fior dynamic usage
                     if (
                       isSentimentColumnPresent &&
-                      (cell.column.Header.toLowerCase().includes('negative_sentiment_valence') ||
-                        cell.column.Header.toLowerCase().includes('neutral_sentiment_valence'))
+                      (column.Header.toLowerCase().includes('negative_sentiment_valence') ||
+                        column.Header.toLowerCase().includes('neutral_sentiment_valence'))
                     ) {
                       return null;
                     }
 
-                    if (cell.column.Header.toLowerCase().includes('positive_sentiment_valence')) {
-                      const positive = row.original[positiveSentimentColumnName] || 0;
-                      const neutral = row.original[neutralSentimentColumnName] || 0;
-                      const negative = row.original[negativeSentimentColumnName] || 0;
-                      const totalSentiment = positive + neutral + negative;
-                      const positivePercentage =
-                        totalSentiment > 0
-                          ? Number(((positive / totalSentiment) * 100).toFixed(1))
-                          : 0;
-                      const neutralPercentage =
-                        totalSentiment > 0
-                          ? Number(((neutral / totalSentiment) * 100).toFixed(1))
-                          : 0;
-                      const negativePercentage =
-                        totalSentiment > 0
-                          ? Number(((negative / totalSentiment) * 100).toFixed(1))
-                          : 0;
+                    if (column.Header === 'organization') {
                       return (
-                        <td
-                          key={key}
-                          {...restProps}
-                          style={{ ...restProps.style, padding: '24px 20px' }}
-                          title=""
+                        <div
+                          key={headerKey || column.id}
+                          className={
+                            column.isSorted
+                              ? `${className || ''} is-sorted` + ' th'
+                              : className + ' th'
+                          }
+                          {...props}
+                          onClick={() => {}}
+                          style={{
+                            ...props.style,
+                            paddingRight: '30px',
+                            paddingLeft: '30px',
+                          }}
                         >
-                          {totalSentiment > 0 ? (
-                            <div
-                              style={{
-                                borderRadius: '15px',
-                                overflow: 'hidden',
-                                width: '100%',
-                                minWidth: '150px',
-                                height: '15px',
-                              }}
-                            >
-                              <span
-                                style={{
-                                  background: `linear-gradient( 90deg, #2ACCB2, #2ACCB2 80%, ${getBarGradient(
-                                    'positive',
-                                    positivePercentage,
-                                    neutralPercentage,
-                                    negativePercentage,
-                                  )})`,
-                                  padding: '0px ' + positivePercentage / 2 + '%',
-                                }}
-                                title={'Positive: ' + positivePercentage + '%'}
-                              />
-                              <span
-                                style={{
-                                  background: '#E9DE90',
-                                  padding: '0px ' + neutralPercentage / 2 + '%',
-                                }}
-                                title={'Neutral: ' + neutralPercentage + '%'}
-                              />
-                              <span
-                                style={{
-                                  background: `linear-gradient( 90deg, ${getBarGradient(
-                                    'negative',
-                                    positivePercentage,
-                                    neutralPercentage,
-                                    negativePercentage,
-                                  )}, #FF4545 20%, #FF4545)`,
-                                  padding: '0px ' + negativePercentage / 2 + '%',
-                                }}
-                                title={'Negative: ' + negativePercentage + '%'}
-                              />
-                            </div>
-                          ) : (
-                            <span>N/A</span>
-                          )}
-                        </td>
+                          <span>
+                            {getKeyOrLableContent(column.Header)}
+                            {column.render('SortIcon')}
+                          </span>
+                        </div>
                       );
                     }
 
-                    // If cellProps renderes textContent already, then we don't have to
-                    // render `Cell`. This saves some time for large tables.
+                    if (column.Header.toLowerCase().includes('positive_sentiment_valence')) {
+                      return (
+                        <div
+                          key={headerKey || column.id}
+                          className={
+                            column.isSorted
+                              ? `${className || ''} is-sorted` + ' th'
+                              : className + ' th'
+                          }
+                          {...props}
+                          onClick={() => {}}
+                          style={{
+                            ...props.style,
+                            paddingRight: '20px',
+                            paddingLeft: '20px',
+                          }}
+                        >
+                          <span>
+                            {getKeyOrLableContent(column.Header)}
+                            {column.render('SortIcon')}
+                          </span>
+                        </div>
+                      );
+                    }
+
                     return (
-                      <td key={key} {...restProps}>
-                        {cellContent || cell.render('Cell')}
-                      </td>
+                      <div
+                        key={headerKey || column.id}
+                        className={
+                          column.isSorted
+                            ? `${className || ''} is-sorted` + ' th'
+                            : className + ' th'
+                        }
+                        onClick={() => {}}
+                        {...props}
+                        style={{
+                          ...props.style,
+                          paddingRight: '30px',
+                          paddingLeft: '30px',
+                        }}
+                      >
+                        <span>
+                          {getKeyOrLableContent(column.Header)}
+                          {column.render('SortIcon')}
+                        </span>
+                      </div>
                     );
                   })}
-                </tr>
+                </div>
               );
-            })
-          ) : (
-            <tr>
-              <td className="dt-no-results" colSpan={columns.length}>
-                {typeof noResultsText === 'function'
-                  ? noResultsText(filterValue as string)
-                  : noResultsText}
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+            })}
+          </div>
+          <div className="body" {...getTableBodyProps()}>
+            {page && page.length > 0 ? (
+              page.map(row => {
+                prepareRow(row);
+                const { key: rowKey, ...rowProps } = row.getRowProps();
+                return (
+                  <div className="tr" key={rowKey || row.id} {...rowProps}>
+                    {row.cells.map(cell => {
+                      const cellProps = cell.getCellProps() as TableCellProps & RenderHTMLCellProps;
+                      const { key: cellKey, cellContent, ...restProps } = cellProps;
+                      const key = cellKey || cell.column.id;
+                      if (cellProps.dangerouslySetInnerHTML) {
+                        return <td key={key} {...restProps} />;
+                      }
+
+                      if (cell.column.Header === 'published_date') {
+                        return (
+                          <div className="td" width={200} key={key} {...restProps}>
+                            {getRequiredDateFormat(cellContent)}
+                          </div>
+                        );
+                      }
+
+                      if (cell.column.Header === 'organization') {
+                        const color = colorFunction(cellContent);
+                        const gradientArray = getColorGradientArray(color);
+                        const textColor = getTextColor(color);
+                        return (
+                          <div
+                            className="td"
+                            key={key}
+                            {...restProps}
+                            style={{ ...restProps.style, padding: '15px 30px' }}
+                          >
+                            <span
+                              style={{
+                                background: gradientArray
+                                  ? 'transparent linear-gradient(180deg, ' +
+                                    gradientArray[1] +
+                                    ' 0%, ' +
+                                    gradientArray[0] +
+                                    ' 100%) 0% 0% no-repeat padding-box'
+                                  : color,
+                                padding: '7px',
+                                borderRadius: '15px',
+                                color: textColor ? 'black' : 'white',
+                                display: 'inline-block',
+                                width: '150px',
+                              }}
+                            >
+                              {cellContent}
+                            </span>
+                          </div>
+                        );
+                      }
+
+                      if (isVideoAndPlatformPresent && cell.column.Header.includes('video_title')) {
+                        const platformName = row.original[platformColumnName] || '';
+                        const platformObject = {
+                          youtube: 'Youtube',
+                          facebook: 'Facebook',
+                          instagram: 'Instagram',
+                        };
+                        return (
+                          <div
+                            className="td"
+                            key={key}
+                            {...restProps}
+                            style={{
+                              ...restProps.style,
+                              paddingLeft: '30px',
+                              paddingRight: '30px',
+                            }}
+                          >
+                            <span
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                              }}
+                            >
+                              {platformName && (
+                                <img
+                                  alt="Platform"
+                                  src={`/static/assets/images/Donut Chart Icon/${
+                                    platformObject[platformName.toLowerCase()]
+                                  }.png`}
+                                  style={{
+                                    height: '20px',
+                                    marginRight: '20px',
+                                  }}
+                                />
+                              )}
+                              <span
+                                style={{
+                                  width: '150px',
+                                  height: '2.4em',
+                                  overflow: 'hidden',
+                                  textAlign: 'left',
+                                }}
+                              >
+                                {cellContent}
+                              </span>
+                            </span>
+                          </div>
+                        );
+                      }
+
+                      if (isVideoAndPlatformPresent && cell.column.Header.includes('platform')) {
+                        return null;
+                      } else if (cell.column.Header.includes('platform')) {
+                        const platformObject = {
+                          youtube: 'Youtube',
+                          facebook: 'Facebook',
+                          instagram: 'Instagram',
+                        };
+                        return (
+                          <div
+                            className="td"
+                            key={key}
+                            {...restProps}
+                            style={{
+                              ...restProps.style,
+                              padding: '22px 0px',
+                              borderRight: 'none',
+                            }}
+                          >
+                            <img
+                              alt="Platform"
+                              src={`/static/assets/images/Donut Chart Icon/${
+                                platformObject[cellContent.toLowerCase()]
+                              }.png`}
+                              style={{
+                                height: '20px',
+                              }}
+                            />
+                          </div>
+                        );
+                      }
+
+                      // hide all the sentiment cell except positive which will show colored bar will have to change this functinality fior dynamic usage
+                      if (
+                        isSentimentColumnPresent &&
+                        (cell.column.Header.toLowerCase().includes('negative_sentiment_valence') ||
+                          cell.column.Header.toLowerCase().includes('neutral_sentiment_valence'))
+                      ) {
+                        return null;
+                      }
+
+                      if (cell.column.Header.toLowerCase().includes('positive_sentiment_valence')) {
+                        const positive = row.original[positiveSentimentColumnName] || 0;
+                        const neutral = row.original[neutralSentimentColumnName] || 0;
+                        const negative = row.original[negativeSentimentColumnName] || 0;
+                        const totalSentiment = positive + neutral + negative;
+                        const positivePercentage =
+                          totalSentiment > 0
+                            ? Number(((positive / totalSentiment) * 100).toFixed(1))
+                            : 0;
+                        const neutralPercentage =
+                          totalSentiment > 0
+                            ? Number(((neutral / totalSentiment) * 100).toFixed(1))
+                            : 0;
+                        const negativePercentage =
+                          totalSentiment > 0
+                            ? Number(((negative / totalSentiment) * 100).toFixed(1))
+                            : 0;
+                        return (
+                          <div
+                            className="td"
+                            key={key}
+                            {...restProps}
+                            style={{ ...restProps.style, padding: '24px 20px' }}
+                            title=""
+                          >
+                            {totalSentiment > 0 ? (
+                              <div
+                                style={{
+                                  borderRadius: '15px',
+                                  overflow: 'hidden',
+                                  width: '100%',
+                                  minWidth: '150px',
+                                  height: '15px',
+                                }}
+                              >
+                                <span
+                                  style={{
+                                    background: `linear-gradient( 90deg, #2ACCB2, #2ACCB2 80%, ${getBarGradient(
+                                      'positive',
+                                      positivePercentage,
+                                      neutralPercentage,
+                                      negativePercentage,
+                                    )})`,
+                                    padding: '0px ' + positivePercentage / 2 + '%',
+                                  }}
+                                  title={'Positive: ' + positivePercentage + '%'}
+                                />
+                                <span
+                                  style={{
+                                    background: '#E9DE90',
+                                    padding: '0px ' + neutralPercentage / 2 + '%',
+                                  }}
+                                  title={'Neutral: ' + neutralPercentage + '%'}
+                                />
+                                <span
+                                  style={{
+                                    background: `linear-gradient( 90deg, ${getBarGradient(
+                                      'negative',
+                                      positivePercentage,
+                                      neutralPercentage,
+                                      negativePercentage,
+                                    )}, #FF4545 20%, #FF4545)`,
+                                    padding: '0px ' + negativePercentage / 2 + '%',
+                                  }}
+                                  title={'Negative: ' + negativePercentage + '%'}
+                                />
+                              </div>
+                            ) : (
+                              <span>N/A</span>
+                            )}
+                          </div>
+                        );
+                      }
+
+                      // If cellProps renderes textContent already, then we don't have to
+                      // render `Cell`. This saves some time for large tables.
+                      return (
+                        <div
+                          className="td"
+                          key={key}
+                          {...restProps}
+                          style={{
+                            ...restProps.style,
+                            paddingRight: '30px',
+                            paddingLeft: '30px',
+                          }}
+                        >
+                          <span>{cellContent || cell.render('Cell')}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })
+            ) : (
+              <div className="tr">
+                <div className="dt-no-results td" colSpan={columns.length}>
+                  {typeof noResultsText === 'function'
+                    ? noResultsText(filterValue as string)
+                    : noResultsText}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </Styles>
     );
   };
 
@@ -596,63 +1306,37 @@ export default function DataTable<D extends object>({
 
   return (
     <div ref={wrapperRef} style={{ width: initialWidth, height: initialHeight }}>
-      {hasGlobalControl ? (
-        <div ref={globalControlRef} className="form-inline dt-controls">
-          <div className="row">
-            <div className="col-sm-6">
-              {/* hasPagination ? (
-                <SelectPageSize
-                  total={data.length}
-                  sizeOptions={pageSizeOptions}
-                  currentSize={pageSize}
-                  onChange={setPageSize}
-                />
-              ) : null */}
-              <span style={{ fontSize: '24px' }}>{tableHeader || ''}</span>
-              <img
-                title={tableDescription || ''}
-                alt="Description"
-                src={`/static/assets/images/icons/Table Description.png`}
-                style={{
-                  width: '16px',
-                  height: '16px',
-                  margin: tableHeader ? '-5px 0px 0px 7.5px' : '0px 0px 0px 7.5px',
-                }}
-              />
-            </div>
-            {searchInput ? (
-              <div className="col-sm-6">
-                <GlobalFilter<D>
-                  exportCSV={exportCSV}
-                  tableHeader={tableHeader}
-                  uniqueTableIdForPDFDownload={uniqueTableIdForPDFDownload}
-                  searchInput={typeof searchInput === 'boolean' ? undefined : searchInput}
-                  preGlobalFilteredRows={preGlobalFilteredRows}
-                  setGlobalFilter={setGlobalFilter}
-                  filterValue={filterValue}
-                  filterComponentArray={filterComponentArray}
-                  columnFilter={columnFilter}
-                  applyColumnFilter={applyColumnFilter}
-                  getKeyOrLableContent={getKeyOrLableContent}
-                  globalSelectControl={globalSelectControl}
-                />
-              </div>
-            ) : null}
-          </div>
-        </div>
-      ) : null}
-      {wrapStickyTable ? wrapStickyTable(renderTable) : renderTable()}
-      {hasPagination ? (
-        <SimplePagination
-          ref={paginationRef}
-          style={sticky.height ? undefined : { visibility: 'hidden' }}
-          maxPageItemCount={maxPageItemCount}
-          pageCount={pageCount}
-          currentPage={pageIndex}
-          onPageChange={gotoPage}
-          totalCount={data.length}
-        />
-      ) : null}
+      <CustomsTable
+        columns={columns}
+        data={data}
+        initialState={initialState}
+        defaultGetTableSize={defaultGetTableSize}
+        defaultGlobalFilter={defaultGlobalFilter}
+        moreUseTableOptions={{ ...moreUseTableOptions }}
+        uniqueTableIdForPDFDownload={uniqueTableIdForPDFDownload}
+        tableHooks={tableHooks}
+        paginationRef={paginationRef}
+        maxPageItemCount={maxPageItemCount}
+        hasPagination={hasPagination}
+        hasGlobalControl={hasGlobalControl}
+        searchInput={searchInput}
+        tableHeader={tableHeader}
+        tableDescription={tableDescription}
+        exportCSV={exportCSV}
+        globalControlRef={globalControlRef}
+        filterComponentArray={filterComponentArray}
+        columnFilter={columnFilter}
+        getKeyOrLableContent={getKeyOrLableContent}
+        globalSelectControl={globalSelectControl}
+        setColumnFilter={setColumnFilter}
+        colorScheme={colorScheme}
+        getColorGradientArray={getColorGradientArray}
+        tHeadControlRef={tHeadControlRef}
+        tBodyControlRef={tBodyControlRef}
+        noResultsText={noResultsText}
+        columnsMeta={columnsMeta}
+        marginLeftForHorizontalScroll={marginLeftForHorizontalScroll}
+      />
     </div>
   );
 }

@@ -464,11 +464,18 @@ export default function TableChart<D extends DataRecord = DataRecord>(
 
       // seaching if current column custom filter is present or not if preset addingg a key canCustomFilter true
       let isFilterColumn = null;
+      let isFixedColumn = null;
       if (filterColumns && filterColumns.length) {
         filterColumns.map(i => {
           if (label.includes(i)) isFilterColumn = label;
         });
       }
+      if (fixedColumns && fixedColumns.length) {
+        fixedColumns.map(i => {
+          if (label.includes(i)) isFixedColumn = label;
+        });
+      }
+
       const valueRange = showCellBars && getValueRange(key);
       const cellProps: Column<D>['cellProps'] = ({ value: value_ }, sharedCellProps) => {
         let className = '';
@@ -492,9 +499,6 @@ export default function TableChart<D extends DataRecord = DataRecord>(
           //       colorPositiveNegative,
           //     })
           //   : undefined,
-          padding: '23px 5px',
-          borderRight: '1px #CFD8DB solid',
-          borderTop: '1px #CFD8DB solid',
           color: '#11172E',
           fontSize: '13px',
           fontWeight: 600,
@@ -509,7 +513,8 @@ export default function TableChart<D extends DataRecord = DataRecord>(
           style,
         };
       };
-      return {
+
+      const columnObject = {
         id: String(i), // to allow duplicate column keys
         accessor: key,
         Header: label,
@@ -524,7 +529,18 @@ export default function TableChart<D extends DataRecord = DataRecord>(
         sortType: getSortTypeByDataType(dataType),
         cellProps,
         canCustomFilter: isFilterColumn ? true : false,
+        sticky: isFixedColumn ? 'left' : '',
       };
+      if (label.includes('organization')) {
+        columnObject.width = 200;
+      }
+      if (label.includes('video_title')) {
+        columnObject.width = 226;
+      }
+      if (label.includes('positive_sentiment_valence')) {
+        columnObject.width = 200;
+      }
+      return columnObject;
     },
     [
       /* alignPositiveNegative,
@@ -539,12 +555,26 @@ export default function TableChart<D extends DataRecord = DataRecord>(
   );
 
   const columns = useMemo(() => {
-    return columnsMeta.map(getColumnConfigs);
+    const ignoreColumnList = [
+      'platform',
+      'negative_sentiment_valence',
+      'neutral_sentiment_valence',
+    ];
+    return columnsMeta
+      .filter(i => {
+        let column;
+        ignoreColumnList.map(ignoreCol => {
+          if (i.key.includes(ignoreCol)) column = ignoreCol;
+        });
+        return column ? false : true;
+      })
+      .map(getColumnConfigs);
   }, [columnsMeta, getColumnConfigs]);
 
   return (
     <Styles>
       <DataTable<D>
+        columnsMeta={columnsMeta}
         columns={columns}
         data={data}
         tableClassName="table table-striped table-condensed"
@@ -569,6 +599,23 @@ export default function TableChart<D extends DataRecord = DataRecord>(
         fixedColumns={fixedColumns}
         filterColumns={filterColumns}
         globalSelectControl={globalSelectControl}
+        marginLeftForHorizontalScroll={
+          fixedColumns && fixedColumns.length > 0
+            ? fixedColumns
+                .map(i => {
+                  if (i === 'organization') {
+                    return 200;
+                  } else if (i === 'video_title') {
+                    return 226;
+                  } else if (i === 'positive_sentiment_valence') {
+                    return 200;
+                  } else {
+                    return 150;
+                  }
+                })
+                .reduce((a, b) => a + b)
+            : 0
+        }
       />
     </Styles>
   );

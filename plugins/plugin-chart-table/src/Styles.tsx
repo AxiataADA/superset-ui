@@ -133,7 +133,7 @@ export default styled.div`
   }
 
   .sort-column-icon {
-    margin: 15px 5px;
+    margin: -2px 5px;
     color: #7c90db !important;
     font-size: 14px;
   }
