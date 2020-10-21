@@ -214,6 +214,7 @@ export default function transformProps(chartProps: TableChartProps): TableChartT
     colorScheme,
     fixedColumns,
     filterColumns,
+    videoPlatformMerge,
   } = formData;
 
   const { exportCSV, getKeyOrLableContent, getColorGradientArray, globalSelectControl } = hooks;
@@ -246,5 +247,6 @@ export default function transformProps(chartProps: TableChartProps): TableChartT
     fixedColumns,
     filterColumns,
     globalSelectControl,
+    videoPlatformMerge,
   };
 }

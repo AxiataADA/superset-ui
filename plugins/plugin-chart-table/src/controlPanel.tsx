@@ -211,6 +211,20 @@ const config: ControlPanelConfig = {
         ],
         [
           {
+            name: 'video_platform_merge',
+            config: {
+              type: 'CheckboxControl',
+              label: t('Show platform icon with video title'),
+              description: t(
+                'Whether to merge video title and platform colum or to keep them seperate',
+              ),
+              default: false,
+              visibility: isAggMode,
+            },
+          },
+        ],
+        [
+          {
             name: 'percent_metrics',
             config: percent_metrics,
           },

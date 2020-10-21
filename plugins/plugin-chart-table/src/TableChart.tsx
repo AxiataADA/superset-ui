@@ -395,6 +395,7 @@ export default function TableChart<D extends DataRecord = DataRecord>(
     columns: columnsMeta,
     fixedColumns,
     filterColumns,
+    videoPlatformMerge,
     alignPositiveNegative = false,
     /* colorPositiveNegative = false, */
     includeSearch = false,
@@ -555,11 +556,12 @@ export default function TableChart<D extends DataRecord = DataRecord>(
   );
 
   const columns = useMemo(() => {
-    const ignoreColumnList = [
-      'platform',
-      'negative_sentiment_valence',
-      'neutral_sentiment_valence',
-    ];
+    // ignoring these column as they are merged into another column
+    const ignoreColumnList = ['negative_sentiment_valence', 'neutral_sentiment_valence'];
+
+    // if video tile and platform should be merged then add platform as well
+    if (videoPlatformMerge) ignoreColumnList.push('platform');
+
     return columnsMeta
       .filter(i => {
         let column;
@@ -603,19 +605,15 @@ export default function TableChart<D extends DataRecord = DataRecord>(
           fixedColumns && fixedColumns.length > 0
             ? fixedColumns
                 .map(i => {
-                  if (i === 'organization') {
-                    return 200;
-                  } else if (i === 'video_title') {
-                    return 226;
-                  } else if (i === 'positive_sentiment_valence') {
-                    return 200;
-                  } else {
-                    return 150;
-                  }
+                  if (i === 'organization') return 200;
+                  else if (i === 'video_title') return 226;
+                  else if (i === 'positive_sentiment_valence') return 200;
+                  else return 150;
                 })
                 .reduce((a, b) => a + b)
             : 0
         }
+        videoPlatformMerge={videoPlatformMerge}
       />
     </Styles>
   );

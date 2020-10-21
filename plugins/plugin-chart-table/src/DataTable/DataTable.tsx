@@ -63,33 +63,35 @@ const Styles = styled.div`
       }
     }
 
+    .th,
+    .td {
+      border-bottom: 1px solid #cfd8db;
+      border-right: 1px solid #cfd8db;
+      overflow: hidden;
+      font-size: 13px;
+      font-family: 'Roboto', sans-serif;
+      display: flex !important;
+      align-items: center;
+
+      :last-child {
+        border-right: 0;
+      }
+    }
+
     .th {
       background-color: #f8f8f8;
       color: #4f62aa;
       height: 47px;
+      justify-content: center;
+      text-align: center;
     }
 
     .td {
       background-color: #fff;
       padding: 25px;
       height: 65px;
-    }
-
-    .th,
-    .td {
-      border-bottom: 1px solid #cfd8db;
-      border-right: 1px solid #cfd8db;
-      overflow: hidden;
-      text-align: center;
-      font-size: 13px;
-      font-family: 'Roboto', sans-serif;
-      display: flex !important;
-      align-items: center;
-      justify-content: center;
-
-      :last-child {
-        border-right: 0;
-      }
+      justify-content: start;
+      text-align: left;
     }
 
     &.sticky {
@@ -155,6 +157,7 @@ function CustomsTable({
   noResultsText,
   columnsMeta,
   marginLeftForHorizontalScroll,
+  videoPlatformMerge,
 }) {
   const colorFunction = getScale(colorScheme);
   const defaultColumn = React.useMemo(
@@ -218,7 +221,6 @@ function CustomsTable({
   let negativeSentimentColumnName;
   let platformColumnName;
   let videoTitleColumnName;
-  console.log({ data, columns, headerGroups, page });
 
   columnsMeta.forEach(i => {
     if (i && i.key.toLowerCase().includes('positive_sentiment_valence'))
@@ -303,10 +305,6 @@ function CustomsTable({
               <div {...headerGroup.getHeaderGroupProps()} className="tr">
                 {headerGroup.headers.map(column => {
                   const headerRestProps = column.getHeaderProps(column.getSortByToggleProps());
-                  // if platform and video_title are both available then combine those both columns
-                  if (isVideoAndPlatformPresent && column.Header.includes('platform')) {
-                    return null;
-                  }
 
                   // hide all the sentiment cell except positive which will show colored bar will have to change this functinality fior dynamic usage
                   if (
@@ -406,6 +404,7 @@ function CustomsTable({
                                 color: textColor ? 'black' : 'white',
                                 display: 'inline-block',
                                 width: '160px',
+                                textAlign: 'center',
                               }}
                             >
                               {cellContent}
@@ -414,7 +413,11 @@ function CustomsTable({
                         );
                       }
 
-                      if (isVideoAndPlatformPresent && cell.column.Header.includes('video_title')) {
+                      if (
+                        videoPlatformMerge &&
+                        isVideoAndPlatformPresent &&
+                        cell.column.Header.includes('video_title')
+                      ) {
                         const platformName = row.original[platformColumnName] || '';
                         const platformObject = {
                           youtube: 'Youtube',
@@ -449,6 +452,7 @@ function CustomsTable({
                                   overflow: 'hidden',
                                   textAlign: 'left',
                                 }}
+                                title={cellContent}
                               >
                                 {cellContent}
                               </span>
@@ -457,9 +461,7 @@ function CustomsTable({
                         );
                       }
 
-                      if (isVideoAndPlatformPresent && cell.column.Header.includes('platform')) {
-                        return null;
-                      } else if (cell.column.Header.includes('platform')) {
+                      if (!videoPlatformMerge && cell.column.Header.includes('platform')) {
                         const platformObject = {
                           youtube: 'Youtube',
                           facebook: 'Facebook',
@@ -719,6 +721,7 @@ export default function DataTable<D extends object>({
   globalSelectControl,
   columnsMeta,
   marginLeftForHorizontalScroll,
+  videoPlatformMerge,
   wrapperRef: userWrapperRef,
   ...moreUseTableOptions
 }: DataTableProps<D>) {
@@ -1336,6 +1339,7 @@ export default function DataTable<D extends object>({
         noResultsText={noResultsText}
         columnsMeta={columnsMeta}
         marginLeftForHorizontalScroll={marginLeftForHorizontalScroll}
+        videoPlatformMerge={videoPlatformMerge}
       />
     </div>
   );
