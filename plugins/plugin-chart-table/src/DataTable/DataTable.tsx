@@ -90,8 +90,8 @@ const Styles = styled.div`
       background-color: #fff;
       padding: 25px;
       height: 65px;
-      justify-content: start;
-      text-align: left;
+      justify-content: center;
+      text-align: center;
     }
 
     &.sticky {
@@ -122,7 +122,8 @@ const Styles = styled.div`
     }
 
     ::-webkit-scrollbar-track {
-      margin-left: ${props => props.theme.marginLeftForHorizontalScroll};
+      margin-left: ${props => props.theme.marginLeftForHorizontalScroll}px;
+      margin-top: 46px;
     }
   }
 `;
@@ -158,6 +159,8 @@ function CustomsTable({
   columnsMeta,
   marginLeftForHorizontalScroll,
   videoPlatformMerge,
+  initialHeight,
+  initialWidth,
 }) {
   const colorFunction = getScale(colorScheme);
   const defaultColumn = React.useMemo(
@@ -209,7 +212,7 @@ function CustomsTable({
       setMaxWidth(sizeObject.width);
       setMaxHeight(sizeObject.height);
     }
-  }, [page]);
+  }, [page, initialHeight, initialWidth, hasPagination, hasGlobalControl]);
 
   const applyColumnFilter = filterArray => {
     setColumnFilter(filterArray);
@@ -376,7 +379,11 @@ function CustomsTable({
                         return <div className="td" key={key} {...restProps} />;
                       }
 
-                      if (cell.column.Header === 'published_date') {
+                      if (
+                        cell.column.Header === 'published_date' ||
+                        cell.column.Header === 'crawled_date' ||
+                        cell.column.Header === 'created_date'
+                      ) {
                         return (
                           <div className="td" key={key} {...restProps}>
                             {getRequiredDateFormat(cellContent)}
@@ -580,9 +587,21 @@ function CustomsTable({
                         );
                       }
 
-                      if (cell.column.Header.toLowerCase().includes('published_date')) {
+                      if (
+                        cell.column.Header.toLowerCase().includes('video_title') ||
+                        cell.column.Header.toLowerCase().includes('creator_name')
+                      ) {
                         return (
-                          <div key={key} {...restProps} className="td">
+                          <div
+                            key={key}
+                            {...restProps}
+                            className="td"
+                            style={{
+                              ...restProps.style,
+                              textAlign: 'left',
+                              justifyContent: 'start',
+                            }}
+                          >
                             {cellContent}
                           </div>
                         );
@@ -761,11 +780,6 @@ export default function DataTable<D extends object>({
     if (wrapperRef.current) {
       // `initialWidth` and `initialHeight` could be also parameters like `100%`
       // `Number` reaturns `NaN` on them, then we fallback to computed size
-      console.log(
-        'aaaaaaaaaaaaaaaaaaaaa',
-        tHeadControlRef.current?.clientHeight,
-        tBodyControlRef.current?.clientHeight,
-      );
 
       const width = Number(initialWidth) || wrapperRef.current.clientWidth;
       const height =
@@ -1340,6 +1354,8 @@ export default function DataTable<D extends object>({
         columnsMeta={columnsMeta}
         marginLeftForHorizontalScroll={marginLeftForHorizontalScroll}
         videoPlatformMerge={videoPlatformMerge}
+        initialHeight={initialHeight}
+        initialWidth={initialWidth}
       />
     </div>
   );

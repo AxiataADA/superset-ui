@@ -16,15 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { ColumnInstance, Column, DefaultSortTypes } from 'react-table';
 import { extent as d3Extent, max as d3Max } from 'd3-array';
 import { FaSort, FaSortUp as FaSortAsc, FaSortDown as FaSortDesc } from 'react-icons/fa';
 import { t } from '@superset-ui/translation';
 import { DataRecordValue, DataRecord } from '@superset-ui/chart';
-import { Modal, Button } from 'react-bootstrap';
+import { Modal, Button, InputGroup, FormControl, FormGroup } from 'react-bootstrap';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import 'react-datetime/css/react-datetime.css';
+import Datetime from 'react-datetime';
+import moment from 'moment';
 import { TableChartTransformedProps, DataType, DataColumnMeta } from './types';
 import DataTable, { DataTableProps, SearchInputProps, SizeOption } from './DataTable';
 import Styles from './Styles';
@@ -133,8 +136,158 @@ const SelectControl = ({
       }
       isMulti
       placeholder={`Select ${columnLabel}`}
-      maxMenuHeight={150}
+      maxMenuHeight={140}
     />
+  );
+};
+
+// This is a custom date filter UI for selecting since and untill date
+const BetweenDateControl = ({
+  column: { filterValue, id },
+  appliedFilersObject,
+  updateSearchInputFilterArray,
+}) => {
+  const MOMENT_FORMAT = 'MM/DD/YYYY';
+  const [state, setState] = useState({
+    since: new Date(
+      appliedFilersObject && appliedFilersObject.value && appliedFilersObject.value.length
+        ? appliedFilersObject.value[0]
+        : Date.now(),
+    ),
+    until: new Date(
+      appliedFilersObject && appliedFilersObject.value && appliedFilersObject.value.length
+        ? appliedFilersObject.value[1]
+        : Date.now(),
+    ),
+    showSinceCalendar: false,
+    showUntilCalendar: false,
+    sinceViewMode: 'days',
+    untilViewMode: 'days',
+  });
+
+  const setCustomStartEnd = (key, value) => {
+    const closeCalendar =
+      (key === 'since' && state.sinceViewMode === 'days') ||
+      (key === 'until' && state.untilViewMode === 'days');
+
+    setState({
+      ...state,
+      [key]: typeof value === 'string' ? value : value.format(MOMENT_FORMAT),
+      showSinceCalendar: state.showSinceCalendar && !closeCalendar,
+      showUntilCalendar: state.showUntilCalendar && !closeCalendar,
+      sinceViewMode: closeCalendar ? 'days' : state.sinceViewMode,
+      untilViewMode: closeCalendar ? 'days' : state.untilViewMode,
+    });
+    if (key === 'since') updateSearchInputFilterArray(id, [new Date(value), new Date(state.until)]);
+    else if (key === 'until')
+      updateSearchInputFilterArray(id, [new Date(state.since), new Date(value)]);
+  };
+
+  const isValidMoment = s => {
+    return s === moment(s, MOMENT_FORMAT).format(MOMENT_FORMAT);
+  };
+
+  const isValidSince = date => {
+    return !isValidMoment(state.until) || date <= moment(state.until, MOMENT_FORMAT);
+  };
+
+  const isValidUntil = date => {
+    return !isValidMoment(state.since) || date >= moment(state.since, MOMENT_FORMAT);
+  };
+
+  const toggleCalendar = key => {
+    const nextState = {};
+    if (key === 'showSinceCalendar') {
+      nextState.showSinceCalendar = !state.showSinceCalendar;
+      if (!state.showSinceCalendar) {
+        nextState.showUntilCalendar = false;
+      }
+    } else if (key === 'showUntilCalendar') {
+      nextState.showUntilCalendar = !state.showUntilCalendar;
+      if (!state.showUntilCalendar) {
+        nextState.showSinceCalendar = false;
+      }
+    }
+    setState({
+      ...state,
+      ...nextState,
+    });
+  };
+
+  const renderInput = (props, key) => {
+    return (
+      <FormGroup>
+        <InputGroup bsSize="small">
+          <FormControl {...props} type="text" onClick={() => {}} />
+          <InputGroup.Button onClick={() => toggleCalendar(key)}>
+            <Button>
+              <i className="fa fa-calendar" />
+            </Button>
+          </InputGroup.Button>
+        </InputGroup>
+      </FormGroup>
+    );
+  };
+
+  return (
+    <InputGroup
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'start',
+      }}
+    >
+      <span
+        style={{
+          color: '#202C56',
+          fontFamily: "'Roboto', sans-serif",
+          fontWeight: '700',
+          fontSize: '13px',
+        }}
+      >
+        From
+      </span>
+      <div style={{ margin: '0px 20px 0px 20px', height: '30px' }}>
+        <Datetime
+          timeFormat={false}
+          value={state.since}
+          defaultValue={state.since}
+          viewDate={state.since}
+          onChange={value => setCustomStartEnd('since', value)}
+          isValidDate={isValidSince}
+          renderInput={props => renderInput(props, 'showSinceCalendar')}
+          open={state.showSinceCalendar}
+          viewMode={state.sinceViewMode}
+          onViewModeChange={sinceViewMode => setState({ ...state, sinceViewMode })}
+          inputProps={{ placeholder: 'Select Date', disabled: true }}
+        />
+      </div>
+      <span
+        style={{
+          color: '#202C56',
+          fontFamily: "'Roboto', sans-serif",
+          fontWeight: '700',
+          fontSize: '13px',
+        }}
+      >
+        To
+      </span>
+      <div style={{ marginLeft: '20px', height: '30px' }}>
+        <Datetime
+          timeFormat={false}
+          value={state.until}
+          defaultValue={state.until}
+          viewDate={state.until}
+          onChange={value => setCustomStartEnd('until', value)}
+          isValidDate={isValidUntil}
+          renderInput={props => renderInput(props, 'showUntilCalendar')}
+          open={state.showUntilCalendar}
+          viewMode={state.untilViewMode}
+          onViewModeChange={untilViewMode => setState({ ...state, untilViewMode })}
+          inputProps={{ placeholder: 'Select Date', disabled: true }}
+        />
+      </div>
+    </InputGroup>
   );
 };
 
@@ -305,7 +458,7 @@ function SearchInput({
               margin: '0px 0px 0px 27px',
             }}
           >
-            {t('Table Filter Configuration')}
+            {t('Filter')}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body
@@ -318,6 +471,7 @@ function SearchInput({
             filterComponentArray.map(column => {
               const appliedFilers = searchInputFilterArray.filter(i => i.id === column.id);
               const columnLabel = getKeyOrLableContent(column.Header);
+
               return (
                 <div style={{ marginBottom: '30px', display: 'flex' }} key={column.Header}>
                   <div
@@ -337,7 +491,13 @@ function SearchInput({
                     {columnLabel}
                   </div>
                   <div style={{ width: '75%' }}>
-                    {
+                    {column.dataType == 'datetime' ? (
+                      <BetweenDateControl
+                        column={column}
+                        appliedFilersObject={appliedFilers ? appliedFilers[0] || {} : {}}
+                        updateSearchInputFilterArray={updateSearchInputFilterArray}
+                      />
+                    ) : (
                       <SelectControl
                         columnLabel={columnLabel}
                         globalSelectControl={globalSelectControl}
@@ -346,7 +506,7 @@ function SearchInput({
                         updateSearchInputFilterArray={updateSearchInputFilterArray}
                         preGlobalFilteredRows={preGlobalFilteredRows}
                       />
-                    }
+                    )}
                   </div>
                 </div>
               );
@@ -461,7 +621,27 @@ export default function TableChart<D extends DataRecord = DataRecord>(
 
   const getColumnConfigs = useCallback(
     (column: DataColumnMeta, i: number): Column<D> => {
+      const timeFiltersArray = ['published_date', 'crawled_date', 'as_of_date', 'created_date'];
       const { key, label, dataType } = column;
+      let isDateFilterType = false;
+
+      timeFiltersArray.map(i => {
+        if (key.includes(i)) isDateFilterType = true;
+      });
+
+      const selectFilterFuction = (rows, id, filterValue) => {
+        return rows.filter(row => {
+          return filterValue.includes(row.values[id]);
+        });
+      };
+
+      const dateFilterFunction = (rows, id, filterValue) => {
+        return rows.filter(row => {
+          return (
+            new Date(row.values[id]) <= filterValue[1] && new Date(row.values[id]) >= filterValue[0]
+          );
+        });
+      };
 
       // seaching if current column custom filter is present or not if preset addingg a key canCustomFilter true
       let isFilterColumn = null;
@@ -519,28 +699,21 @@ export default function TableChart<D extends DataRecord = DataRecord>(
         id: String(i), // to allow duplicate column keys
         accessor: key,
         Header: label,
-        Filter: SelectControl,
-        filter: (rows, id, filterValue) => {
-          return rows.filter(row => {
-            return filterValue.includes(row.values[id]);
-          });
-        },
+        Filter: isDateFilterType ? BetweenDateControl : SelectControl,
+        filter: isDateFilterType ? dateFilterFunction : selectFilterFuction,
         SortIcon,
         sortDescFirst: sortDesc,
         sortType: getSortTypeByDataType(dataType),
         cellProps,
         canCustomFilter: isFilterColumn ? true : false,
         sticky: isFixedColumn ? 'left' : '',
+        dataType: isDateFilterType ? 'datetime' : dataType,
       };
-      if (label.includes('organization')) {
-        columnObject.width = 200;
-      }
-      if (label.includes('video_title')) {
-        columnObject.width = 226;
-      }
-      if (label.includes('positive_sentiment_valence')) {
-        columnObject.width = 200;
-      }
+      if (label.includes('organization')) columnObject.width = 200;
+      if (label.includes('video_title')) columnObject.width = 240;
+      if (label.includes('positive_sentiment_valence')) columnObject.width = 200;
+      if (label.includes('creator_name')) columnObject.width = 170;
+
       return columnObject;
     },
     [
@@ -606,8 +779,9 @@ export default function TableChart<D extends DataRecord = DataRecord>(
             ? fixedColumns
                 .map(i => {
                   if (i === 'organization') return 200;
-                  else if (i === 'video_title') return 226;
+                  else if (i === 'video_title') return 240;
                   else if (i === 'positive_sentiment_valence') return 200;
+                  else if (i === 'creator_name') return 170;
                   else return 150;
                 })
                 .reduce((a, b) => a + b)
