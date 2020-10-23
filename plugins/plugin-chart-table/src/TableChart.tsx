@@ -516,8 +516,7 @@ function SearchInput({
         <Modal.Footer style={{ padding: '40px', display: 'flex', justifyContent: 'center' }}>
           <Button
             type="button"
-            id="btn_modal_save"
-            className="btn pull-left"
+            className="btn"
             style={{
               textTransform: 'unset',
               height: '35px',
@@ -709,10 +708,11 @@ export default function TableChart<D extends DataRecord = DataRecord>(
         sticky: isFixedColumn ? 'left' : '',
         dataType: isDateFilterType ? 'datetime' : dataType,
       };
-      if (label.includes('organization')) columnObject.width = 200;
-      if (label.includes('video_title')) columnObject.width = 240;
-      if (label.includes('positive_sentiment_valence')) columnObject.width = 200;
-      if (label.includes('creator_name')) columnObject.width = 170;
+      if (label.toLowerCase().includes('organization')) columnObject.width = 200;
+      if (label.toLowerCase().includes('video_title')) columnObject.width = 240;
+      if (label.toLowerCase().includes('video_title_link')) columnObject.width = 240;
+      if (label.toLowerCase().includes('positive_sentiment_valence')) columnObject.width = 200;
+      if (label.toLowerCase().includes('creator_name')) columnObject.width = 170;
 
       return columnObject;
     },
@@ -778,10 +778,11 @@ export default function TableChart<D extends DataRecord = DataRecord>(
           fixedColumns && fixedColumns.length > 0
             ? fixedColumns
                 .map(i => {
-                  if (i === 'organization') return 200;
-                  else if (i === 'video_title') return 240;
-                  else if (i === 'positive_sentiment_valence') return 200;
-                  else if (i === 'creator_name') return 170;
+                  if (i && i.toLowerCase() === 'organization') return 200;
+                  else if (i && i.toLowerCase() === 'video_title') return 240;
+                  else if (i && i.toLowerCase() === 'video_title_link') return 240;
+                  else if (i && i.toLowerCase() === 'positive_sentiment_valence') return 200;
+                  else if (i && i.toLowerCase() === 'creator_name') return 170;
                   else return 150;
                 })
                 .reduce((a, b) => a + b)

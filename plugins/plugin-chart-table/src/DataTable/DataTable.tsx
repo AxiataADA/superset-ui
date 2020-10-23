@@ -587,6 +587,23 @@ function CustomsTable({
                         );
                       }
 
+                      if (cell.column.Header.toLowerCase().includes('video_title_link')) {
+                        return (
+                          <div
+                            key={key}
+                            {...restProps}
+                            className="td"
+                            style={{
+                              ...restProps.style,
+                              textAlign: 'left',
+                              justifyContent: 'start',
+                            }}
+                          >
+                            <span style={{ wordBreak: 'break-word' }}>{cellContent}</span>
+                          </div>
+                        );
+                      }
+
                       if (
                         cell.column.Header.toLowerCase().includes('video_title') ||
                         cell.column.Header.toLowerCase().includes('creator_name')
@@ -606,6 +623,7 @@ function CustomsTable({
                           </div>
                         );
                       }
+
                       return (
                         <div key={key} {...restProps} className="td">
                           {cellContent}
