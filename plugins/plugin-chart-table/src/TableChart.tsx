@@ -637,7 +637,8 @@ export default function TableChart<D extends DataRecord = DataRecord>(
       const dateFilterFunction = (rows, id, filterValue) => {
         return rows.filter(row => {
           return (
-            new Date(row.values[id]) <= filterValue[1] && new Date(row.values[id]) >= filterValue[0]
+            new Date(row.values[id]) <= new Date(filterValue[1]) &&
+            new Date(row.values[id]) >= new Date(filterValue[0])
           );
         });
       };
