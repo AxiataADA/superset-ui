@@ -32,6 +32,12 @@ export default class CategoricalColorNamespace {
     return newScale;
   }
 
+  getColorsArray(schemeId?: string) {
+    const id = schemeId ?? getCategoricalSchemeRegistry().getDefaultKey() ?? '';
+    const scheme = getCategoricalSchemeRegistry().get(id);
+    return scheme && scheme.colors ? scheme.colors : [];
+  }
+
   /**
    * Enforce specific color for given value
    * This will apply across all color scales
@@ -63,10 +69,18 @@ export function getNamespace(name: string = DEFAULT_NAMESPACE) {
   return newInstance;
 }
 
-export function getColor(value?: string, schemeId?: string, namespace?: string) {
+export function getColor(value: string, schemeId: string, namespace?: string) {
   return getNamespace(namespace).getScale(schemeId).getColor(value);
 }
 
-export function getScale(scheme?: string, namespace?: string) {
+export function getScale(scheme: string, namespace?: string) {
   return getNamespace(namespace).getScale(scheme);
+}
+
+export function getColorsArray(scheme: string, namespace?: string) {
+  return getNamespace(namespace).getColorsArray(scheme);
+}
+
+export function setColor(value: string, forcedColor: string, namespace?: string) {
+  return getNamespace(namespace).setColor(value, forcedColor);
 }
