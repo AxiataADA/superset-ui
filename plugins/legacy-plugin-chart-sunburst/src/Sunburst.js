@@ -178,15 +178,15 @@ function Sunburst(element, props) {
     .endAngle(d => d.x + d.dx)
     .innerRadius(d => {
       if (d.depth === 0) return 0;
-      else if (d.depth === 1) return 66;
-      else if (d.depth === 2) return 83;
-      else return 83 + (d.depth - 2) * 19;
+      else if (d.depth === 1) return 60;
+      else if (d.depth === 2) return 77;
+      else return 77 + (d.depth - 2) * 17;
     })
     .outerRadius(d => {
-      if (d.depth === 0) return 66;
-      else if (d.depth === 1) return 83;
-      else if (d.depth === 2) return 102;
-      else return 120 + d.depth * 19;
+      if (d.depth === 0) return 60;
+      else if (d.depth === 1) return 77;
+      else if (d.depth === 2) return 94;
+      else return 94 + d.depth * 17;
     });
 
   const formatNum = getNumberFormatter(numberFormat || NumberFormats.SI_3_DIGIT);
