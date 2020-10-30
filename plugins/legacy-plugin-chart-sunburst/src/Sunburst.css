@@ -21,8 +21,9 @@
   text-rendering: optimizeLegibility;
 }
 .superset-legacy-chart-sunburst path {
-  stroke: #ddd;
-  stroke-width: 0.5px;
+  /* stroke: #ddd;
+  stroke-width: 0.5px; */
+  stroke-width: 0px;
 }
 .superset-legacy-chart-sunburst .center-label {
   text-anchor: middle;
@@ -34,7 +35,8 @@
   font-weight: 700;
 }
 .superset-legacy-chart-sunburst .path-cond-percent {
-  font-size: 2em;
+  /* font-size: 2em; */
+  font-weight: 700;
 }
 .superset-legacy-chart-sunburst .path-metrics {
   color: #777;
@@ -45,7 +47,8 @@
 
 .superset-legacy-chart-sunburst .breadcrumbs text {
   font-weight: 600;
-  font-size: 1.2em;
+  font-size: 14px;
+  font-family: 'Roboto' sans-serif;
   text-anchor: middle;
   fill: #333;
 }

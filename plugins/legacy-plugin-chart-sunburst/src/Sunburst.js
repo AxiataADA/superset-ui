@@ -19,7 +19,7 @@
 /* eslint-disable no-param-reassign, react/sort-prop-types */
 import d3 from 'd3';
 import PropTypes from 'prop-types';
-import { CategoricalColorNamespace } from '@superset-ui/color';
+import { CategoricalColorNamespace, getSequentialSchemeRegistry } from '@superset-ui/color';
 import { getNumberFormatter, NumberFormats } from '@superset-ui/number-format';
 import wrapSvgText from './utils/wrapSvgText';
 import './Sunburst.css';
@@ -31,6 +31,7 @@ const propTypes = {
   width: PropTypes.number,
   height: PropTypes.number,
   colorScheme: PropTypes.string,
+  linearColorScheme: PropTypes.string,
   numberFormat: PropTypes.string,
   metrics: PropTypes.arrayOf(
     PropTypes.oneOfType([
@@ -38,6 +39,7 @@ const propTypes = {
       PropTypes.object, // The metric object
     ]),
   ),
+  getKeyOrLableContent: PropTypes.function,
 };
 
 function metricLabel(metric) {
@@ -130,28 +132,39 @@ function buildHierarchy(rows) {
 function Sunburst(element, props) {
   const container = d3.select(element);
   container.classed('superset-legacy-chart-sunburst', true);
-  const { data, width, height, colorScheme, metrics, numberFormat } = props;
+
+  const {
+    data,
+    width,
+    height,
+    colorScheme,
+    linearColorScheme,
+    metrics,
+    numberFormat,
+    getKeyOrLableContent,
+    bottomText,
+  } = props;
 
   // vars with shared scope within this function
   const margin = { top: 10, right: 5, bottom: 10, left: 5 };
   const containerWidth = width;
   const containerHeight = height;
-  const breadcrumbHeight = containerHeight * 0.085;
+  const breadcrumbHeight = containerHeight * 0.1;
   const visWidth = containerWidth - margin.left - margin.right;
-  const visHeight = containerHeight - margin.top - margin.bottom - breadcrumbHeight;
+  const visHeight = containerHeight - margin.top - margin.bottom - breadcrumbHeight - 35; // for the platform text;
   const radius = Math.min(visWidth, visHeight) / 2;
 
   let colorByCategory = true; // color by category if primary/secondary metrics match
   let maxBreadcrumbs;
   let breadcrumbDims; // set based on data
   let totalSize; // total size of all segments; set after loading the data.
-  let colorScale;
   let breadcrumbs;
   let vis;
   let arcs;
   let gMiddleText; // dom handles
 
-  const colorFn = CategoricalColorNamespace.getScale(colorScheme);
+  const categoricalColorScale = CategoricalColorNamespace.getScale('genderColors');
+  let linearColorScale = CategoricalColorNamespace.getScale('ageGroupColors');
 
   // Helper + path gen functions
   const partition = d3.layout
@@ -163,11 +176,21 @@ function Sunburst(element, props) {
     .arc()
     .startAngle(d => d.x)
     .endAngle(d => d.x + d.dx)
-    .innerRadius(d => Math.sqrt(d.y))
-    .outerRadius(d => Math.sqrt(d.y + d.dy));
+    .innerRadius(d => {
+      if (d.depth === 0) return 0;
+      else if (d.depth === 1) return 66;
+      else if (d.depth === 2) return 83;
+      else return 83 + (d.depth - 2) * 19;
+    })
+    .outerRadius(d => {
+      if (d.depth === 0) return 66;
+      else if (d.depth === 1) return 83;
+      else if (d.depth === 2) return 102;
+      else return 120 + d.depth * 19;
+    });
 
   const formatNum = getNumberFormatter(numberFormat || NumberFormats.SI_3_DIGIT);
-  const formatPerc = getNumberFormatter(NumberFormats.PERCENT_3_POINT);
+  const formatPerc = getNumberFormatter(NumberFormats.PERCENT_1_POINT);
 
   container.select('svg').remove();
 
@@ -175,6 +198,26 @@ function Sunburst(element, props) {
     .append('svg:svg')
     .attr('width', containerWidth)
     .attr('height', containerHeight);
+
+  function getTextWidth(text, font) {
+    // re-using canvas object for better performance
+    let canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement('canvas'));
+    let context = canvas.getContext('2d');
+    context.font = font;
+    let metrics = context.measureText(text);
+    return metrics.width;
+  }
+
+  // adding bottom text for platform name
+  svg
+    .append('text')
+    .style('fill', '#4F62AA')
+    .style('font-family', "'Roboto', sans-serif")
+    .attr({
+      x: visWidth / 2 - getTextWidth(bottomText, 'Roboto-Regular 14px') / 2,
+      y: containerHeight - 5,
+    })
+    .text(bottomText);
 
   function createBreadcrumbs(firstRowData) {
     // -2 bc row contains 2x metrics, +extra for %label and buffer
@@ -221,7 +264,11 @@ function Sunburst(element, props) {
     entering
       .append('svg:polygon')
       .attr('points', breadcrumbPoints)
-      .style('fill', d => (colorByCategory ? colorFn(d.name) : colorScale(d.m2 / d.m1)));
+      .style('fill', d => {
+        return d.depth === 1
+          ? categoricalColorScale(d.name.toLowerCase())
+          : linearColorScale(d.name.toLowerCase());
+      });
 
     entering
       .append('svg:text')
@@ -230,13 +277,17 @@ function Sunburst(element, props) {
       .attr('dy', '0.85em')
       .style('fill', d => {
         // Make text white or black based on the lightness of the background
-        const col = d3.hsl(colorByCategory ? colorFn(d.name) : colorScale(d.m2 / d.m1));
+        const col = d3.hsl(
+          d.depth === 1
+            ? categoricalColorScale(d.name.toLowerCase())
+            : linearColorScale(d.name.toLowerCase()),
+        );
 
         return col.l < 0.5 ? 'white' : 'black';
       })
       .attr('class', 'step-label')
       .text(d => d.name.replace(/_/g, ' '))
-      .call(wrapSvgText, breadcrumbDims.width, breadcrumbDims.height / 2);
+      .call(wrapSvgText, breadcrumbDims.width, breadcrumbDims.height / 4);
 
     // Set position for entering and updating nodes.
     g.attr(
@@ -271,7 +322,8 @@ function Sunburst(element, props) {
     const conditionalPercString = parentOfD ? formatPerc(conditionalPercentage) : '';
 
     // 3 levels of text if inner-most level, 4 otherwise
-    const yOffsets = ['-25', '7', '35', '60'];
+    // const yOffsets = ['-25', '7', '35', '60'];
+    const yOffsets = ['35', '60'];
     let offsetIndex = 0;
 
     // If metrics match, assume we are coloring by category
@@ -279,39 +331,42 @@ function Sunburst(element, props) {
 
     gMiddleText.selectAll('*').remove();
 
-    gMiddleText
-      .append('text')
-      .attr('class', 'path-abs-percent')
-      .attr('y', yOffsets[offsetIndex++])
-      .text(`${absolutePercString} of total`);
+    // gMiddleText
+    //   .append('text')
+    //   .attr('class', 'path-abs-percent')
+    //   .attr('y', yOffsets[offsetIndex++])
+    //   .text(`${absolutePercString} of total`);
 
     if (conditionalPercString) {
       gMiddleText
         .append('text')
         .attr('class', 'path-cond-percent')
-        .attr('y', yOffsets[offsetIndex++])
-        .text(`${conditionalPercString} of parent`);
+        // .attr('y', yOffsets[offsetIndex++])
+        .attr('y', 0)
+        .text(`${conditionalPercString} of ${d.parent.name}`);
     }
 
     gMiddleText
       .append('text')
       .attr('class', 'path-metrics')
-      .attr('y', yOffsets[offsetIndex++])
-      .text(
-        `${metricLabel(metrics[0])}: ${formatNum(d.m1)}${
-          metricsMatch ? '' : `, ${metricLabel(metrics[1])}: ${formatNum(d.m2)}`
-        }`,
-      );
+      // .attr('y', yOffsets[offsetIndex++])
+      .attr('y', conditionalPercString ? +25 : 7)
+      // .text(
+      //   `${getKeyOrLableContent(metricLabel(metrics[0]))}: ${formatNum(d.m1)}${
+      //     metricsMatch ? '' : `, ${getKeyOrLableContent(metricLabel(metrics[1]))}: ${formatNum(d.m2)}`
+      //   }`,
+      // );
+      .text(`${formatNum(d.m2)}`);
 
-    gMiddleText
-      .append('text')
-      .attr('class', 'path-ratio')
-      .attr('y', yOffsets[offsetIndex++])
-      .text(
-        metricsMatch
-          ? ''
-          : `${metricLabel(metrics[1])}/${metricLabel(metrics[0])}: ${formatPerc(d.m2 / d.m1)}`,
-      );
+    // gMiddleText
+    //   .append('text')
+    //   .attr('class', 'path-ratio')
+    //   .attr('y', yOffsets[offsetIndex++])
+    //   .text(
+    //     metricsMatch
+    //       ? ''
+    //       : `${getKeyOrLableContent(metricLabel(metrics[1]))}/${getKeyOrLableContent(metricLabel(metrics[0]))}: ${formatPerc(d.m2 / d.m1)}`,
+    //   );
 
     // Reset and fade all the segments.
     arcs.selectAll('path').style('stroke-width', null).style('stroke', null).style('opacity', 0.3);
@@ -375,17 +430,13 @@ function Sunburst(element, props) {
 
     // For efficiency, filter nodes to keep only those large enough to see.
     const nodes = partition.nodes(root).filter(d => d.dx > 0.005); // 0.005 radians = 0.29 degrees
-
-    let ext;
-
-    if (metrics[0] !== metrics[1] && metrics[1]) {
-      colorByCategory = false;
-      ext = d3.extent(nodes, d => d.m2 / d.m1);
-      colorScale = d3.scale
-        .linear()
-        .domain([ext[0], ext[0] + (ext[1] - ext[0]) / 2, ext[1]])
-        .range(['#00D1C1', 'white', '#FFB400']);
-    }
+    // if (metrics[0] !== metrics[1] && metrics[1]) {
+    //   colorByCategory = false;
+    //   const ext = d3.extent(nodes, d => d.m2 / d.m1);
+    //   linearColorScale = getSequentialSchemeRegistry()
+    //     .get(linearColorScheme)
+    //     .createLinearScale(ext);
+    // }
 
     arcs
       .selectAll('path')
@@ -395,7 +446,11 @@ function Sunburst(element, props) {
       .attr('display', d => (d.depth ? null : 'none'))
       .attr('d', arc)
       .attr('fill-rule', 'evenodd')
-      .style('fill', d => (colorByCategory ? colorFn(d.name) : colorScale(d.m2 / d.m1)))
+      .style('fill', d => {
+        return d.depth === 1
+          ? categoricalColorScale(d.name.toLowerCase())
+          : linearColorScale(d.name.toLowerCase());
+      })
       .style('opacity', 1)
       .on('mouseenter', mouseenter);
 

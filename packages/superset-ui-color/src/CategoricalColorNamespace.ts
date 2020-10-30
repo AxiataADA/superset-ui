@@ -50,6 +50,20 @@ export default class CategoricalColorNamespace {
 
     return this;
   }
+
+  /**
+   * Enforce specific color for given key in the object
+   * This will apply across all color scales
+   * in this namespace.
+   * @param {*} forcedColorObject object
+   */
+  setColorObject(forcedColorObject: object) {
+    this.forcedItems = {
+      ...this.forcedItems,
+      ...forcedColorObject,
+    };
+    return;
+  }
 }
 
 const namespaces: {
@@ -83,4 +97,8 @@ export function getColorsArray(scheme: string, namespace?: string) {
 
 export function setColor(value: string, forcedColor: string, namespace?: string) {
   return getNamespace(namespace).setColor(value, forcedColor);
+}
+
+export function setColorObject(forcedColorObject: object, namespace?: string) {
+  return getNamespace(namespace).setColorObject(forcedColorObject);
 }

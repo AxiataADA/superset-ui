@@ -29,13 +29,25 @@ export default {
         ['secondary_metric'],
         ['adhoc_filters'],
         ['row_limit'],
+        [
+          {
+            name: 'bottomText',
+            config: {
+              type: 'TextControl',
+              renderTrigger: true,
+              default: 'Platform',
+              label: t('Bottom Text'),
+              description: t('Description text that shows up below your sunburst chart'),
+            },
+          },
+        ],
       ],
     },
-    {
-      label: t('Chart Options'),
-      expanded: true,
-      controlSetRows: [['color_scheme', 'label_colors']],
-    },
+    // {
+    //   label: t('Chart Options'),
+    //   expanded: true,
+    //   controlSetRows: [['color_scheme', 'linear_color_scheme']],
+    // },
   ],
   controlOverrides: {
     metric: {
@@ -51,6 +63,12 @@ export default {
           'When omitted, the color is categorical and based on labels',
       ),
     },
+    // color_scheme: {
+    //   description: t('When only a primary metric is provided, a categorical color scale is used.'),
+    // },
+    // linear_color_scheme: {
+    //   description: t('When a secondary metric is provided, a linear color scale is used.'),
+    // },
     groupby: {
       label: t('Hierarchy'),
       description: t('This defines the level of the hierarchy'),
