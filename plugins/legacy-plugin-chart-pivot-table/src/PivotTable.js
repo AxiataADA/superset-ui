@@ -58,6 +58,7 @@ function PivotTable(element, props) {
     numberFormat,
     numGroups,
     verboseMap,
+    showPaginationAndSearch,
   } = props;
 
   const { html, columns } = data;
@@ -119,16 +120,16 @@ function PivotTable(element, props) {
         }
       });
   });
-
-  if (numGroups === 1) {
+  // if (numGroups === 1) { commenting this default condition provided by superset
+  if (showPaginationAndSearch) {
     // When there is only 1 group by column,
     // we use the DataTable plugin to make the header fixed.
     // The plugin takes care of the scrolling so we don't need
     // overflow: 'auto' on the table.
     container.style.overflow = 'hidden';
     const table = $container.find('table').DataTable({
-      paging: false,
-      searching: false,
+      paging: true,
+      searching: true,
       bInfo: false,
       scrollY: `${height}px`,
       scrollCollapse: true,

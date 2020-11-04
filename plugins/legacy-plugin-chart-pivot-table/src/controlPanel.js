@@ -82,6 +82,19 @@ export default {
         ],
         [
           {
+            name: 'show_pagination_and_search',
+            config: {
+              type: 'CheckboxControl',
+              label: t('Show Pagination and Global Search'),
+              default: false,
+              description: t(
+                'Show pagination for the current table and fixed the header also add a global search box',
+              ),
+            },
+          },
+        ],
+        [
+          {
             name: 'transpose_pivot',
             config: {
               type: 'CheckboxControl',

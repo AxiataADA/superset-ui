@@ -18,7 +18,7 @@
  */
 export default function transformProps(chartProps) {
   const { height, datasource, formData, queryData } = chartProps;
-  const { timeGrainSqla, groupby, numberFormat, dateFormat } = formData;
+  const { timeGrainSqla, groupby, numberFormat, dateFormat, showPaginationAndSearch } = formData;
   const { columnFormats, verboseMap } = datasource;
 
   return {
@@ -30,5 +30,6 @@ export default function transformProps(chartProps) {
     numberFormat,
     numGroups: groupby.length,
     verboseMap,
+    showPaginationAndSearch,
   };
 }
