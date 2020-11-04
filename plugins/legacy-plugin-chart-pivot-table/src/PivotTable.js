@@ -28,6 +28,28 @@ import {
 import fixTableHeight from './utils/fixTableHeight';
 import 'datatables.net-bs/css/dataTables.bootstrap.css';
 
+function getRequiredDateFormat(dateString) {
+  const newDate = new Date(new Date(dateString.trim()) + 'UTC');
+  const monthsArray = [
+    'Jan ',
+    'Feb ',
+    'Mar ',
+    'Apr ',
+    'May ',
+    'Jun ',
+    'Jul ',
+    'Aug ',
+    'Sep ',
+    'Oct ',
+    'Nov ',
+    'Dec ',
+  ];
+  const date = newDate.getDate(),
+    year = newDate.getFullYear(),
+    month = newDate.getMonth();
+  return monthsArray[month] + date + ', ' + year;
+}
+
 if (window.$) {
   dt(window, window.$);
 }
@@ -59,6 +81,7 @@ function PivotTable(element, props) {
     numGroups,
     verboseMap,
     showPaginationAndSearch,
+    getKeyOrLableContent,
   } = props;
 
   const { html, columns } = data;
@@ -93,6 +116,9 @@ function PivotTable(element, props) {
     } else {
       cellValue = verboseMap[s] || s;
     }
+    if (cellValue) {
+      cellValue = getKeyOrLableContent(cellValue);
+    }
     $(this)[0].textContent = cellValue;
   };
   $container.find('thead tr th').each(replaceCell);
@@ -113,6 +139,10 @@ function PivotTable(element, props) {
             const date = new Date(parseFloat(regexMatch[1]));
             $(this)[0].textContent = dateFormatter(date);
             $(this).attr('data-sort', date);
+          }
+          if (tdText === 'null' || tdText === null) {
+            $(this)[0].textContent = 'N/A';
+            $(this).attr('data-sort', parsedValue);
           }
         } else {
           $(this)[0].textContent = formatNumber(format, parsedValue);

@@ -17,9 +17,10 @@
  * under the License.
  */
 export default function transformProps(chartProps) {
-  const { height, datasource, formData, queryData } = chartProps;
+  const { height, datasource, formData, queryData, hooks } = chartProps;
   const { timeGrainSqla, groupby, numberFormat, dateFormat, showPaginationAndSearch } = formData;
   const { columnFormats, verboseMap } = datasource;
+  const { getKeyOrLableContent } = hooks;
 
   return {
     columnFormats,
@@ -31,5 +32,6 @@ export default function transformProps(chartProps) {
     numGroups: groupby.length,
     verboseMap,
     showPaginationAndSearch,
+    getKeyOrLableContent,
   };
 }
