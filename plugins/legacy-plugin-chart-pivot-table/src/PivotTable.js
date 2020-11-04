@@ -164,6 +164,10 @@ function PivotTable(element, props) {
       scrollY: `${height}px`,
       scrollCollapse: true,
       scrollX: true,
+      columnDefs: [
+        { width: 200, targets: 0 },
+        { width: 85, targets: 1 },
+      ],
     });
     table.column('-1').order('desc').draw();
     fixTableHeight($container.find('.dataTables_wrapper'), height);
