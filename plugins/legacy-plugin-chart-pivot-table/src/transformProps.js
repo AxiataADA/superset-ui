@@ -18,7 +18,14 @@
  */
 export default function transformProps(chartProps) {
   const { height, datasource, formData, queryData, hooks } = chartProps;
-  const { timeGrainSqla, groupby, numberFormat, dateFormat, showPaginationAndSearch } = formData;
+  const {
+    timeGrainSqla,
+    groupby,
+    numberFormat,
+    dateFormat,
+    showPaginationAndSearch,
+    columnWidthString,
+  } = formData;
   const { columnFormats, verboseMap } = datasource;
   const { getKeyOrLableContent } = hooks;
 
@@ -33,5 +40,6 @@ export default function transformProps(chartProps) {
     verboseMap,
     showPaginationAndSearch,
     getKeyOrLableContent,
+    columnWidthArray: columnWidthString ? columnWidthString.split(',').map(i => Number(i)) : [],
   };
 }

@@ -27,6 +27,7 @@ import {
 } from '@superset-ui/time-format';
 import fixTableHeight from './utils/fixTableHeight';
 import 'datatables.net-bs/css/dataTables.bootstrap.css';
+import './PivotTable.css';
 
 function getRequiredDateFormat(dateString) {
   const newDate = new Date(new Date(dateString.trim()) + 'UTC');
@@ -82,6 +83,7 @@ function PivotTable(element, props) {
     verboseMap,
     showPaginationAndSearch,
     getKeyOrLableContent,
+    columnWidthArray,
   } = props;
 
   const { html, columns } = data;
@@ -112,12 +114,16 @@ function PivotTable(element, props) {
     let cellValue;
     if (regexMatch) {
       const date = new Date(parseFloat(regexMatch[1]));
-      cellValue = dateFormatter(date);
+      cellValue = getRequiredDateFormat(date);
     } else {
       cellValue = verboseMap[s] || s;
     }
     if (cellValue) {
       cellValue = getKeyOrLableContent(cellValue);
+      const date = new Date(cellValue);
+      if (date instanceof Date && !isNaN(date.getTime())) {
+        cellValue = getRequiredDateFormat(cellValue);
+      }
     }
     $(this)[0].textContent = cellValue;
   };
@@ -137,7 +143,7 @@ function PivotTable(element, props) {
           const regexMatch = dateRegex.exec(tdText);
           if (regexMatch) {
             const date = new Date(parseFloat(regexMatch[1]));
-            $(this)[0].textContent = dateFormatter(date);
+            $(this)[0].textContent = getRequiredDateFormat(date);
             $(this).attr('data-sort', date);
           }
           if (tdText === 'null' || tdText === null) {
@@ -151,11 +157,20 @@ function PivotTable(element, props) {
       });
   });
   // if (numGroups === 1) { commenting this default condition provided by superset
+  // When there is only 1 group by column,
+  // we use the DataTable plugin to make the header fixed.
+  // The plugin takes care of the scrolling so we don't need
+  // overflow: 'auto' on the table.
   if (showPaginationAndSearch) {
-    // When there is only 1 group by column,
-    // we use the DataTable plugin to make the header fixed.
-    // The plugin takes care of the scrolling so we don't need
-    // overflow: 'auto' on the table.
+    // creating column def object
+    const columnDefs =
+      columnWidthArray && columnWidthArray.length
+        ? columnWidthArray.map((width, index) => ({
+            targets: index,
+            width: !isNaN(width) && width > 50 ? width : 50,
+          }))
+        : [];
+
     container.style.overflow = 'hidden';
     const table = $container.find('table').DataTable({
       paging: true,
@@ -164,10 +179,7 @@ function PivotTable(element, props) {
       scrollY: `${height}px`,
       scrollCollapse: true,
       scrollX: true,
-      columnDefs: [
-        { width: 200, targets: 0 },
-        { width: 85, targets: 1 },
-      ],
+      columnDefs,
     });
     table.column('-1').order('desc').draw();
     fixTableHeight($container.find('.dataTables_wrapper'), height);

@@ -104,6 +104,20 @@ export default {
             },
           },
         ],
+        [
+          {
+            name: 'column_width_string',
+            config: {
+              type: 'TextControl',
+              default: '',
+              placeHolder: '200,100,100',
+              label: t('Column width string'),
+              description: t(
+                'Provide a comma separated values of column width from the first column default width for every column is 50 provide 0 to skip a column for example. 200,100,100 for first three columns',
+              ),
+            },
+          },
+        ],
       ],
     },
     {

@@ -17,6 +17,6 @@
  * under the License.
  */
 import { reactify } from '@superset-ui/chart';
-import Component from './PivotTable';
+import Component from './PivotTable.js';
 
 export default reactify(Component);
