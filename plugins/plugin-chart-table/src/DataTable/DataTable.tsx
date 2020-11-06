@@ -309,15 +309,6 @@ function CustomsTable({
                 {headerGroup.headers.map(column => {
                   const headerRestProps = column.getHeaderProps(column.getSortByToggleProps());
 
-                  // hide all the sentiment cell except positive which will show colored bar will have to change this functinality fior dynamic usage
-                  if (
-                    isSentimentColumnPresent &&
-                    (column.Header.toLowerCase().includes('negative_sentiment_valence') ||
-                      column.Header.toLowerCase().includes('neutral_sentiment_valence'))
-                  ) {
-                    return null;
-                  }
-
                   if (column.Header.includes('organization')) {
                     return (
                       <div {...headerRestProps} className="th">
@@ -487,15 +478,6 @@ function CustomsTable({
                             />
                           </div>
                         );
-                      }
-
-                      // hide all the sentiment cell except positive which will show colored bar will have to change this functinality fior dynamic usage
-                      if (
-                        isSentimentColumnPresent &&
-                        (cell.column.Header.toLowerCase().includes('negative_sentiment_valence') ||
-                          cell.column.Header.toLowerCase().includes('neutral_sentiment_valence'))
-                      ) {
-                        return null;
                       }
 
                       if (cell.column.Header.toLowerCase().includes('positive_sentiment_valence')) {

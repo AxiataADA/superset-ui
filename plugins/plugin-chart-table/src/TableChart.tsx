@@ -619,7 +619,7 @@ export default function TableChart<D extends DataRecord = DataRecord>(
   );
 
   const getColumnConfigs = useCallback(
-    (column: DataColumnMeta, i: number): Column<D> => {
+    (column: DataColumnMeta, i: number, columnArrayJustForLengthPurpose: Array): Column<D> => {
       const timeFiltersArray = ['published_date', 'crawled_date', 'as_of_date', 'created_date'];
       const { key, label, dataType } = column;
       let isDateFilterType = false;
@@ -708,12 +708,24 @@ export default function TableChart<D extends DataRecord = DataRecord>(
         canCustomFilter: isFilterColumn ? true : false,
         sticky: isFixedColumn ? 'left' : '',
         dataType: isDateFilterType ? 'datetime' : dataType,
+        width: 150,
       };
-      if (label.toLowerCase().includes('organization')) columnObject.width = 200;
-      if (label.toLowerCase().includes('video_title')) columnObject.width = 240;
-      if (label.toLowerCase().includes('video_title_link')) columnObject.width = 240;
-      if (label.toLowerCase().includes('positive_sentiment_valence')) columnObject.width = 200;
-      if (label.toLowerCase().includes('creator_name')) columnObject.width = 170;
+
+      // check if columns are less and is there a black space on side if yes change the width of the column to equally distribute
+      if (width / columnArrayJustForLengthPurpose.length > 150) {
+        columnObject.width = width / columnArrayJustForLengthPurpose.length - 2;
+      }
+
+      if (label.toLowerCase().includes('organization'))
+        columnObject.width = columnObject.width > 200 ? columnObject.width - 2 : 200;
+      if (label.toLowerCase().includes('video_title'))
+        columnObject.width = columnObject.width > 240 ? columnObject.width - 2 : 240;
+      if (label.toLowerCase().includes('video_title_link'))
+        columnObject.width = columnObject.width > 240 ? columnObject.width - 2 : 240;
+      if (label.toLowerCase().includes('positive_sentiment_valence'))
+        columnObject.width = columnObject.width > 200 ? columnObject.width - 2 : 200;
+      if (label.toLowerCase().includes('creator_name'))
+        columnObject.width = columnObject.width > 170 ? columnObject.width - 2 : 170;
 
       return columnObject;
     },
@@ -740,7 +752,7 @@ export default function TableChart<D extends DataRecord = DataRecord>(
       .filter(i => {
         let column;
         ignoreColumnList.map(ignoreCol => {
-          if (i.key.includes(ignoreCol)) column = ignoreCol;
+          if (i.key.toLowerCase().includes(ignoreCol)) column = ignoreCol;
         });
         return column ? false : true;
       })
@@ -779,11 +791,16 @@ export default function TableChart<D extends DataRecord = DataRecord>(
           fixedColumns && fixedColumns.length > 0
             ? fixedColumns
                 .map(i => {
-                  if (i && i.toLowerCase() === 'organization') return 200;
-                  else if (i && i.toLowerCase() === 'video_title') return 240;
-                  else if (i && i.toLowerCase() === 'video_title_link') return 240;
-                  else if (i && i.toLowerCase() === 'positive_sentiment_valence') return 200;
-                  else if (i && i.toLowerCase() === 'creator_name') return 170;
+                  if (i && i.toLowerCase() === 'organization')
+                    return width / columns.length > 200 ? width / columns.length - 2 : 200;
+                  else if (i && i.toLowerCase() === 'video_title')
+                    return width / columns.length > 240 ? width / columns.length - 2 : 240;
+                  else if (i && i.toLowerCase() === 'video_title_link')
+                    return width / columns.length > 240 ? width / columns.length - 2 : 240;
+                  else if (i && i.toLowerCase() === 'positive_sentiment_valence')
+                    return width / columns.length > 200 ? width / columns.length - 2 : 200;
+                  else if (i && i.toLowerCase() === 'creator_name')
+                    return width / columns.length > 170 ? width / columns.length - 2 : 170;
                   else return 150;
                 })
                 .reduce((a, b) => a + b)

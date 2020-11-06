@@ -37,7 +37,10 @@ const MINIMAL_PAGE_ITEM_COUNT = 7;
  */
 export function generatePageItems(total: number, current: number, width: number) {
   if (width < MINIMAL_PAGE_ITEM_COUNT) {
-    throw new Error(`Must allow at least ${MINIMAL_PAGE_ITEM_COUNT} page items`);
+    // throw new Error(`Must allow at least ${MINIMAL_PAGE_ITEM_COUNT} page items`);
+    throw new Error(
+      `This chart works only with full width. Please increase the width to the maximum possible limit and reload this page.`,
+    );
   }
   if (width % 2 === 0) {
     throw new Error(`Must allow odd number of page items`);
