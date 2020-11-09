@@ -176,13 +176,13 @@ function PivotTable(element, props) {
       paging: true,
       searching: true,
       bInfo: false,
-      scrollY: `${height}px`,
+      scrollY: `${height - 30}px`,
       scrollCollapse: true,
       scrollX: true,
       columnDefs,
     });
     table.column('-1').order('desc').draw();
-    fixTableHeight($container.find('.dataTables_wrapper'), height);
+    fixTableHeight($container.find('.dataTables_wrapper'), height - 30);
   } else {
     // When there is more than 1 group by column we just render the table, without using
     // the DataTable plugin, so we need to handle the scrolling ourselves.
