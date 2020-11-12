@@ -142,6 +142,7 @@ function CustomsTable({
   hasPagination,
   searchInput,
   tableHeader,
+  customTableHeader,
   tableDescription,
   exportCSV,
   globalControlRef,
@@ -254,7 +255,7 @@ function CustomsTable({
                   onChange={setPageSize}
                 />
               ) : null */}
-              <span style={{ fontSize: '24px' }}>{tableHeader || ''}</span>
+              <span style={{ fontSize: '24px' }}>{customTableHeader || tableHeader || ''}</span>
               <img
                 title={tableDescription || ''}
                 alt="Description"
@@ -262,7 +263,8 @@ function CustomsTable({
                 style={{
                   width: '16px',
                   height: '16px',
-                  margin: tableHeader ? '-5px 0px 0px 7.5px' : '0px 0px 0px 7.5px',
+                  margin:
+                    customTableHeader || tableHeader ? '-5px 0px 0px 7.5px' : '0px 0px 0px 7.5px',
                 }}
               />
             </div>
@@ -271,6 +273,7 @@ function CustomsTable({
                 <GlobalFilter
                   exportCSV={exportCSV}
                   tableHeader={tableHeader}
+                  customTableHeader={customTableHeader}
                   uniqueTableIdForPDFDownload={uniqueTableIdForPDFDownload}
                   searchInput={typeof searchInput === 'boolean' ? undefined : searchInput}
                   preGlobalFilteredRows={preGlobalFilteredRows}
@@ -688,6 +691,7 @@ function getTextColor(color: string): object {
 export interface DataTableProps<D extends object> extends TableOptions<D> {
   tableClassName?: string;
   tableHeader: string;
+  customTableHeader: string;
   searchInput?: boolean | GlobalFilterProps<D>['searchInput'];
   pageSizeOptions?: SizeOption[]; // available page size options
   maxPageItemCount?: number;
@@ -732,6 +736,7 @@ export default function DataTable<D extends object>({
   noResultsText = 'No data found',
   hooks,
   tableHeader,
+  customTableHeader,
   tableDescription,
   exportCSV,
   getKeyOrLableContent,
@@ -1338,6 +1343,7 @@ export default function DataTable<D extends object>({
         hasGlobalControl={hasGlobalControl}
         searchInput={searchInput}
         tableHeader={tableHeader}
+        customTableHeader={customTableHeader}
         tableDescription={tableDescription}
         exportCSV={exportCSV}
         globalControlRef={globalControlRef}

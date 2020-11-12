@@ -298,6 +298,7 @@ function SearchInput({
   setValue,
   exportCSV,
   tableHeader,
+  customTableHeader,
   uniqueTableIdForPDFDownload,
   filterComponentArray,
   columnFilter,
@@ -566,6 +567,7 @@ export default function TableChart<D extends DataRecord = DataRecord>(
     filters: initialFilters,
     sticky = true, // whether to use sticky header
     tableHeader,
+    customTableHeader,
     tableDescription,
     exportCSV,
     getKeyOrLableContent,
@@ -779,6 +781,7 @@ export default function TableChart<D extends DataRecord = DataRecord>(
         // not in use in Superset, but needed for unit tests
         sticky={sticky}
         tableHeader={tableHeader}
+        customTableHeader={customTableHeader}
         tableDescription={tableDescription}
         exportCSV={exportCSV}
         getKeyOrLableContent={getKeyOrLableContent}

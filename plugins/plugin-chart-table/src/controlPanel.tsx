@@ -316,6 +316,18 @@ const config: ControlPanelConfig = {
         ],
         [
           {
+            name: 'customTableHeader',
+            config: {
+              type: 'TextControl',
+              renderTrigger: true,
+              default: '',
+              label: t('Table Header'),
+              description: t('Table header text for to display in table header'),
+            },
+          },
+        ],
+        [
+          {
             name: 'tableDescription',
             config: {
               type: 'TextControl',
