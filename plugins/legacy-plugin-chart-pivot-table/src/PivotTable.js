@@ -29,6 +29,12 @@ import fixTableHeight from './utils/fixTableHeight';
 import 'datatables.net-bs/css/dataTables.bootstrap.css';
 import './PivotTable.css';
 
+const platformObject = {
+  youtube: 'Youtube',
+  facebook: 'Facebook',
+  instagram: 'Instagram',
+};
+
 function getRequiredDateFormat(dateString) {
   const newDate = new Date(new Date(dateString.trim()) + 'UTC');
   const monthsArray = [
@@ -84,6 +90,8 @@ function PivotTable(element, props) {
     showPaginationAndSearch,
     getKeyOrLableContent,
     columnWidthArray,
+    pageSize,
+    columnAlignmentArray,
   } = props;
 
   const { html, columns } = data;
@@ -110,6 +118,22 @@ function PivotTable(element, props) {
   // eslint-disable-next-line func-name-matching
   const replaceCell = function replace() {
     const s = $(this)[0].textContent;
+
+    if (
+      s &&
+      typeof s === 'string' &&
+      ['youtube', 'facebook', 'instagram'].includes(s.toLowerCase())
+    ) {
+      $(this)[0].innerHTML = `
+        <img
+          alt="Platform"
+          src='/static/assets/images/Donut Chart Icon/${platformObject[s.toLowerCase()]}.png'
+          style="height: 20px;"
+        >
+      `;
+      return;
+    }
+
     const regexMatch = dateRegex.exec(s);
     let cellValue;
     if (regexMatch) {
@@ -168,21 +192,107 @@ function PivotTable(element, props) {
         ? columnWidthArray.map((width, index) => ({
             targets: index,
             width: !isNaN(width) && width > 50 ? width : 50,
+            align: 'left',
+            createdCell: function (td, cellData, rowData, row, col) {
+              $(td).css(
+                'text-align',
+                columnAlignmentArray[index] ? columnAlignmentArray[index] : 'center',
+              );
+            },
           }))
         : [];
 
     container.style.overflow = 'hidden';
     const table = $container.find('table').DataTable({
+      // dom is used for managing the layout
+      dom:
+        "<'row'<'col-sm-12 pivot-table-header'<'header-description'><'pivot-table-filter'>>>" +
+        "<'row'<'col-sm-12'tr>>" +
+        "<'row'<'col-sm-12 pivot-table-footer'<'page-number-div-info'i><'pagination-div'p>>>",
+      renderer: 'bootstrap',
       paging: true,
+      pageLength: !isNaN(Number(pageSize)) && Number(pageSize) > 0 ? Number(pageSize) : 10,
+      lengthChange: false,
       searching: true,
       bInfo: false,
       scrollY: `${height - 30}px`,
       scrollCollapse: true,
       scrollX: true,
+      info: true,
       columnDefs,
+      language: {
+        paginate: {
+          previous: "<i class='fa fa-chevron-left'></i>",
+          next: "<i class='fa fa-chevron-right'></i>",
+        },
+        info: '_TOTAL_ Total Videos',
+      },
     });
     table.column('-1').order('desc').draw();
-    fixTableHeight($container.find('.dataTables_wrapper'), height - 30);
+    fixTableHeight($container.find('.dataTables_wrapper'), height - 60);
+
+    /*
+      adding following things in header with their styling
+      table header,
+      table description,
+      reset filter button,
+      filter popup show button,
+      global search inputs
+      pdf download button,
+      xls download button
+    */
+    $container
+      .find('.header-description')
+      .css('display', 'flex')
+      .css('justify-content', 'flex-start').append(`
+        <span style="font-size: 24px">Custom Table Header</span>
+        <img
+          title="tableDescription"
+          alt="Description"
+          src="/static/assets/images/icons/Table Description.png"
+          style="width: 16px; height: 16px; margin: 8px 0px 0px 7.5px;"
+        >
+      `);
+    $container.find('.pivot-table-filter').css('display', 'flex').css('justify-content', 'flex-end')
+      .append(`
+        <img
+          alt="Reset"
+          src="/static/assets/images/icons/Reset Table Filter.png"
+          style="width: 16px; height: 16px; margin: 8px 0px; cursor: pointer;"
+          onClick=""
+        />
+        <img
+          alt="Filter"
+          src="/static/assets/images/icons/Table Filter.png"
+          style="width: 17px; height: 16px; margin: 8px 15px; cursor: pointer;"
+          onClick=""
+        />
+        <div class="pivot-table-search-input-with-icon">
+          <div class="pivot-table-search-input-box-icon">
+            <div class="fa fa-search"></div>
+          </div>
+          <input
+            id="pivot-table-global-filter-input"
+            class="pivot-table-search-input form-control input-sm"
+            placeholder="Search..."
+          />
+        </div>
+        <img
+          onClick=""
+          alt="PDF"
+          src='/static/assets/images/icons/PDF.png'
+          style='width: 24px; height: 30px; margin: 0px 10px 0px 25px; cursor: pointer;'
+        >
+        <img
+          onClick=""
+          alt="XLS"
+          src='/static/assets/images/icons/XLS.png'
+          style='width: 24px; height: 30px; cursor: pointer;'
+        >
+      `);
+    $container.find('#pivot-table-global-filter-input').keyup(function () {
+      table.search($(this).val()).draw();
+    });
   } else {
     // When there is more than 1 group by column we just render the table, without using
     // the DataTable plugin, so we need to handle the scrolling ourselves.

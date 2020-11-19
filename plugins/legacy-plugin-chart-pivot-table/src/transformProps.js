@@ -25,6 +25,8 @@ export default function transformProps(chartProps) {
     dateFormat,
     showPaginationAndSearch,
     columnWidthString,
+    pageSize,
+    columnAlignmentString,
   } = formData;
   const { columnFormats, verboseMap } = datasource;
   const { getKeyOrLableContent } = hooks;
@@ -41,5 +43,7 @@ export default function transformProps(chartProps) {
     showPaginationAndSearch,
     getKeyOrLableContent,
     columnWidthArray: columnWidthString ? columnWidthString.split(',').map(i => Number(i)) : [],
+    pageSize,
+    columnAlignmentArray: columnAlignmentString ? columnAlignmentString.split(',') : [],
   };
 }

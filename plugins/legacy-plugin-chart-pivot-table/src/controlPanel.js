@@ -39,6 +39,7 @@ export default {
     },
     {
       label: t('Pivot Options'),
+      expanded: true,
       controlSetRows: [
         [
           {
@@ -92,8 +93,6 @@ export default {
               ),
             },
           },
-        ],
-        [
           {
             name: 'transpose_pivot',
             config: {
@@ -101,6 +100,19 @@ export default {
               label: t('Transpose Pivot'),
               default: false,
               description: t('Swap Groups and Columns'),
+            },
+          },
+        ],
+        [
+          {
+            name: 'page_size',
+            config: {
+              type: 'SelectControl',
+              freeForm: true,
+              label: t('Page Size'),
+              default: '10',
+              description: t('Number of entris to show on each page default is 10'),
+              choices: formatSelectOptions(['5', '10', '15', '20']),
             },
           },
         ],
@@ -114,6 +126,20 @@ export default {
               label: t('Column width string'),
               description: t(
                 'Provide a comma separated values of column width from the first column default width for every column is 50 provide 0 to skip a column for example. 200,100,100 for first three columns',
+              ),
+            },
+          },
+        ],
+        [
+          {
+            name: 'column_alignment_string',
+            config: {
+              type: 'TextControl',
+              default: '',
+              placeHolder: 'left,center,center',
+              label: t('Column alignment string'),
+              description: t(
+                'Provide a comma separated values of column text alignment from the first column default alignment for every column is center. for example. left,center,right for first three columns. this will be only applied if you have provided width for that column',
               ),
             },
           },

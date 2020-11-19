@@ -21,6 +21,69 @@
   margin-bottom: 15px;
 }
 
+
+/* pivot table header styling*/
+
+/* pivot table header and description styling */
+
+.pivot_table .pivot-table-header {
+  display: flex;
+  justify-content: space-between;
+}
+
+/*pivot table search box styling */
+.pivot-table-header .pivot-table-search-input-with-icon {
+  position: relative;
+  width: 230px;
+  height: 30px;
+  border: 1px solid #7c90db;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.pivot-table-header .pivot-table-search-input-box-icon {
+  height: 100%;
+  position: absolute;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4f62aa;
+  padding: 0px 12px;
+  font-size: 13px;
+  font-family: 'Roboto', sans-serif;
+}
+
+.pivot-table-header .pivot-table-search-input {
+  border: none;
+  margin-left: 25px;
+  width: 205px;
+  font-family: 'Roboto', sans-serif;
+}
+
+.pivot-table-header .pivot-table-search-input::placeholder {
+  color: #7c90db;
+  for-size: 13px;
+  font-family: 'Roboto', sans-serif;
+}
+
+.pivot-table-header .pivot-table-search-input:-ms-input-placeholder {
+  font-family: 'Roboto', sans-serif;
+  color: #7c90db;
+  for-size: 13px;
+}
+
+.pivot-table-header .pivot-table-search-input::-ms-input-placeholder {
+  font-family: 'Roboto', sans-serif;
+  color: #7c90db;
+  for-size: 13px;
+}
+
+.pivot-table-header .pivot-table-search-input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
 /* main table styling header and body only */
 .pivot_table .dataTables_wrapper .dataTables_scroll {
   border: 2px solid #7C90DB;
@@ -62,8 +125,8 @@
   color: #11172E;
   text-align: center;
   font-weight: 700;
-  padding-left: 5px;
-  padding-right: 5px;
+  padding-left: 5px !important;
+  padding-right: 5px !important;
 }
 
 .pivot_table .dataTables_wrapper .dataTables_scroll .dataTables_scrollBody table.table-bordered tbody tr th.left-align-items {
@@ -88,5 +151,67 @@
 .pivot_table .dataTables_wrapper .table-bordered tfoot tr td {
   border-color: #cfd8db !important;
   padding: 0px !important;
-  min-width: 50px;
+  min-width: 80px;
+}
+
+/* footer styling with pagination and total count */
+
+.pivot_table .pivot-table-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* paniation page info */
+.pivot_table .page-number-div-info {
+  margin-right: 30px;
+  opacity: 0.5;
+  font-size: 13px;
+}
+
+/*Pagination styling*/
+.pivot_table .pagination > li > a {
+  padding: 5px 10px;
+  margin: 2px;
+  background-color: #F8F8F8;
+  border-radius: 2px;
+  border: none;
+  color: black;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.pivot_table .pagination > li > a:focus {
+  outline: none;
+}
+
+.pivot_table .pagination .previous > a, .pivot_table .pagination .next > a  {
+  background-color: #F8F8F8;
+  padding: 7.5px 10px;
+  margin: 2px;
+  opacity: 0.8;
+  font-size: 14px;
+}
+
+.pivot_table .pagination .disabled > a:focus  {
+  background-color: #F8F8F8;
+  opacity: 1;
+}
+
+.pivot_table .pagination .disabled > a:hover  {
+  background-color: #F8F8F8;
+}
+
+.pivot_table .pagination .disabled > a  {
+  background-color: #F8F8F8;
+  opacity: 1;
+}
+
+.pivot_table .pagination .previous.disabled > a, .pivot_table .pagination .next.disabled > a  {
+  opacity: 0.4;
+  background-color: #F8F8F8;
+}
+
+.pivot_table .pagination .active > a  {
+  background-color: rgb(124, 144, 219);
+  color: white;
 }
