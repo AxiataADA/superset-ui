@@ -27,9 +27,12 @@ export default function transformProps(chartProps) {
     columnWidthString,
     pageSize,
     columnAlignmentString,
+    showTableHeaderAndInfoIcon,
+    tableHeader,
+    tableDescription,
   } = formData;
   const { columnFormats, verboseMap } = datasource;
-  const { getKeyOrLableContent } = hooks;
+  const { exportCSV, getKeyOrLableContent } = hooks;
 
   return {
     columnFormats,
@@ -45,5 +48,9 @@ export default function transformProps(chartProps) {
     columnWidthArray: columnWidthString ? columnWidthString.split(',').map(i => Number(i)) : [],
     pageSize,
     columnAlignmentArray: columnAlignmentString ? columnAlignmentString.split(',') : [],
+    showTableHeaderAndInfoIcon,
+    tableHeader,
+    tableDescription,
+    exportCSV,
   };
 }

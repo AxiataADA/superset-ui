@@ -257,7 +257,7 @@ function CustomsTable({
               ) : null */}
               <span style={{ fontSize: '24px' }}>{customTableHeader || tableHeader || ''}</span>
               <img
-                title={tableDescription || ''}
+                title={tableDescription || 'No description provided'}
                 alt="Description"
                 src={`/static/assets/images/icons/Table Description.png`}
                 style={{

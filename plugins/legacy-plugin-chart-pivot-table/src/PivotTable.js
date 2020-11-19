@@ -17,6 +17,8 @@
  * under the License.
  */
 /* eslint-disable react/sort-prop-types */
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 import dt from 'datatables.net-bs';
 import PropTypes from 'prop-types';
 import { formatNumber } from '@superset-ui/number-format';
@@ -34,6 +36,16 @@ const platformObject = {
   facebook: 'Facebook',
   instagram: 'Instagram',
 };
+
+function createUniqueId() {
+  let result = '';
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const charactersLength = characters.length;
+  for (let i = 0; i < 10; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+}
 
 function getRequiredDateFormat(dateString) {
   const newDate = new Date(new Date(dateString.trim()) + 'UTC');
@@ -92,8 +104,12 @@ function PivotTable(element, props) {
     columnWidthArray,
     pageSize,
     columnAlignmentArray,
+    showTableHeaderAndInfoIcon,
+    tableHeader,
+    tableDescription,
+    exportCSV,
   } = props;
-
+  const uniqueTableIdForPDFDownload = createUniqueId();
   const { html, columns } = data;
   const container = element;
   const $container = $(element);
@@ -180,6 +196,36 @@ function PivotTable(element, props) {
         }
       });
   });
+
+  // function to create and download pivot table
+  const downloadPivotTablePDF = function downloadPDF() {
+    html2canvas(document.querySelector('.' + 'pivot-table-' + uniqueTableIdForPDFDownload), {
+      scrollX: 0,
+      scrollY: -window.scrollY,
+    }).then(canvas => {
+      let wid;
+      let hgt;
+      const imgData = canvas.toDataURL('image/png', (wid = canvas.width), (hgt = canvas.height));
+      var hratio = hgt / wid;
+      const pdf = new jsPDF('l', 'pt', 'a4');
+      let width = pdf.internal.pageSize.getWidth();
+      var newHeight = pdf.internal.pageSize.getHeight();
+      let height = (width - 20) * hratio;
+      let yOffSet = (newHeight - height) / 2;
+      pdf.addImage(
+        imgData,
+        'PNG',
+        10,
+        yOffSet > 0 || yOffSet < newHeight / 2 ? yOffSet : 10,
+        width - 20,
+        height > newHeight ? newHeight - 20 : height,
+        null,
+        'MEDIUM',
+      );
+      pdf.save(tableHeader || 'Agilebi Pivot Table' + '.pdf');
+    });
+  };
+
   // if (numGroups === 1) { commenting this default condition provided by superset
   // When there is only 1 group by column,
   // we use the DataTable plugin to make the header fixed.
@@ -207,7 +253,7 @@ function PivotTable(element, props) {
       // dom is used for managing the layout
       dom:
         "<'row'<'col-sm-12 pivot-table-header'<'header-description'><'pivot-table-filter'>>>" +
-        "<'row'<'col-sm-12'tr>>" +
+        `<'row pivot-table-${uniqueTableIdForPDFDownload}'<'col-sm-12't>>` +
         "<'row'<'col-sm-12 pivot-table-footer'<'page-number-div-info'i><'pagination-div'p>>>",
       renderer: 'bootstrap',
       paging: true,
@@ -241,18 +287,20 @@ function PivotTable(element, props) {
       pdf download button,
       xls download button
     */
-    $container
-      .find('.header-description')
-      .css('display', 'flex')
-      .css('justify-content', 'flex-start').append(`
-        <span style="font-size: 24px">Custom Table Header</span>
+    if (showTableHeaderAndInfoIcon) {
+      $container
+        .find('.header-description')
+        .css('display', 'flex')
+        .css('justify-content', 'flex-start').append(`
+        <span style="font-size: 24px">${tableHeader || 'Table Heading'}</span>
         <img
-          title="tableDescription"
+          title="${tableDescription || 'No Description provided'}"
           alt="Description"
           src="/static/assets/images/icons/Table Description.png"
           style="width: 16px; height: 16px; margin: 8px 0px 0px 7.5px;"
         >
-      `);
+        `);
+    }
     $container.find('.pivot-table-filter').css('display', 'flex').css('justify-content', 'flex-end')
       .append(`
         <img
@@ -278,21 +326,25 @@ function PivotTable(element, props) {
           />
         </div>
         <img
-          onClick=""
+          id="download-pdf-button"
           alt="PDF"
           src='/static/assets/images/icons/PDF.png'
           style='width: 24px; height: 30px; margin: 0px 10px 0px 25px; cursor: pointer;'
         >
         <img
-          onClick=""
+          id="download-csv-button"
           alt="XLS"
           src='/static/assets/images/icons/XLS.png'
           style='width: 24px; height: 30px; cursor: pointer;'
         >
       `);
+
     $container.find('#pivot-table-global-filter-input').keyup(function () {
       table.search($(this).val()).draw();
     });
+
+    $container.find('#download-pdf-button').click(downloadPivotTablePDF);
+    $container.find('#download-csv-button').click(exportCSV);
   } else {
     // When there is more than 1 group by column we just render the table, without using
     // the DataTable plugin, so we need to handle the scrolling ourselves.

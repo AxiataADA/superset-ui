@@ -105,6 +105,19 @@ export default {
         ],
         [
           {
+            name: 'show_table_header_and_info_icon',
+            config: {
+              type: 'CheckboxControl',
+              label: t('Show Table Header and Info Icon'),
+              default: false,
+              description: t(
+                'Show table header and info iscon to provide more information about the pivot table',
+              ),
+            },
+          },
+        ],
+        [
+          {
             name: 'page_size',
             config: {
               type: 'SelectControl',
@@ -113,6 +126,32 @@ export default {
               default: '10',
               description: t('Number of entris to show on each page default is 10'),
               choices: formatSelectOptions(['5', '10', '15', '20']),
+            },
+          },
+        ],
+        [
+          {
+            name: 'tableHeader',
+            config: {
+              type: 'TextControl',
+              default: '',
+              label: t('Table Heading'),
+              description: t(
+                'Pivot table heading text for to display in table header. NOte: you need to check "Show Table Header and Info Icon" display this above table.',
+              ),
+            },
+          },
+        ],
+        [
+          {
+            name: 'tableDescription',
+            config: {
+              type: 'TextControl',
+              default: '',
+              label: t('Table Description'),
+              description: t(
+                'Description text that shows up when you hover over the info icon. Note: you need to check "Show Table Header and Info Icon" to display this.',
+              ),
             },
           },
         ],
