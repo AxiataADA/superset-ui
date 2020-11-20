@@ -20,6 +20,8 @@
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import dt from 'datatables.net-bs';
+// import fdt from 'datatables.net-fixedcolumns';
+import 'datatables.net-bs/css/dataTables.bootstrap.css';
 import PropTypes from 'prop-types';
 import { formatNumber } from '@superset-ui/number-format';
 import {
@@ -28,8 +30,9 @@ import {
   smartDateFormatter,
 } from '@superset-ui/time-format';
 import fixTableHeight from './utils/fixTableHeight';
-import 'datatables.net-bs/css/dataTables.bootstrap.css';
 import './PivotTable.css';
+import './PivotTableModal.css';
+// import './DataTableFixedColumns.css';
 
 const platformObject = {
   youtube: 'Youtube',
@@ -71,6 +74,9 @@ function getRequiredDateFormat(dateString) {
 
 if (window.$) {
   dt(window, window.$);
+
+  //table filter fixed column handling
+  // fdt( window, window.$ );
 }
 const $ = window.$ || dt.$;
 
@@ -273,6 +279,9 @@ function PivotTable(element, props) {
         },
         info: '_TOTAL_ Total Videos',
       },
+      fixedColumns: {
+        leftColumns: 2,
+      },
     });
     table.column('-1').order('desc').draw();
     fixTableHeight($container.find('.dataTables_wrapper'), height - 60);
@@ -301,20 +310,24 @@ function PivotTable(element, props) {
         >
         `);
     }
+
     $container.find('.pivot-table-filter').css('display', 'flex').css('justify-content', 'flex-end')
       .append(`
         <img
+          id="pivot-table-reset-filter-button"
           alt="Reset"
           src="/static/assets/images/icons/Reset Table Filter.png"
-          style="width: 16px; height: 16px; margin: 8px 0px; cursor: pointer;"
+          style="width: 16px; height: 16px; margin: 8px 15px 8px; cursor: pointer;"
           onClick=""
-        />
-        <img
+        >
+        <!--<img
+          data-toggle="modal"
+          data-target="#pivot-table-filter-modal-${uniqueTableIdForPDFDownload}"
           alt="Filter"
           src="/static/assets/images/icons/Table Filter.png"
           style="width: 17px; height: 16px; margin: 8px 15px; cursor: pointer;"
           onClick=""
-        />
+        >-->
         <div class="pivot-table-search-input-with-icon">
           <div class="pivot-table-search-input-box-icon">
             <div class="fa fa-search"></div>
@@ -337,10 +350,56 @@ function PivotTable(element, props) {
           src='/static/assets/images/icons/XLS.png'
           style='width: 24px; height: 30px; cursor: pointer;'
         >
+        <!--<div
+          class="modal fade pivotTableFilterModal"
+          id="pivot-table-filter-modal-${uniqueTableIdForPDFDownload}"
+          role="dialog"
+          style="margin-left: 19vw;"
+        >
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div
+                class="modal-header"
+                style="padding: 25px 23px 26px; border-bottom: none;"
+              >
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4
+                  class="modal-title"
+                  style="color: #202C56; font-family: 'Roboto', sans-serif; font-weight: 700; font-size: 22px; margin: 0px 0px 0px 27px;"
+                >
+                  Filter
+                </h4>
+              </div>
+              <div class="modal-body" style="padding: 0px 50px;">
+                <hr style="margin: 0px 0px 30px 0px; border-top: #D3DBF6 1px solid">
+                <p>Some text in the modal.</p>
+                <hr style="margin: 0px; border-top: #D3DBF6 1px solid">
+              </div>
+              <div
+                class="modal-footer"
+                style="padding: 40px; display: flex; justify-content: center"
+              >
+                <button
+                  type="button"
+                  class="btn btn-default"
+                  data-dismiss="modal"
+                  style="text-transform: unset; height: 35px; width: 147px; background: transparent linear-gradient(270deg, #B3C3EF 0%, #7C90DB 100%) 0% 0% no-repeat padding-box; border-radius: 18px; border: none; color: white; font-weight: 700; font-size: 13px;"
+                >
+                  Apply
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>-->
       `);
 
     $container.find('#pivot-table-global-filter-input').keyup(function () {
       table.search($(this).val()).draw();
+    });
+
+    $container.find('#pivot-table-reset-filter-button').click(function () {
+      table.search('').draw();
+      $container.find('#pivot-table-global-filter-input').val('');
     });
 
     $container.find('#download-pdf-button').click(downloadPivotTablePDF);

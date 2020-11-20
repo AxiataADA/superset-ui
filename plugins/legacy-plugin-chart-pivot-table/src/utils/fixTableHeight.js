@@ -10,4 +10,7 @@ export default function fixTableHeight($tableDom, height) {
   $tableDom
     .find('.dataTables_scrollBody')
     .css('max-height', height - headHeight - controlsHeight - paginationHeight);
+  // $tableDom
+  //   .find('.DTFC_LeftBodyWrapper')
+  //   .css('max-height', height - headHeight - controlsHeight - paginationHeight);
 }
