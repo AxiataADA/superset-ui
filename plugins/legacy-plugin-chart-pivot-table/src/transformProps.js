@@ -30,9 +30,10 @@ export default function transformProps(chartProps) {
     showTableHeaderAndInfoIcon,
     tableHeader,
     tableDescription,
+    filterColumns,
   } = formData;
   const { columnFormats, verboseMap } = datasource;
-  const { exportCSV, getKeyOrLableContent } = hooks;
+  const { exportCSV, getKeyOrLableContent, globalSelectControl } = hooks;
 
   return {
     columnFormats,
@@ -42,6 +43,7 @@ export default function transformProps(chartProps) {
     height,
     numberFormat,
     numGroups: groupby.length,
+    groupby,
     verboseMap,
     showPaginationAndSearch,
     getKeyOrLableContent,
@@ -52,5 +54,7 @@ export default function transformProps(chartProps) {
     tableHeader,
     tableDescription,
     exportCSV,
+    globalSelectControl,
+    filterColumns: filterColumns ? filterColumns : [],
   };
 }

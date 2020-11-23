@@ -22,7 +22,27 @@ import {
   D3_FORMAT_DOCS,
   formatSelectOptions,
   D3_TIME_FORMAT_OPTIONS,
+  ColumnOption,
 } from '@superset-ui/chart-controls';
+
+const filter_columns = {
+  type: 'SelectControl',
+  label: t('Filter Columns'),
+  description: t('Filters to display based on column'),
+  multi: true,
+  freeForm: true,
+  allowAll: true,
+  commaChoosesOption: false,
+  default: [],
+  optionRenderer: c => <ColumnOption showType column={c} />,
+  valueRenderer: c => <ColumnOption column={c} />,
+  valueKey: 'column_name',
+  mapStateToProps: ({ datasource, controls }) => {
+    return {
+      options: datasource?.columns || [],
+    };
+  },
+};
 
 export default {
   controlPanelSections: [
@@ -87,7 +107,7 @@ export default {
             config: {
               type: 'CheckboxControl',
               label: t('Show Pagination and Global Search'),
-              default: false,
+              default: true,
               description: t(
                 'Show pagination for the current table and fixed the header also add a global search box',
               ),
@@ -153,6 +173,12 @@ export default {
                 'Description text that shows up when you hover over the info icon. Note: you need to check "Show Table Header and Info Icon" to display this.',
               ),
             },
+          },
+        ],
+        [
+          {
+            name: 'filter_columns',
+            config: filter_columns,
           },
         ],
         [

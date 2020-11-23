@@ -16,84 +16,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-/* eslint-disable react/sort-prop-types */
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
+import React from 'react';
+import ReactDOM from 'react-dom';
 import dt from 'datatables.net-bs';
 // import fdt from 'datatables.net-fixedcolumns';
 import 'datatables.net-bs/css/dataTables.bootstrap.css';
-import PropTypes from 'prop-types';
-import { formatNumber } from '@superset-ui/number-format';
 import {
   getTimeFormatter,
   getTimeFormatterForGranularity,
   smartDateFormatter,
 } from '@superset-ui/time-format';
+import Header, { headingAndInfo } from './components/pivotTableHeader';
+import RenderFilter from './components/filters';
 import fixTableHeight from './utils/fixTableHeight';
-import './PivotTable.css';
-import './PivotTableModal.css';
-// import './DataTableFixedColumns.css';
-
-const platformObject = {
-  youtube: 'Youtube',
-  facebook: 'Facebook',
-  instagram: 'Instagram',
-};
-
-function createUniqueId() {
-  let result = '';
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  const charactersLength = characters.length;
-  for (let i = 0; i < 10; i++) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-  }
-  return result;
-}
-
-function getRequiredDateFormat(dateString) {
-  const newDate = new Date(new Date(dateString.trim()) + 'UTC');
-  const monthsArray = [
-    'Jan ',
-    'Feb ',
-    'Mar ',
-    'Apr ',
-    'May ',
-    'Jun ',
-    'Jul ',
-    'Aug ',
-    'Sep ',
-    'Oct ',
-    'Nov ',
-    'Dec ',
-  ];
-  const date = newDate.getDate(),
-    year = newDate.getFullYear(),
-    month = newDate.getMonth();
-  return monthsArray[month] + date + ', ' + year;
-}
+import createDataTable from './utils/createDataTable';
+import replaceCell from './utils/replaceCell';
+import { createUniqueId, propTypes, downloadPivotTablePDF } from './utils';
+import './style/index.css';
 
 if (window.$) {
-  dt(window, window.$);
-
   //table filter fixed column handling
   // fdt( window, window.$ );
+
+  dt(window, window.$);
 }
 const $ = window.$ || dt.$;
-
-const propTypes = {
-  data: PropTypes.shape({
-    // TODO: replace this with raw data in SIP-6
-    html: PropTypes.string,
-    columns: PropTypes.arrayOf(
-      PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]),
-    ),
-  }),
-  height: PropTypes.number,
-  columnFormats: PropTypes.objectOf(PropTypes.string),
-  numberFormat: PropTypes.string,
-  numGroups: PropTypes.number,
-  verboseMap: PropTypes.objectOf(PropTypes.string),
-};
 
 function PivotTable(element, props) {
   const {
@@ -103,7 +50,6 @@ function PivotTable(element, props) {
     granularity,
     height,
     numberFormat,
-    numGroups,
     verboseMap,
     showPaginationAndSearch,
     getKeyOrLableContent,
@@ -114,176 +60,74 @@ function PivotTable(element, props) {
     tableHeader,
     tableDescription,
     exportCSV,
+    groupby,
+    globalSelectControl,
+    filterColumns,
   } = props;
-  const uniqueTableIdForPDFDownload = createUniqueId();
+  const uniqueTableId = createUniqueId();
   const { html, columns } = data;
   const container = element;
   const $container = $(element);
-  let dateFormatter;
-
-  if (dateFormat === smartDateFormatter.id && granularity) {
-    dateFormatter = getTimeFormatterForGranularity(granularity);
-  } else if (dateFormat) {
-    dateFormatter = getTimeFormatter(dateFormat);
-  } else {
-    dateFormatter = String;
-  }
 
   // queryData data is a string of html with a single table element
   container.innerHTML = html;
 
-  const cols = Array.isArray(columns[0]) ? columns.map(col => col[0]) : columns;
-  // regex to parse dates
-  const dateRegex = /^__timestamp:(-?\d*\.?\d*)$/;
+  // replace cell data as per the requirement
+  replaceCell($container, columns, verboseMap, getKeyOrLableContent, columnFormats);
 
-  // jQuery hack to set verbose names in headers
-  // eslint-disable-next-line func-name-matching
-  const replaceCell = function replace() {
-    const s = $(this)[0].textContent;
-
-    if (
-      s &&
-      typeof s === 'string' &&
-      ['youtube', 'facebook', 'instagram'].includes(s.toLowerCase())
-    ) {
-      $(this)[0].innerHTML = `
-        <img
-          alt="Platform"
-          src='/static/assets/images/Donut Chart Icon/${platformObject[s.toLowerCase()]}.png'
-          style="height: 20px;"
-        >
-      `;
-      return;
-    }
-
-    const regexMatch = dateRegex.exec(s);
-    let cellValue;
-    if (regexMatch) {
-      const date = new Date(parseFloat(regexMatch[1]));
-      cellValue = getRequiredDateFormat(date);
-    } else {
-      cellValue = verboseMap[s] || s;
-    }
-    if (cellValue) {
-      cellValue = getKeyOrLableContent(cellValue);
-      const date = new Date(cellValue);
-      if (date instanceof Date && !isNaN(date.getTime())) {
-        cellValue = getRequiredDateFormat(cellValue);
-      }
-    }
-    $(this)[0].textContent = cellValue;
-  };
-  $container.find('thead tr th').each(replaceCell);
-  $container.find('tbody tr th').each(replaceCell);
-
-  // jQuery hack to format number
-  $container.find('tbody tr').each(function eachRow() {
-    $(this)
-      .find('td')
-      .each(function each(i) {
-        const metric = cols[i];
-        const format = columnFormats[metric] || numberFormat || '.3s';
-        const tdText = $(this)[0].textContent;
-        const parsedValue = parseFloat(tdText);
-        if (Number.isNaN(parsedValue)) {
-          const regexMatch = dateRegex.exec(tdText);
-          if (regexMatch) {
-            const date = new Date(parseFloat(regexMatch[1]));
-            $(this)[0].textContent = getRequiredDateFormat(date);
-            $(this).attr('data-sort', date);
-          }
-          if (tdText === 'null' || tdText === null) {
-            $(this)[0].textContent = 'N/A';
-            $(this).attr('data-sort', parsedValue);
-          }
-        } else {
-          $(this)[0].textContent = formatNumber(format, parsedValue);
-          $(this).attr('data-sort', parsedValue);
+  // filter data preperation ( filter column object, appliefilters )
+  let popupFilterArrayForDataTable = [];
+  const filterComponentArray =
+    filterColumns &&
+    filterColumns
+      .map(column => {
+        const id = groupby.indexOf(column);
+        if (id > -1) {
+          return {
+            id: id,
+            name: column,
+            options: new Set(),
+          };
         }
-      });
-  });
+      })
+      .filter(i => i !== undefined);
 
-  // function to create and download pivot table
-  const downloadPivotTablePDF = function downloadPDF() {
-    html2canvas(document.querySelector('.' + 'pivot-table-' + uniqueTableIdForPDFDownload), {
-      scrollX: 0,
-      scrollY: -window.scrollY,
-    }).then(canvas => {
-      let wid;
-      let hgt;
-      const imgData = canvas.toDataURL('image/png', (wid = canvas.width), (hgt = canvas.height));
-      var hratio = hgt / wid;
-      const pdf = new jsPDF('l', 'pt', 'a4');
-      let width = pdf.internal.pageSize.getWidth();
-      var newHeight = pdf.internal.pageSize.getHeight();
-      let height = (width - 20) * hratio;
-      let yOffSet = (newHeight - height) / 2;
-      pdf.addImage(
-        imgData,
-        'PNG',
-        10,
-        yOffSet > 0 || yOffSet < newHeight / 2 ? yOffSet : 10,
-        width - 20,
-        height > newHeight ? newHeight - 20 : height,
-        null,
-        'MEDIUM',
-      );
-      pdf.save(tableHeader || 'Agilebi Pivot Table' + '.pdf');
-    });
+  const setPopupFilterArrayForDataTable = array => {
+    popupFilterArrayForDataTable = array;
   };
 
-  // if (numGroups === 1) { commenting this default condition provided by superset
-  // When there is only 1 group by column,
-  // we use the DataTable plugin to make the header fixed.
-  // The plugin takes care of the scrolling so we don't need
-  // overflow: 'auto' on the table.
   if (showPaginationAndSearch) {
     // creating column def object
     const columnDefs =
-      columnWidthArray && columnWidthArray.length
-        ? columnWidthArray.map((width, index) => ({
-            targets: index,
-            width: !isNaN(width) && width > 50 ? width : 50,
-            align: 'left',
+      groupby && groupby.length
+        ? groupby.map((column, i) => ({
+            targets: i,
+            width:
+              columnWidthArray &&
+              columnWidthArray.length &&
+              !isNaN(columnWidthArray[i]) &&
+              columnWidthArray[i] > 80
+                ? columnWidthArray[i]
+                : 80,
             createdCell: function (td, cellData, rowData, row, col) {
-              $(td).css(
-                'text-align',
-                columnAlignmentArray[index] ? columnAlignmentArray[index] : 'center',
-              );
+              $(td).css('text-align', columnAlignmentArray[i] ? columnAlignmentArray[i] : 'center');
+              if (
+                filterColumns &&
+                filterColumns.includes(column) &&
+                !['published_date', 'as_of_date', 'crawled_date'].includes(column)
+              ) {
+                filterComponentArray.forEach(columnObj => {
+                  if (columnObj.id === i) columnObj.options.add(cellData);
+                });
+              }
             },
           }))
         : [];
 
     container.style.overflow = 'hidden';
-    const table = $container.find('table').DataTable({
-      // dom is used for managing the layout
-      dom:
-        "<'row'<'col-sm-12 pivot-table-header'<'header-description'><'pivot-table-filter'>>>" +
-        `<'row pivot-table-${uniqueTableIdForPDFDownload}'<'col-sm-12't>>` +
-        "<'row'<'col-sm-12 pivot-table-footer'<'page-number-div-info'i><'pagination-div'p>>>",
-      renderer: 'bootstrap',
-      paging: true,
-      pageLength: !isNaN(Number(pageSize)) && Number(pageSize) > 0 ? Number(pageSize) : 10,
-      lengthChange: false,
-      searching: true,
-      bInfo: false,
-      scrollY: `${height - 30}px`,
-      scrollCollapse: true,
-      scrollX: true,
-      info: true,
-      columnDefs,
-      language: {
-        paginate: {
-          previous: "<i class='fa fa-chevron-left'></i>",
-          next: "<i class='fa fa-chevron-right'></i>",
-        },
-        info: '_TOTAL_ Total Videos',
-      },
-      fixedColumns: {
-        leftColumns: 2,
-      },
-    });
+    const table = createDataTable($container, uniqueTableId, pageSize, height, columnDefs);
     table.column('-1').order('desc').draw();
+
     fixTableHeight($container.find('.dataTables_wrapper'), height - 60);
 
     /*
@@ -296,113 +140,64 @@ function PivotTable(element, props) {
       pdf download button,
       xls download button
     */
-    if (showTableHeaderAndInfoIcon) {
-      $container
-        .find('.header-description')
-        .css('display', 'flex')
-        .css('justify-content', 'flex-start').append(`
-        <span style="font-size: 24px">${tableHeader || 'Table Heading'}</span>
-        <img
-          title="${tableDescription || 'No Description provided'}"
-          alt="Description"
-          src="/static/assets/images/icons/Table Description.png"
-          style="width: 16px; height: 16px; margin: 8px 0px 0px 7.5px;"
-        >
-        `);
-    }
+    if (showTableHeaderAndInfoIcon) headingAndInfo($container, tableHeader, tableDescription);
 
-    $container.find('.pivot-table-filter').css('display', 'flex').css('justify-content', 'flex-end')
-      .append(`
-        <img
-          id="pivot-table-reset-filter-button"
-          alt="Reset"
-          src="/static/assets/images/icons/Reset Table Filter.png"
-          style="width: 16px; height: 16px; margin: 8px 15px 8px; cursor: pointer;"
-          onClick=""
-        >
-        <!--<img
-          data-toggle="modal"
-          data-target="#pivot-table-filter-modal-${uniqueTableIdForPDFDownload}"
-          alt="Filter"
-          src="/static/assets/images/icons/Table Filter.png"
-          style="width: 17px; height: 16px; margin: 8px 15px; cursor: pointer;"
-          onClick=""
-        >-->
-        <div class="pivot-table-search-input-with-icon">
-          <div class="pivot-table-search-input-box-icon">
-            <div class="fa fa-search"></div>
-          </div>
-          <input
-            id="pivot-table-global-filter-input"
-            class="pivot-table-search-input form-control input-sm"
-            placeholder="Search..."
-          />
-        </div>
-        <img
-          id="download-pdf-button"
-          alt="PDF"
-          src='/static/assets/images/icons/PDF.png'
-          style='width: 24px; height: 30px; margin: 0px 10px 0px 25px; cursor: pointer;'
-        >
-        <img
-          id="download-csv-button"
-          alt="XLS"
-          src='/static/assets/images/icons/XLS.png'
-          style='width: 24px; height: 30px; cursor: pointer;'
-        >
-        <!--<div
-          class="modal fade pivotTableFilterModal"
-          id="pivot-table-filter-modal-${uniqueTableIdForPDFDownload}"
-          role="dialog"
-          style="margin-left: 19vw;"
-        >
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div
-                class="modal-header"
-                style="padding: 25px 23px 26px; border-bottom: none;"
-              >
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4
-                  class="modal-title"
-                  style="color: #202C56; font-family: 'Roboto', sans-serif; font-weight: 700; font-size: 22px; margin: 0px 0px 0px 27px;"
-                >
-                  Filter
-                </h4>
-              </div>
-              <div class="modal-body" style="padding: 0px 50px;">
-                <hr style="margin: 0px 0px 30px 0px; border-top: #D3DBF6 1px solid">
-                <p>Some text in the modal.</p>
-                <hr style="margin: 0px; border-top: #D3DBF6 1px solid">
-              </div>
-              <div
-                class="modal-footer"
-                style="padding: 40px; display: flex; justify-content: center"
-              >
-                <button
-                  type="button"
-                  class="btn btn-default"
-                  data-dismiss="modal"
-                  style="text-transform: unset; height: 35px; width: 147px; background: transparent linear-gradient(270deg, #B3C3EF 0%, #7C90DB 100%) 0% 0% no-repeat padding-box; border-radius: 18px; border: none; color: white; font-weight: 700; font-size: 13px;"
-                >
-                  Apply
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>-->
-      `);
+    $container
+      .find('.pivot-table-filter')
+      .css('display', 'flex')
+      .css('justify-content', 'flex-end')
+      .append(Header(uniqueTableId, filterColumns));
+
+    $container.find('#pivot-table-popup-filter-button').click(function () {
+      console.log(popupFilterArrayForDataTable, 'aaaaaaaaaaaaaaaaaaaa');
+      // adding filters inside the filter modal body
+      ReactDOM.render(
+        <RenderFilter
+          filterComponentArray={filterComponentArray}
+          getKeyOrLableContent={getKeyOrLableContent}
+          globalSelectControl={globalSelectControl}
+          setPopupFilterArrayForDataTable={setPopupFilterArrayForDataTable}
+          popupFilterArrayForDataTable={popupFilterArrayForDataTable}
+        />,
+        document.querySelector(`#react-filter-component-${uniqueTableId}`),
+      );
+    });
 
     $container.find('#pivot-table-global-filter-input').keyup(function () {
       table.search($(this).val()).draw();
     });
 
     $container.find('#pivot-table-reset-filter-button').click(function () {
-      table.search('').draw();
+      popupFilterArrayForDataTable = [];
+      table.search('');
+      table.draw();
       $container.find('#pivot-table-global-filter-input').val('');
     });
 
-    $container.find('#download-pdf-button').click(downloadPivotTablePDF);
+    $container.find('#apply-popup-filter-button').click(() => {
+      $.fn.dataTableExt.afnFiltering.push(function (Settings, Data, DataIndex) {
+        if (popupFilterArrayForDataTable && popupFilterArrayForDataTable.length === 0) {
+          return true;
+        }
+        let isCurrentRowTrue = true;
+        popupFilterArrayForDataTable.map(columnFilter => {
+          const { value, id, name } = columnFilter;
+          if (['published_date', 'as_of_date', 'crawled_date'].includes(name)) {
+            isCurrentRowTrue =
+              isCurrentRowTrue &&
+              new Date(Data[id]) <= new Date(value[1]) &&
+              new Date(Data[id]) >= new Date(value[0]);
+          } else {
+            isCurrentRowTrue = isCurrentRowTrue && value.includes(Data[0]);
+          }
+        });
+        return isCurrentRowTrue;
+      });
+      table.draw();
+    });
+    $container
+      .find('#download-pdf-button')
+      .click(() => downloadPivotTablePDF(uniqueTableId, tableHeader));
     $container.find('#download-csv-button').click(exportCSV);
   } else {
     // When there is more than 1 group by column we just render the table, without using
