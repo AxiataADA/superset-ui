@@ -51,7 +51,7 @@ export default function pivotTableHeader(tableId, filterColumns) {
       style="margin-left: 19vw;"
     >
       <div class="modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content" style="overflow-y: auto;">
           <div
             class="modal-header"
             style="padding: 25px 23px 26px; border-bottom: none;"

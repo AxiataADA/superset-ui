@@ -103,7 +103,9 @@
   opacity: 1;
 }
 
-.pivotTableFilterModal .rdt .rdtPicker .rdtDays table .rdtOld, .rdtNew {
+.pivotTableFilterModal .rdt .rdtPicker .rdtDays table .rdtOld,
+.pivotTableFilterModal .rdt .rdtPicker .rdtDays table .rdtNew,
+.pivotTableFilterModal .rdt .rdtPicker .rdtDays table .rdtDay.rdtDisabled {
   font: normal normal bold 14px/19px Roboto;
   letter-spacing: 0px;
   color: #000000;

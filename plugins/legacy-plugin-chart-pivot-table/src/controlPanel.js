@@ -190,7 +190,7 @@ export default {
               placeHolder: '200,100,100',
               label: t('Column width string'),
               description: t(
-                'Provide a comma separated values of column width from the first column default width for every column is 50 provide 0 to skip a column for example. 200,100,100 for first three columns',
+                'Provide a comma separated values of column width for groupby columns default width for every column is 80 provide 0 to skip a column for example. 200,100,0 for first three columns. Note: Width will only be applied to group by column',
               ),
             },
           },
@@ -204,7 +204,7 @@ export default {
               placeHolder: 'left,center,center',
               label: t('Column alignment string'),
               description: t(
-                'Provide a comma separated values of column text alignment from the first column default alignment for every column is center. for example. left,center,right for first three columns. this will be only applied if you have provided width for that column',
+                'Provide a comma separated values of column text alignment from the first column default alignment for every column is center. for example. left,center,right for first three columns. Note: alignment will only be applied to group by column',
               ),
             },
           },

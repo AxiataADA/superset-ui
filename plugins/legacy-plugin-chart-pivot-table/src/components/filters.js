@@ -153,7 +153,7 @@ const BetweenDateControl = ({
           open={state.showSinceCalendar}
           viewMode={state.sinceViewMode}
           onViewModeChange={sinceViewMode => setState({ ...state, sinceViewMode })}
-          inputProps={{ placeholder: 'Select Date', disabled: true }}
+          inputProps={{ placeholder: 'Select From Date', disabled: true }}
         />
       </div>
       <span
@@ -178,7 +178,7 @@ const BetweenDateControl = ({
           open={state.showUntilCalendar}
           viewMode={state.untilViewMode}
           onViewModeChange={untilViewMode => setState({ ...state, untilViewMode })}
-          inputProps={{ placeholder: 'Select Date', disabled: true }}
+          inputProps={{ placeholder: 'Select To Date', disabled: true }}
         />
       </div>
     </InputGroup>
@@ -192,9 +192,11 @@ const RenderFilter = ({
   setPopupFilterArrayForDataTable,
   popupFilterArrayForDataTable,
 }) => {
-  console.log(popupFilterArrayForDataTable, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbb');
   const [popupFilterArray, setPopupFilterArray] = useState(popupFilterArrayForDataTable);
-  console.log(popupFilterArray, 'cccccccccccccccccccccc');
+
+  useEffect(() => {
+    setPopupFilterArray(popupFilterArrayForDataTable);
+  }, [popupFilterArrayForDataTable]);
 
   useEffect(() => {
     setPopupFilterArrayForDataTable(popupFilterArray);

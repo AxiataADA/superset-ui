@@ -76,6 +76,7 @@ function PivotTable(element, props) {
   replaceCell($container, columns, verboseMap, getKeyOrLableContent, columnFormats);
 
   // filter data preperation ( filter column object, appliefilters )
+  let originalPopupFilterArrayForDataTable = [];
   let popupFilterArrayForDataTable = [];
   const filterComponentArray =
     filterColumns &&
@@ -149,7 +150,6 @@ function PivotTable(element, props) {
       .append(Header(uniqueTableId, filterColumns));
 
     $container.find('#pivot-table-popup-filter-button').click(function () {
-      console.log(popupFilterArrayForDataTable, 'aaaaaaaaaaaaaaaaaaaa');
       // adding filters inside the filter modal body
       ReactDOM.render(
         <RenderFilter
@@ -163,25 +163,14 @@ function PivotTable(element, props) {
       );
     });
 
-    $container.find('#pivot-table-global-filter-input').keyup(function () {
-      table.search($(this).val()).draw();
-    });
-
-    $container.find('#pivot-table-reset-filter-button').click(function () {
-      popupFilterArrayForDataTable = [];
-      table.search('');
-      table.draw();
-      $container.find('#pivot-table-global-filter-input').val('');
-    });
-
-    $container.find('#apply-popup-filter-button').click(() => {
-      $.fn.dataTableExt.afnFiltering.push(function (Settings, Data, DataIndex) {
-        if (popupFilterArrayForDataTable && popupFilterArrayForDataTable.length === 0) {
-          return true;
-        }
-        let isCurrentRowTrue = true;
-        popupFilterArrayForDataTable.map(columnFilter => {
-          const { value, id, name } = columnFilter;
+    $.fn.dataTableExt.afnFiltering.push(function (Settings, Data, DataIndex) {
+      if (popupFilterArrayForDataTable && popupFilterArrayForDataTable.length === 0) {
+        return true;
+      }
+      let isCurrentRowTrue = true;
+      popupFilterArrayForDataTable.map(columnFilter => {
+        const { value, id, name } = columnFilter;
+        if (value?.length) {
           if (['published_date', 'as_of_date', 'crawled_date'].includes(name)) {
             isCurrentRowTrue =
               isCurrentRowTrue &&
@@ -190,19 +179,43 @@ function PivotTable(element, props) {
           } else {
             isCurrentRowTrue = isCurrentRowTrue && value.includes(Data[0]);
           }
-        });
-        return isCurrentRowTrue;
+        }
       });
+      originalPopupFilterArrayForDataTable = JSON.parse(
+        JSON.stringify(popupFilterArrayForDataTable ? popupFilterArrayForDataTable : []),
+      );
+      return isCurrentRowTrue;
+    });
+
+    $container.find('.pivotTableFilterModal').on('hidden.bs.modal', function () {
+      popupFilterArrayForDataTable = JSON.parse(
+        JSON.stringify(
+          originalPopupFilterArrayForDataTable ? originalPopupFilterArrayForDataTable : [],
+        ),
+      );
+    });
+
+    $container.find('#pivot-table-global-filter-input').keyup(function () {
+      table.search($(this).val()).draw();
+    });
+
+    $container.find('#pivot-table-reset-filter-button').click(function () {
+      popupFilterArrayForDataTable = [];
+      originalPopupFilterArrayForDataTable = [];
+      table.search('');
+      table.draw();
+      $container.find('#pivot-table-global-filter-input').val('');
+    });
+
+    $container.find('#apply-popup-filter-button').click(() => {
       table.draw();
     });
+
     $container
       .find('#download-pdf-button')
       .click(() => downloadPivotTablePDF(uniqueTableId, tableHeader));
     $container.find('#download-csv-button').click(exportCSV);
   } else {
-    // When there is more than 1 group by column we just render the table, without using
-    // the DataTable plugin, so we need to handle the scrolling ourselves.
-    // In this case the header is not fixed.
     container.style.overflow = 'auto';
     container.style.height = `${height + 10}px`;
   }
