@@ -49,6 +49,7 @@ function PivotTable(element, props) {
     dateFormat,
     granularity,
     height,
+    width,
     numberFormat,
     verboseMap,
     showPaginationAndSearch,
@@ -63,16 +64,18 @@ function PivotTable(element, props) {
     groupby,
     globalSelectControl,
     filterColumns,
+    numGroups,
   } = props;
   const uniqueTableId = createUniqueId();
   const { html, columns } = data;
+  const totalNumberOfColumns = columns.length + numGroups;
   const container = element;
   const $container = $(element);
 
   // queryData data is a string of html with a single table element
   container.innerHTML = html;
 
-  // replace cell data as per the requirement
+  // replace cell data as per the requirement also seperate the rowspan in the table body as datatable does not support rowspan
   replaceCell($container, columns, verboseMap, getKeyOrLableContent, columnFormats);
 
   // filter data preperation ( filter column object, appliefilters )
@@ -124,6 +127,15 @@ function PivotTable(element, props) {
             },
           }))
         : [];
+
+    // if the columns do not occupy the full width than change their default width to avoid white space in the table
+    if (width / totalNumberOfColumns > 80) {
+      columnDefs.push({
+        targets: '_all',
+        width: width / totalNumberOfColumns,
+      });
+    }
+    console.log(numGroups, width, totalNumberOfColumns, width / totalNumberOfColumns);
 
     container.style.overflow = 'hidden';
     const table = createDataTable($container, uniqueTableId, pageSize, height, columnDefs);

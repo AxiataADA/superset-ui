@@ -17,7 +17,7 @@
  * under the License.
  */
 export default function transformProps(chartProps) {
-  const { height, datasource, formData, queryData, hooks } = chartProps;
+  const { height, width, datasource, formData, queryData, hooks } = chartProps;
   const {
     timeGrainSqla,
     groupby,
@@ -41,6 +41,7 @@ export default function transformProps(chartProps) {
     dateFormat,
     granularity: timeGrainSqla,
     height,
+    width,
     numberFormat,
     numGroups: groupby.length,
     groupby,
