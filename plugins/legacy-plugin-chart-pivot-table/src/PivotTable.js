@@ -135,7 +135,6 @@ function PivotTable(element, props) {
         width: width / totalNumberOfColumns,
       });
     }
-    console.log(numGroups, width, totalNumberOfColumns, width / totalNumberOfColumns);
 
     container.style.overflow = 'hidden';
     const table = createDataTable($container, uniqueTableId, pageSize, height, columnDefs);
