@@ -43,6 +43,7 @@ import { useSticky } from 'react-table-sticky';
 import styled from 'styled-components';
 import matchSorter from 'match-sorter';
 import { CategoricalColorNamespace } from '@superset-ui/color';
+import ModalTrigger from './components/ModalTrigger';
 import GlobalFilter, { GlobalFilterProps } from './components/GlobalFilter';
 import { /* SelectPageSize , */ SizeOption } from './components/SelectPageSize';
 import SimplePagination from './components/Pagination';
@@ -207,6 +208,7 @@ function CustomsTable({
   const [maxWidth, setMaxWidth] = useState('100%');
   const [maxHeight, setMaxHeight] = useState('80%');
 
+  const createRefForCellContent = () => useRef();
   useEffect(() => {
     const sizeObject = getTableSize();
     if ((sizeObject.width, sizeObject.height)) {
@@ -419,6 +421,7 @@ function CustomsTable({
                         isVideoAndPlatformPresent &&
                         cell.column.Header.includes('video_title')
                       ) {
+                        const cellContentRef = createRefForCellContent();
                         const platformName = row.original[platformColumnName] || '';
                         const platformObject = {
                           youtube: 'Youtube',
@@ -455,7 +458,41 @@ function CustomsTable({
                                 }}
                                 title={cellContent}
                               >
-                                {cellContent}
+                                <ModalTrigger
+                                  ref={cellContentRef}
+                                  triggerNode={<span>{cellContent}</span>}
+                                  className="popup-data-for-cell-content-modal"
+                                  modalBody={
+                                    <div>
+                                      <iframe
+                                        width="420"
+                                        height="345"
+                                        src="https://www.youtube.com/embed/vpzitzyMRwc"
+                                      />
+                                      {/*
+                                    facebook video embed code
+                                    <div id="fb-root"></div>
+                                      <script>(function(d, s, id) {
+                                        var js, fjs = d.getElementsByTagName(s)[0];
+                                        if (d.getElementById(id)) return;
+                                        js = d.createElement(s); js.id = id;
+                                        js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.6";
+                                        fjs.parentNode.insertBefore(js, fjs);
+                                      }(document, 'script', 'facebook-jssdk'));</script>
+                                      <!-- Your embedded video player code -->
+                                      <div class="fb-video" data-href="https://www.facebook.com/facebook/videos/10153231379946729/" data-width="500" data-show-text="false">
+                                        <div class="fb-xfbml-parse-ignore">
+                                          <blockquote cite="https://www.facebook.com/facebook/videos/10153231379946729/">
+                                            <a href="https://www.facebook.com/facebook/videos/10153231379946729/">How to Share With Just Friends</a>
+                                            <p>How to share with just friends.</p>
+                                            Posted by <a href="https://www.facebook.com/facebook/">Facebook</a> on Friday, December 5, 2014
+                                          </blockquote>
+                                        </div>
+                                      </div>
+                                    */}
+                                    </div>
+                                  }
+                                />
                               </span>
                             </span>
                           </div>

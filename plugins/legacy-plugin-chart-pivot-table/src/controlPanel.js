@@ -191,7 +191,7 @@ export default {
               placeHolder: '200,100,100',
               label: t('Column width string'),
               description: t(
-                'Provide a comma separated values of column width for groupby columns default width for every column is 80 provide 0 to skip a column for example. 200,100,0 for first three columns. Note: Width will only be applied to group by column',
+                'Provide a comma separated values of column width for groupby columns default width for every column is 80 for example. 200,100,80 for first three columns. Note: Width will only be applied to group by column',
               ),
             },
           },
