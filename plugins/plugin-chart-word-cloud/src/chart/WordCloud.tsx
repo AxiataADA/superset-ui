@@ -35,7 +35,6 @@ export interface WordCloudProps extends WordCloudVisualProps {
   height: number;
   width: number;
   title: string;
-  titleFontSize: number;
 }
 
 interface State {
@@ -86,7 +85,7 @@ class WordCloud extends React.PureComponent<
   }
 
   componentDidUpdate(prevProps: WordCloudProps) {
-    const { data, encoding, width, height, rotation, title, titleFontSize } = this.props;
+    const { data, encoding, width, height, rotation, title } = this.props;
 
     if (
       prevProps.data !== data ||
@@ -94,8 +93,7 @@ class WordCloud extends React.PureComponent<
       prevProps.width !== width ||
       prevProps.height !== height ||
       prevProps.rotation !== rotation ||
-      prevProps.title !== title ||
-      prevProps.titleFontSize !== titleFontSize
+      prevProps.title !== title
     ) {
       this.update();
     }
@@ -134,7 +132,7 @@ class WordCloud extends React.PureComponent<
   }
 
   render() {
-    const { width, height, encoding, title, titleFontSize } = this.props;
+    const { width, height, encoding, title } = this.props;
     const { words } = this.state;
 
     const encoder = this.createEncoder(encoding);
@@ -142,7 +140,7 @@ class WordCloud extends React.PureComponent<
 
     return (
       <React.Fragment>
-        <svg width={width} height={height - 20}>
+        <svg width={width} height={height}>
           <g transform={`translate(${width / 2},${height / 2})`}>
             {words.map(w => (
               <text
@@ -157,20 +155,20 @@ class WordCloud extends React.PureComponent<
                 {w.text}
               </text>
             ))}
+            {title && (
+              <text
+                fontSize={`14px`}
+                fontWeight={400}
+                fontFamily={'Roboto'}
+                fill="#4F62AA"
+                textAnchor="middle"
+                transform={`translate(0, ${height / 2 - 20}) rotate(0)`}
+              >
+                {title}
+              </text>
+            )}
           </g>
         </svg>
-        <div
-          style={{
-            height: '20px',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            color: '#4F62AA',
-            fontSize: titleFontSize,
-          }}
-        >
-          {title}
-        </div>
       </React.Fragment>
     );
   }

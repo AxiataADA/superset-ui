@@ -24,7 +24,23 @@ export default {
     {
       label: t('Query'),
       expanded: true,
-      controlSetRows: [['series'], ['metric'], ['adhoc_filters'], ['row_limit', null]],
+      controlSetRows: [
+        ['series'],
+        ['metric'],
+        ['adhoc_filters'],
+        ['row_limit', null],
+        [
+          {
+            name: 'title',
+            config: {
+              type: 'TextControl',
+              label: t('Title'),
+              default: '',
+              description: t('Title for chart'),
+            },
+          },
+        ],
+      ],
     },
     {
       label: t('Options'),
@@ -73,53 +89,6 @@ export default {
           },
         ],
         ['color_scheme', 'label_colors'],
-        [
-          {
-            name: 'title',
-            config: {
-              type: 'TextControl',
-              label: t('Title'),
-              renderTrigger: true,
-              default: '',
-              description: t('Title for chart'),
-            },
-          },
-        ],
-        [
-          {
-            name: 'title_font_size',
-            config: {
-              type: 'SelectControl',
-              label: t('Title Font Size'),
-              isInt: true,
-              renderTrigger: true,
-              clearable: false,
-              default: 14,
-              options: [
-                {
-                  label: t('Tiny'),
-                  value: 10,
-                },
-                {
-                  label: t('Small'),
-                  value: 12,
-                },
-                {
-                  label: t('Normal'),
-                  value: 14,
-                },
-                {
-                  label: t('Large'),
-                  value: 16,
-                },
-                {
-                  label: t('Huge'),
-                  value: 18,
-                },
-              ],
-            },
-          },
-        ],
       ],
     },
   ],
