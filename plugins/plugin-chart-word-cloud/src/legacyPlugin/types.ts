@@ -7,4 +7,5 @@ export type LegacyWordCloudFormData = QueryFormData & {
   series: string;
   sizeFrom?: number;
   sizeTo: number;
+  title: string;
 };

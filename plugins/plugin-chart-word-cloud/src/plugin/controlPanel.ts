@@ -24,7 +24,23 @@ export default {
     {
       label: t('Query'),
       expanded: true,
-      controlSetRows: [['series'], ['metric'], ['adhoc_filters'], ['row_limit', null]],
+      controlSetRows: [
+        ['series'],
+        ['metric'],
+        ['adhoc_filters'],
+        ['row_limit', null],
+        [
+          {
+            name: 'title',
+            config: {
+              type: 'TextControl',
+              label: t('Title'),
+              default: '',
+              description: t('Title for chart'),
+            },
+          },
+        ],
+      ],
     },
     {
       label: t('Options'),

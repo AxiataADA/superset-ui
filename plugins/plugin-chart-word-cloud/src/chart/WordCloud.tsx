@@ -34,6 +34,7 @@ export interface WordCloudProps extends WordCloudVisualProps {
   data: PlainObject[];
   height: number;
   width: number;
+  title: string;
 }
 
 interface State {
@@ -84,14 +85,15 @@ class WordCloud extends React.PureComponent<
   }
 
   componentDidUpdate(prevProps: WordCloudProps) {
-    const { data, encoding, width, height, rotation } = this.props;
+    const { data, encoding, width, height, rotation, title } = this.props;
 
     if (
       prevProps.data !== data ||
       prevProps.encoding !== encoding ||
       prevProps.width !== width ||
       prevProps.height !== height ||
-      prevProps.rotation !== rotation
+      prevProps.rotation !== rotation ||
+      prevProps.title !== title
     ) {
       this.update();
     }
@@ -130,30 +132,44 @@ class WordCloud extends React.PureComponent<
   }
 
   render() {
-    const { width, height, encoding } = this.props;
+    const { width, height, encoding, title } = this.props;
     const { words } = this.state;
 
     const encoder = this.createEncoder(encoding);
     encoder.channels.color.setDomainFromDataset(words);
 
     return (
-      <svg width={width} height={height}>
-        <g transform={`translate(${width / 2},${height / 2})`}>
-          {words.map(w => (
-            <text
-              key={w.text}
-              fontSize={`${w.size}px`}
-              fontWeight={w.weight}
-              fontFamily={w.font}
-              fill={encoder.channels.color.encodeDatum(w, '')}
-              textAnchor="middle"
-              transform={`translate(${w.x}, ${w.y}) rotate(${w.rotate})`}
-            >
-              {w.text}
-            </text>
-          ))}
-        </g>
-      </svg>
+      <React.Fragment>
+        <svg width={width} height={height}>
+          <g transform={`translate(${width / 2},${height / 2})`}>
+            {words.map(w => (
+              <text
+                key={w.text}
+                fontSize={`${w.size}px`}
+                fontWeight={w.weight}
+                fontFamily={w.font}
+                fill={encoder.channels.color.encodeDatum(w, '')}
+                textAnchor="middle"
+                transform={`translate(${w.x}, ${w.y}) rotate(${w.rotate})`}
+              >
+                {w.text}
+              </text>
+            ))}
+            {title && (
+              <text
+                fontSize={`14px`}
+                fontWeight={400}
+                fontFamily={'Roboto'}
+                fill="#4F62AA"
+                textAnchor="middle"
+                transform={`translate(0, ${height / 2 - 20}) rotate(0)`}
+              >
+                {title}
+              </text>
+            )}
+          </g>
+        </svg>
+      </React.Fragment>
     );
   }
 }
