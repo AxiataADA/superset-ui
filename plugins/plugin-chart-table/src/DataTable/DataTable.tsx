@@ -898,7 +898,6 @@ export default function DataTable<D extends object>({
         (Number(initialHeight) || wrapperRef.current.clientHeight) -
         (globalControlRef.current?.clientHeight || 0) -
         (paginationRef.current?.clientHeight || 0);
-      console.log(maxHeight, height);
       return {
         width,
         height:
