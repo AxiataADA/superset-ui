@@ -431,11 +431,7 @@ function SearchInput({
       </span>
       <Modal
         className="tableFilterModal"
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          marginLeft: '19vw',
-        }}
+        style={{ display: 'flex', alignItems: 'center' }}
         show={show}
         onHide={() => {
           setShow(false);
@@ -556,6 +552,7 @@ export default function TableChart<D extends DataRecord = DataRecord>(
     fixedColumns,
     filterColumns,
     videoPlatformMerge,
+    showVideoTitleThumbnail,
     alignPositiveNegative = false,
     /* colorPositiveNegative = false, */
     includeSearch = false,
@@ -749,6 +746,7 @@ export default function TableChart<D extends DataRecord = DataRecord>(
 
     // if video tile and platform should be merged then add platform as well
     if (videoPlatformMerge) ignoreColumnList.push('platform');
+    if (showVideoTitleThumbnail) ignoreColumnList.push('video_id');
 
     return columnsMeta
       .filter(i => {
@@ -810,6 +808,7 @@ export default function TableChart<D extends DataRecord = DataRecord>(
             : 0
         }
         videoPlatformMerge={videoPlatformMerge}
+        showVideoTitleThumbnail={showVideoTitleThumbnail}
       />
     </Styles>
   );

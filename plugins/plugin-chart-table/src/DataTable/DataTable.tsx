@@ -161,6 +161,7 @@ function CustomsTable({
   columnsMeta,
   marginLeftForHorizontalScroll,
   videoPlatformMerge,
+  showVideoTitleThumbnail,
   initialHeight,
   initialWidth,
 }) {
@@ -208,7 +209,6 @@ function CustomsTable({
   const [maxWidth, setMaxWidth] = useState('100%');
   const [maxHeight, setMaxHeight] = useState('80%');
 
-  const createRefForCellContent = () => useRef();
   useEffect(() => {
     const sizeObject = getTableSize();
     if ((sizeObject.width, sizeObject.height)) {
@@ -225,6 +225,7 @@ function CustomsTable({
   let positiveSentimentColumnName;
   let neutralSentimentColumnName;
   let negativeSentimentColumnName;
+  let videoIdColumnName;
   let platformColumnName;
   let videoTitleColumnName;
 
@@ -235,8 +236,10 @@ function CustomsTable({
       neutralSentimentColumnName = i.key;
     else if (i && i.key.toLowerCase().includes('negative_sentiment_valence'))
       negativeSentimentColumnName = i.key;
+    else if (i && i.key.toLowerCase().includes('video_id')) videoIdColumnName = i.key;
     else if (i && i.key.toLowerCase().includes('platform')) platformColumnName = i.key;
     else if (i && i.key.toLowerCase().includes('video_title')) videoTitleColumnName = i.key;
+    else if (i && i.key.toLowerCase().includes('video_title_link')) videoTitleColumnName = i.key;
   });
 
   const isVideoAndPlatformPresent = platformColumnName && videoTitleColumnName;
@@ -259,7 +262,7 @@ function CustomsTable({
               ) : null */}
               <span style={{ fontSize: '24px' }}>{customTableHeader || tableHeader || ''}</span>
               <img
-                title={tableDescription || 'No description provided'}
+                tooltip-data-title={tableDescription || 'No description provided'}
                 alt="Description"
                 src={`/static/assets/images/icons/Table Description.png`}
                 style={{
@@ -419,10 +422,11 @@ function CustomsTable({
                       if (
                         videoPlatformMerge &&
                         isVideoAndPlatformPresent &&
-                        cell.column.Header.includes('video_title')
+                        (cell.column.Header.includes('video_title') ||
+                          cell.column.Header.toLowerCase().includes('video_title_link'))
                       ) {
-                        const cellContentRef = createRefForCellContent();
                         const platformName = row.original[platformColumnName] || '';
+                        const videoId = row.original[videoIdColumnName] || '';
                         const platformObject = {
                           youtube: 'Youtube',
                           facebook: 'Facebook',
@@ -456,43 +460,103 @@ function CustomsTable({
                                   overflow: 'hidden',
                                   textAlign: 'left',
                                 }}
-                                title={cellContent}
+                                tooltip-data-title={cellContent}
                               >
-                                <ModalTrigger
-                                  ref={cellContentRef}
-                                  triggerNode={<span>{cellContent}</span>}
-                                  className="popup-data-for-cell-content-modal"
-                                  modalBody={
-                                    <div>
-                                      <iframe
-                                        width="420"
-                                        height="345"
-                                        src="https://www.youtube.com/embed/vpzitzyMRwc"
-                                      />
-                                      {/*
-                                    facebook video embed code
-                                    <div id="fb-root"></div>
-                                      <script>(function(d, s, id) {
-                                        var js, fjs = d.getElementsByTagName(s)[0];
-                                        if (d.getElementById(id)) return;
-                                        js = d.createElement(s); js.id = id;
-                                        js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.6";
-                                        fjs.parentNode.insertBefore(js, fjs);
-                                      }(document, 'script', 'facebook-jssdk'));</script>
-                                      <!-- Your embedded video player code -->
-                                      <div class="fb-video" data-href="https://www.facebook.com/facebook/videos/10153231379946729/" data-width="500" data-show-text="false">
-                                        <div class="fb-xfbml-parse-ignore">
-                                          <blockquote cite="https://www.facebook.com/facebook/videos/10153231379946729/">
-                                            <a href="https://www.facebook.com/facebook/videos/10153231379946729/">How to Share With Just Friends</a>
-                                            <p>How to share with just friends.</p>
-                                            Posted by <a href="https://www.facebook.com/facebook/">Facebook</a> on Friday, December 5, 2014
-                                          </blockquote>
-                                        </div>
+                                {videoId && platformName && showVideoTitleThumbnail ? (
+                                  <ModalTrigger
+                                    triggerNode={
+                                      <span style={{ wordBreak: 'break-word' }}>{cellContent}</span>
+                                    }
+                                    className={
+                                      platformName.toLowerCase() === 'instagram'
+                                        ? 'popup-data-for-cell-content-modal-ig'
+                                        : 'popup-data-for-cell-content-modal-yt-fb'
+                                    }
+                                    modalBody={
+                                      <div>
+                                        {platformName &&
+                                          platformName.toLowerCase() === 'youtube' &&
+                                          videoId && (
+                                            <div style={{ '--aspect-ratio': '16/9' }}>
+                                              <iframe
+                                                src={`https://www.youtube.com/embed/${videoId}`}
+                                                allowTransparency="true"
+                                                allowFullScreen="true"
+                                              />
+                                            </div>
+                                          )}
+                                        {platformName &&
+                                          platformName.toLowerCase() === 'facebook' &&
+                                          videoId && (
+                                            <div style={{ '--aspect-ratio': '16/9' }}>
+                                              <iframe
+                                                src={`https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2FPlayStation%2Fvideos%2F${videoId}%2F&show_text=0&height=290`}
+                                                allowTransparency="true"
+                                                allowFullScreen="true"
+                                              />
+                                            </div>
+                                          )}
+                                        {platformName &&
+                                          platformName.toLowerCase() === 'instagram' &&
+                                          videoId && (
+                                            <div
+                                              style={{
+                                                height: '550px',
+                                                overflowY: 'auto',
+                                              }}
+                                            >
+                                              <iframe
+                                                height="1000"
+                                                id="table-viz-popup-instagram-iframe"
+                                                src={`https://www.instagram.com/p/${videoId}/embed`}
+                                                allowTransparency="true"
+                                                allowFullScreen="true"
+                                              />
+                                            </div>
+                                          )}
+                                        {cellContent && cellContent !== 'N/A' && (
+                                          <div
+                                            style={{
+                                              color: '#111111',
+                                              margin: '10px',
+                                              fontSize: '14px',
+                                              fontFamily: 'Roboto',
+                                              maxWidth: '500px',
+                                            }}
+                                          >
+                                            {cellContent}
+                                          </div>
+                                        )}
+                                        {platformName && (
+                                          <div
+                                            style={{
+                                              textAlign: 'end',
+                                              padding: '5px 5px 10px',
+                                              color: '#111111',
+                                              fontWeight: '500',
+                                              fontSize: '11px',
+                                              fontFamily: 'Roboto',
+                                            }}
+                                          >
+                                            <img
+                                              alt="Platform"
+                                              src={`/static/assets/images/Donut Chart Icon/${
+                                                platformObject[platformName.toLowerCase()]
+                                              }.png`}
+                                              style={{
+                                                height: '13px',
+                                                marginRight: '5px',
+                                              }}
+                                            />
+                                            {platformObject[platformName.toLowerCase()]}
+                                          </div>
+                                        )}
                                       </div>
-                                    */}
-                                    </div>
-                                  }
-                                />
+                                    }
+                                  />
+                                ) : (
+                                  <span style={{ wordBreak: 'break-word' }}>{cellContent}</span>
+                                )}
                               </span>
                             </span>
                           </div>
@@ -542,7 +606,7 @@ function CustomsTable({
                             className="td"
                             key={key}
                             {...restProps}
-                            title=""
+                            tooltip-data-title=""
                             style={{
                               ...restProps,
                               display: 'flex',
@@ -570,14 +634,14 @@ function CustomsTable({
                                     )})`,
                                     padding: '0px ' + positivePercentage / 2 + '%',
                                   }}
-                                  title={'Positive: ' + positivePercentage + '%'}
+                                  tooltip-data-title={'Positive: ' + positivePercentage + '%'}
                                 />
                                 <span
                                   style={{
                                     background: '#E9DE90',
                                     padding: '0px ' + neutralPercentage / 2 + '%',
                                   }}
-                                  title={'Neutral: ' + neutralPercentage + '%'}
+                                  tooltip-data-title={'Neutral: ' + neutralPercentage + '%'}
                                 />
                                 <span
                                   style={{
@@ -589,7 +653,7 @@ function CustomsTable({
                                     )}, #FF4545 20%, #FF4545)`,
                                     padding: '0px ' + negativePercentage / 2 + '%',
                                   }}
-                                  title={'Negative: ' + negativePercentage + '%'}
+                                  tooltip-data-title={'Negative: ' + negativePercentage + '%'}
                                 />
                               </div>
                             ) : (
@@ -783,6 +847,7 @@ export default function DataTable<D extends object>({
   columnsMeta,
   marginLeftForHorizontalScroll,
   videoPlatformMerge,
+  showVideoTitleThumbnail,
   wrapperRef: userWrapperRef,
   ...moreUseTableOptions
 }: DataTableProps<D>) {
@@ -828,11 +893,19 @@ export default function DataTable<D extends object>({
         (tHeadControlRef.current?.clientHeight || 0) +
         (tBodyControlRef.current?.clientHeight || 0) +
         6;
+
       const maxHeight =
         (Number(initialHeight) || wrapperRef.current.clientHeight) -
         (globalControlRef.current?.clientHeight || 0) -
         (paginationRef.current?.clientHeight || 0);
-      return { width, height: height > maxHeight ? maxHeight : height };
+      console.log(maxHeight, height);
+      return {
+        width,
+        height:
+          height > maxHeight
+            ? maxHeight - (paginationRef.current ? 0 : 4)
+            : height - (paginationRef.current ? 0 : 4),
+      };
     }
     return undefined;
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -948,410 +1021,6 @@ export default function DataTable<D extends object>({
     }
   };
 
-  const renderTable = () => {
-    let positiveSentimentColumnName;
-    let neutralSentimentColumnName;
-    let negativeSentimentColumnName;
-    let platformColumnName;
-    let videoTitleColumnName;
-
-    columns.forEach(i => {
-      if (i && i.Header.toLowerCase().includes('positive_sentiment_valence'))
-        positiveSentimentColumnName = i.Header;
-      else if (i && i.Header.toLowerCase().includes('neutral_sentiment_valence'))
-        neutralSentimentColumnName = i.Header;
-      else if (i && i.Header.toLowerCase().includes('negative_sentiment_valence'))
-        negativeSentimentColumnName = i.Header;
-      else if (i && i.Header.toLowerCase().includes('platform')) platformColumnName = i.Header;
-      else if (i && i.Header.toLowerCase().includes('video_title')) videoTitleColumnName = i.Header;
-    });
-
-    const isVideoAndPlatformPresent = platformColumnName && videoTitleColumnName;
-    const isSentimentColumnPresent =
-      positiveSentimentColumnName && neutralSentimentColumnName && negativeSentimentColumnName;
-    return (
-      <Styles>
-        <div {...getTableProps()} className="table sticky">
-          <div className="header">
-            {headerGroups.map(headerGroup => {
-              const {
-                key: headerGroupKey,
-                ...headerGroupProps
-              } = headerGroup.getHeaderGroupProps();
-              return (
-                <div className="tr" key={headerGroupKey || headerGroup.id} {...headerGroupProps}>
-                  {headerGroup.headers.map(column => {
-                    const { key: headerKey, className, ...props } = column.getHeaderProps(
-                      column.getSortByToggleProps(),
-                    );
-
-                    if (isVideoAndPlatformPresent && column.Header.includes('platform')) {
-                      return null;
-                    } else if (column.Header.includes('platform')) {
-                      return (
-                        <div
-                          key={headerKey || column.id}
-                          className={
-                            column.isSorted
-                              ? `${className || ''} is-sorted` + ' th'
-                              : className + ' th'
-                          }
-                          {...props}
-                          style={{
-                            ...props.style,
-                            borderRight: 'none',
-                            padding: '20px 0px',
-                          }}
-                          onClick={() => {}}
-                          title=""
-                        />
-                      );
-                    }
-
-                    // hide all the sentiment cell except positive which will show colored bar will have to change this functinality fior dynamic usage
-                    if (
-                      isSentimentColumnPresent &&
-                      (column.Header.toLowerCase().includes('negative_sentiment_valence') ||
-                        column.Header.toLowerCase().includes('neutral_sentiment_valence'))
-                    ) {
-                      return null;
-                    }
-
-                    if (column.Header === 'organization') {
-                      return (
-                        <div
-                          key={headerKey || column.id}
-                          className={
-                            column.isSorted
-                              ? `${className || ''} is-sorted` + ' th'
-                              : className + ' th'
-                          }
-                          {...props}
-                          onClick={() => {}}
-                          style={{
-                            ...props.style,
-                            paddingRight: '30px',
-                            paddingLeft: '30px',
-                          }}
-                        >
-                          <span>
-                            {getKeyOrLableContent(column.Header)}
-                            {column.render('SortIcon')}
-                          </span>
-                        </div>
-                      );
-                    }
-
-                    if (column.Header.toLowerCase().includes('positive_sentiment_valence')) {
-                      return (
-                        <div
-                          key={headerKey || column.id}
-                          className={
-                            column.isSorted
-                              ? `${className || ''} is-sorted` + ' th'
-                              : className + ' th'
-                          }
-                          {...props}
-                          onClick={() => {}}
-                          style={{
-                            ...props.style,
-                            paddingRight: '20px',
-                            paddingLeft: '20px',
-                          }}
-                        >
-                          <span>
-                            {getKeyOrLableContent(column.Header)}
-                            {column.render('SortIcon')}
-                          </span>
-                        </div>
-                      );
-                    }
-
-                    return (
-                      <div
-                        key={headerKey || column.id}
-                        className={
-                          column.isSorted
-                            ? `${className || ''} is-sorted` + ' th'
-                            : className + ' th'
-                        }
-                        onClick={() => {}}
-                        {...props}
-                        style={{
-                          ...props.style,
-                          paddingRight: '30px',
-                          paddingLeft: '30px',
-                        }}
-                      >
-                        <span>
-                          {getKeyOrLableContent(column.Header)}
-                          {column.render('SortIcon')}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              );
-            })}
-          </div>
-          <div className="body" {...getTableBodyProps()}>
-            {page && page.length > 0 ? (
-              page.map(row => {
-                prepareRow(row);
-                const { key: rowKey, ...rowProps } = row.getRowProps();
-                return (
-                  <div className="tr" key={rowKey || row.id} {...rowProps}>
-                    {row.cells.map(cell => {
-                      const cellProps = cell.getCellProps() as TableCellProps & RenderHTMLCellProps;
-                      const { key: cellKey, cellContent, ...restProps } = cellProps;
-                      const key = cellKey || cell.column.id;
-                      if (cellProps.dangerouslySetInnerHTML) {
-                        return <td key={key} {...restProps} />;
-                      }
-
-                      if (cell.column.Header === 'published_date') {
-                        return (
-                          <div className="td" width={200} key={key} {...restProps}>
-                            {getRequiredDateFormat(cellContent)}
-                          </div>
-                        );
-                      }
-
-                      if (cell.column.Header === 'organization') {
-                        const color = colorFunction(cellContent);
-                        const gradientArray = getColorGradientArray(color);
-                        const textColor = getTextColor(color);
-                        return (
-                          <div
-                            className="td"
-                            key={key}
-                            {...restProps}
-                            style={{ ...restProps.style, padding: '15px 30px' }}
-                          >
-                            <span
-                              style={{
-                                background: gradientArray
-                                  ? 'transparent linear-gradient(180deg, ' +
-                                    gradientArray[1] +
-                                    ' 0%, ' +
-                                    gradientArray[0] +
-                                    ' 100%) 0% 0% no-repeat padding-box'
-                                  : color,
-                                padding: '7px',
-                                borderRadius: '15px',
-                                color: textColor ? 'black' : 'white',
-                                display: 'inline-block',
-                                width: '150px',
-                              }}
-                            >
-                              {cellContent}
-                            </span>
-                          </div>
-                        );
-                      }
-
-                      if (isVideoAndPlatformPresent && cell.column.Header.includes('video_title')) {
-                        const platformName = row.original[platformColumnName] || '';
-                        const platformObject = {
-                          youtube: 'Youtube',
-                          facebook: 'Facebook',
-                          instagram: 'Instagram',
-                        };
-                        return (
-                          <div
-                            className="td"
-                            key={key}
-                            {...restProps}
-                            style={{
-                              ...restProps.style,
-                              paddingLeft: '30px',
-                              paddingRight: '30px',
-                            }}
-                          >
-                            <span
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                              }}
-                            >
-                              {platformName && (
-                                <img
-                                  alt="Platform"
-                                  src={`/static/assets/images/Donut Chart Icon/${
-                                    platformObject[platformName.toLowerCase()]
-                                  }.png`}
-                                  style={{
-                                    height: '20px',
-                                    marginRight: '20px',
-                                  }}
-                                />
-                              )}
-                              <span
-                                style={{
-                                  width: '150px',
-                                  height: '2.4em',
-                                  overflow: 'hidden',
-                                  textAlign: 'left',
-                                }}
-                              >
-                                {cellContent}
-                              </span>
-                            </span>
-                          </div>
-                        );
-                      }
-
-                      if (isVideoAndPlatformPresent && cell.column.Header.includes('platform')) {
-                        return null;
-                      } else if (cell.column.Header.includes('platform')) {
-                        const platformObject = {
-                          youtube: 'Youtube',
-                          facebook: 'Facebook',
-                          instagram: 'Instagram',
-                        };
-                        return (
-                          <div
-                            className="td"
-                            key={key}
-                            {...restProps}
-                            style={{
-                              ...restProps.style,
-                              padding: '22px 0px',
-                              borderRight: 'none',
-                            }}
-                          >
-                            <img
-                              alt="Platform"
-                              src={`/static/assets/images/Donut Chart Icon/${
-                                platformObject[cellContent.toLowerCase()]
-                              }.png`}
-                              style={{
-                                height: '20px',
-                              }}
-                            />
-                          </div>
-                        );
-                      }
-
-                      // hide all the sentiment cell except positive which will show colored bar will have to change this functinality fior dynamic usage
-                      if (
-                        isSentimentColumnPresent &&
-                        (cell.column.Header.toLowerCase().includes('negative_sentiment_valence') ||
-                          cell.column.Header.toLowerCase().includes('neutral_sentiment_valence'))
-                      ) {
-                        return null;
-                      }
-
-                      if (cell.column.Header.toLowerCase().includes('positive_sentiment_valence')) {
-                        const positive = row.original[positiveSentimentColumnName] || 0;
-                        const neutral = row.original[neutralSentimentColumnName] || 0;
-                        const negative = row.original[negativeSentimentColumnName] || 0;
-                        const totalSentiment = positive + neutral + negative;
-                        const positivePercentage =
-                          totalSentiment > 0
-                            ? Number(((positive / totalSentiment) * 100).toFixed(1))
-                            : 0;
-                        const neutralPercentage =
-                          totalSentiment > 0
-                            ? Number(((neutral / totalSentiment) * 100).toFixed(1))
-                            : 0;
-                        const negativePercentage =
-                          totalSentiment > 0
-                            ? Number(((negative / totalSentiment) * 100).toFixed(1))
-                            : 0;
-                        return (
-                          <div
-                            className="td"
-                            key={key}
-                            {...restProps}
-                            style={{ ...restProps.style, padding: '24px 20px' }}
-                            title=""
-                          >
-                            {totalSentiment > 0 ? (
-                              <div
-                                style={{
-                                  borderRadius: '15px',
-                                  overflow: 'hidden',
-                                  width: '100%',
-                                  minWidth: '150px',
-                                  height: '15px',
-                                }}
-                              >
-                                <span
-                                  style={{
-                                    background: `linear-gradient( 90deg, #2ACCB2, #2ACCB2 80%, ${getBarGradient(
-                                      'positive',
-                                      positivePercentage,
-                                      neutralPercentage,
-                                      negativePercentage,
-                                    )})`,
-                                    padding: '0px ' + positivePercentage / 2 + '%',
-                                  }}
-                                  title={'Positive: ' + positivePercentage + '%'}
-                                />
-                                <span
-                                  style={{
-                                    background: '#E9DE90',
-                                    padding: '0px ' + neutralPercentage / 2 + '%',
-                                  }}
-                                  title={'Neutral: ' + neutralPercentage + '%'}
-                                />
-                                <span
-                                  style={{
-                                    background: `linear-gradient( 90deg, ${getBarGradient(
-                                      'negative',
-                                      positivePercentage,
-                                      neutralPercentage,
-                                      negativePercentage,
-                                    )}, #FF4545 20%, #FF4545)`,
-                                    padding: '0px ' + negativePercentage / 2 + '%',
-                                  }}
-                                  title={'Negative: ' + negativePercentage + '%'}
-                                />
-                              </div>
-                            ) : (
-                              <span>N/A</span>
-                            )}
-                          </div>
-                        );
-                      }
-
-                      // If cellProps renderes textContent already, then we don't have to
-                      // render `Cell`. This saves some time for large tables.
-                      return (
-                        <div
-                          className="td"
-                          key={key}
-                          {...restProps}
-                          style={{
-                            ...restProps.style,
-                            paddingRight: '30px',
-                            paddingLeft: '30px',
-                          }}
-                        >
-                          <span>{cellContent || cell.render('Cell')}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                );
-              })
-            ) : (
-              <div className="tr">
-                <div className="dt-no-results td" colSpan={columns.length}>
-                  {typeof noResultsText === 'function'
-                    ? noResultsText(filterValue as string)
-                    : noResultsText}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </Styles>
-    );
-  };
-
   // force upate the pageSize when it's been update from the initial state
   if (
     pageSizeRef.current[0] !== initialPageSize ||
@@ -1397,6 +1066,7 @@ export default function DataTable<D extends object>({
         columnsMeta={columnsMeta}
         marginLeftForHorizontalScroll={marginLeftForHorizontalScroll}
         videoPlatformMerge={videoPlatformMerge}
+        showVideoTitleThumbnail={showVideoTitleThumbnail}
         initialHeight={initialHeight}
         initialWidth={initialWidth}
       />

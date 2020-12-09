@@ -214,10 +214,22 @@ const config: ControlPanelConfig = {
             name: 'video_platform_merge',
             config: {
               type: 'CheckboxControl',
-              label: t('Show platform icon with video title'),
+              label: t('Show platform icon with video title or video title link'),
               description: t(
-                'Whether to merge video title and platform colum or to keep them seperate',
+                'Whether to merge (video title / video title link) and platform colum or to keep them seperate',
               ),
+              default: false,
+              visibility: isAggMode,
+            },
+          },
+        ],
+        [
+          {
+            name: 'show_video_title_thumbnail',
+            config: {
+              type: 'CheckboxControl',
+              label: t('Show thumbnail for video title and video title link'),
+              description: t('wheter to show thumbnail onclick of video title or video title link'),
               default: false,
               visibility: isAggMode,
             },
@@ -277,6 +289,28 @@ const config: ControlPanelConfig = {
           },
         ],
         ['adhoc_filters'],
+        [
+          {
+            name: 'customTableHeader',
+            config: {
+              type: 'TextControl',
+              default: '',
+              label: t('Table Header'),
+              description: t('Table header text for to display in table header'),
+            },
+          },
+        ],
+        [
+          {
+            name: 'tableDescription',
+            config: {
+              type: 'TextControl',
+              default: '',
+              label: t('Table Description'),
+              description: t('Description text that shows up when you hover over the info icon'),
+            },
+          },
+        ],
       ],
     },
     {
@@ -313,30 +347,6 @@ const config: ControlPanelConfig = {
             },
           },
           null,
-        ],
-        [
-          {
-            name: 'customTableHeader',
-            config: {
-              type: 'TextControl',
-              renderTrigger: true,
-              default: '',
-              label: t('Table Header'),
-              description: t('Table header text for to display in table header'),
-            },
-          },
-        ],
-        [
-          {
-            name: 'tableDescription',
-            config: {
-              type: 'TextControl',
-              renderTrigger: true,
-              default: '',
-              label: t('Table Description'),
-              description: t('Description text that shows up when you hover over the info icon'),
-            },
-          },
         ],
         ['color_scheme', 'label_colors'],
         [

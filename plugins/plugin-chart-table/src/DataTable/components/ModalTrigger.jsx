@@ -60,6 +60,7 @@ export default class ModalTrigger extends React.Component {
     e.preventDefault();
     this.setState(() => ({ showModal: true }));
   }
+
   renderModal() {
     return (
       <Modal
@@ -71,11 +72,7 @@ export default class ModalTrigger extends React.Component {
         bsSize={this.props.bsSize}
         className={this.props.className}
         backdrop={this.props.backdrop}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          marginLeft: '19vw',
-        }}
+        style={{ display: 'flex', alignItems: 'center' }}
       >
         {this.props.modalTitle && (
           <Modal.Header
@@ -98,13 +95,7 @@ export default class ModalTrigger extends React.Component {
             </Modal.Title>
           </Modal.Header>
         )}
-        <Modal.Body
-          style={{
-            padding: '0px 50px',
-          }}
-        >
-          {this.props.modalBody}
-        </Modal.Body>
+        <Modal.Body style={{ padding: '0px' }}>{this.props.modalBody}</Modal.Body>
         {this.props.modalFooter && (
           <Modal.Footer style={{ padding: '40px', display: 'flex', justifyContent: 'center' }}>
             {this.props.modalFooter}
