@@ -145,7 +145,8 @@
   font-weight: bold;
 }
 .nvtooltip tbody tr:not(.tooltip-header) td:nth-child(2) {
-  word-break: break-word;
+  /* word-break: break-word; */
+  max-width: 100px;
 }
 /* END tooltip styles */
 

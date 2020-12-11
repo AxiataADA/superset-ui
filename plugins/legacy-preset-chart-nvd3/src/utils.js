@@ -28,6 +28,44 @@ const TIME_SHIFT_PATTERN = /\d+ \w+ offset/;
 
 const ANIMATION_TIME = 1000;
 
+/*
+  get Color gradiant array for the charts and tooltipbelow is the global object and after that there is a functions
+*/
+const gradientobject = {
+  'rgb(97, 62, 166)': ['rgb(97,62,166)', 'rgb(155,114,210)'],
+  'rgb(26, 110, 254)': ['rgb(26,110,254)', 'rgb(56,167,255)'],
+  'rgb(255, 33, 130)': ['rgb(255,33,130)', 'rgb(255,68,184)'],
+  'rgb(109, 153, 226)': ['rgb(109,153,226)', 'rgb(166,201,243)'],
+  'rgb(32, 187, 191)': ['rgb(32,187,191)', 'rgb(99,217,220)'],
+  'rgb(175, 72, 155)': ['rgb(175,72,155)', 'rgb(223,96,250)'],
+  'rgb(188, 202, 252)': ['rgb(188,202,252)', 'rgb(208,218,253)'],
+  'rgb(147, 171, 254)': ['rgb(147,171,254)', 'rgb(179,196,254)'],
+  'rgb(115, 145, 243)': ['rgb(115,145,243)', 'rgb(156,177,246)'],
+  'rgb(92, 127, 236)': ['rgb(92,127,236)', 'rgb(140,165,241)'],
+  'rgb(61, 94, 203)': ['rgb(61,94,203)', 'rgb(118,142,218)'],
+  'rgb(30, 62, 172)': ['rgb(30,62,172)', 'rgb(97,119,196)'],
+  'rgb(17, 45, 141)': ['rgb(17,45,141)', 'rgb(87,107,175)'],
+  'rgb(226, 154, 43)': ['rgb(226,154,43)', 'rgb(254,183,74)'],
+  '#613EA6': ['#613EA6', '#9B72D2'],
+  '#1A6EFE': ['#1A6EFE', '#38A7FF'],
+  '#FF2182': ['#FF2182', '#FF44B8'],
+  '#6D99E2': ['#6D99E2', '#A6C9F3'],
+  '#20BBBF': ['#20BBBF', '#63D9DC'],
+  '#AF489B': ['#AF489B', '#DF60FA'],
+  '#BCCAFC': ['#BCCAFC', '#D0DAFD'],
+  '#93ABFE': ['#93ABFE', '#B3C4FE'],
+  '#7391F3': ['#7391F3', '#9CB1F6'],
+  '#5C7FEC': ['#5C7FEC', '#8CA5F1'],
+  '#3D5ECB': ['#3D5ECB', '#768EDA'],
+  '#1E3EAC': ['#1E3EAC', '#6177C4'],
+  '#112D8D': ['#112D8D', '#576BAF'],
+  '#E29A2B': ['#E29A2B', '#FEB74A'],
+};
+
+export function getColorGradiant(color) {
+  return color ? gradientobject[color] : color;
+}
+
 export function cleanColorInput(value) {
   // for superset series that should have the same color
   return String(value)
@@ -117,12 +155,19 @@ export function generateRichLineTooltipContent(d, timeFormatter, valueFormatter)
   d.series.sort((a, b) => (a.value >= b.value ? -1 : 1));
   d.series.forEach(series => {
     const key = getFormattedKey(series.key, true);
+    const colorGradiantArray = getColorGradiant(series.color);
     tooltip +=
       `<tr class="${series.highlight ? 'emph' : ''}">` +
       `<td class='legend-color-guide' style="opacity: ${series.highlight ? '1' : '0.75'};"">` +
       '<div ' +
-      `style="border: 2px solid ${series.highlight ? 'black' : 'transparent'}; background-color: ${
-        series.color
+      `style="border: 2px solid ${series.highlight ? 'black' : 'transparent'};
+      width: ${colorGradiantArray && colorGradiantArray.length ? '16px' : '14px'};
+      height: ${colorGradiantArray && colorGradiantArray.length ? '16px' : '14px'};
+      border-radius: ${colorGradiantArray && colorGradiantArray.length ? '8px' : '7px'};
+      background: ${
+        colorGradiantArray && colorGradiantArray.length
+          ? `linear-gradient(${colorGradiantArray[1]} 0%, ${colorGradiantArray[0]} 100%) 0% 0% no-repeat padding-box padding-box transparent`
+          : series.color
       };"` +
       '></div>' +
       '</td>' +
@@ -285,7 +330,8 @@ export function wrapTooltip(chart, maxWidth) {
       : chart;
   const tooltipGeneratorFunc = tooltipLayer.tooltip.contentGenerator();
   tooltipLayer.tooltip.contentGenerator(d => {
-    let tooltip = `<div style="max-width: ${maxWidth * 0.5}px">`;
+    let tooltip = `<div style="max-width: ${maxWidth * 0.8}px">`;
+    // let tooltip = `<div style="max-width: ${maxWidth * 0.5}px">`;
     tooltip += tooltipGeneratorFunc(d);
     tooltip += '</div>';
 
