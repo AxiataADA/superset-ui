@@ -44,6 +44,7 @@ import styled from 'styled-components';
 import matchSorter from 'match-sorter';
 import { CategoricalColorNamespace } from '@superset-ui/color';
 import ModalTrigger from './components/ModalTrigger';
+import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import GlobalFilter, { GlobalFilterProps } from './components/GlobalFilter';
 import { /* SelectPageSize , */ SizeOption } from './components/SelectPageSize';
 import SimplePagination from './components/Pagination';
@@ -261,17 +262,23 @@ function CustomsTable({
                 />
               ) : null */}
               <span style={{ fontSize: '24px' }}>{customTableHeader || tableHeader || ''}</span>
-              <img
-                tooltip-data-title={tableDescription || 'No description provided'}
-                alt="Description"
-                src={`/static/assets/images/icons/Table Description.png`}
-                style={{
-                  width: '16px',
-                  height: '16px',
-                  margin:
-                    customTableHeader || tableHeader ? '-5px 0px 0px 7.5px' : '0px 0px 0px 7.5px',
-                }}
-              />
+              <OverlayTrigger
+                placement="bottom"
+                overlay={
+                  <Tooltip id="tooltip">{tableDescription || 'No description provided'}</Tooltip>
+                }
+              >
+                <img
+                  alt="Description"
+                  src={`/static/assets/images/icons/Table Description.png`}
+                  style={{
+                    width: '16px',
+                    height: '16px',
+                    margin:
+                      customTableHeader || tableHeader ? '-5px 0px 0px 7.5px' : '0px 0px 0px 7.5px',
+                  }}
+                />
+              </OverlayTrigger>
             </div>
             {searchInput ? (
               <div className="col-sm-6">
@@ -453,111 +460,117 @@ function CustomsTable({
                                   }}
                                 />
                               )}
-                              <span
-                                style={{
-                                  width: '150px',
-                                  height: '2.4em',
-                                  overflow: 'hidden',
-                                  textAlign: 'left',
-                                }}
-                                tooltip-data-title={cellContent}
+                              <OverlayTrigger
+                                placement="bottom"
+                                overlay={<Tooltip id="tooltip">{cellContent}</Tooltip>}
                               >
-                                {videoId && platformName && showVideoTitleThumbnail ? (
-                                  <ModalTrigger
-                                    triggerNode={
-                                      <span style={{ wordBreak: 'break-word' }}>{cellContent}</span>
-                                    }
-                                    className={
-                                      platformName.toLowerCase() === 'instagram'
-                                        ? 'popup-data-for-cell-content-modal-ig'
-                                        : 'popup-data-for-cell-content-modal-yt-fb'
-                                    }
-                                    modalBody={
-                                      <div>
-                                        {platformName &&
-                                          platformName.toLowerCase() === 'youtube' &&
-                                          videoId && (
-                                            <div style={{ '--aspect-ratio': '16/9' }}>
-                                              <iframe
-                                                src={`https://www.youtube.com/embed/${videoId}`}
-                                                allowTransparency="true"
-                                                allowFullScreen="true"
-                                              />
-                                            </div>
-                                          )}
-                                        {platformName &&
-                                          platformName.toLowerCase() === 'facebook' &&
-                                          videoId && (
-                                            <div style={{ '--aspect-ratio': '16/9' }}>
-                                              <iframe
-                                                src={`https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2FPlayStation%2Fvideos%2F${videoId}%2F&show_text=0&height=290`}
-                                                allowTransparency="true"
-                                                allowFullScreen="true"
-                                              />
-                                            </div>
-                                          )}
-                                        {platformName &&
-                                          platformName.toLowerCase() === 'instagram' &&
-                                          videoId && (
+                                <span
+                                  style={{
+                                    width: '150px',
+                                    height: '2.4em',
+                                    overflow: 'hidden',
+                                    textAlign: 'left',
+                                  }}
+                                >
+                                  {videoId && platformName && showVideoTitleThumbnail ? (
+                                    <ModalTrigger
+                                      triggerNode={
+                                        <span style={{ wordBreak: 'break-word' }}>
+                                          {cellContent}
+                                        </span>
+                                      }
+                                      className={
+                                        platformName.toLowerCase() === 'instagram'
+                                          ? 'popup-data-for-cell-content-modal-ig'
+                                          : 'popup-data-for-cell-content-modal-yt-fb'
+                                      }
+                                      modalBody={
+                                        <div>
+                                          {platformName &&
+                                            platformName.toLowerCase() === 'youtube' &&
+                                            videoId && (
+                                              <div style={{ '--aspect-ratio': '16/9' }}>
+                                                <iframe
+                                                  src={`https://www.youtube.com/embed/${videoId}`}
+                                                  allowTransparency="true"
+                                                  allowFullScreen="true"
+                                                />
+                                              </div>
+                                            )}
+                                          {platformName &&
+                                            platformName.toLowerCase() === 'facebook' &&
+                                            videoId && (
+                                              <div style={{ '--aspect-ratio': '16/9' }}>
+                                                <iframe
+                                                  src={`https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2FPlayStation%2Fvideos%2F${videoId}%2F&show_text=0&height=290`}
+                                                  allowTransparency="true"
+                                                  allowFullScreen="true"
+                                                />
+                                              </div>
+                                            )}
+                                          {platformName &&
+                                            platformName.toLowerCase() === 'instagram' &&
+                                            videoId && (
+                                              <div
+                                                style={{
+                                                  height: '550px',
+                                                  overflowY: 'auto',
+                                                }}
+                                              >
+                                                <iframe
+                                                  height="1000"
+                                                  id="table-viz-popup-instagram-iframe"
+                                                  src={`https://www.instagram.com/p/${videoId}/embed`}
+                                                  allowTransparency="true"
+                                                  allowFullScreen="true"
+                                                />
+                                              </div>
+                                            )}
+                                          {cellContent && cellContent !== 'N/A' && (
                                             <div
                                               style={{
-                                                height: '550px',
-                                                overflowY: 'auto',
+                                                color: '#111111',
+                                                margin: '10px',
+                                                fontSize: '14px',
+                                                fontFamily: 'Roboto',
+                                                maxWidth: '500px',
                                               }}
                                             >
-                                              <iframe
-                                                height="1000"
-                                                id="table-viz-popup-instagram-iframe"
-                                                src={`https://www.instagram.com/p/${videoId}/embed`}
-                                                allowTransparency="true"
-                                                allowFullScreen="true"
-                                              />
+                                              {cellContent}
                                             </div>
                                           )}
-                                        {cellContent && cellContent !== 'N/A' && (
-                                          <div
-                                            style={{
-                                              color: '#111111',
-                                              margin: '10px',
-                                              fontSize: '14px',
-                                              fontFamily: 'Roboto',
-                                              maxWidth: '500px',
-                                            }}
-                                          >
-                                            {cellContent}
-                                          </div>
-                                        )}
-                                        {platformName && (
-                                          <div
-                                            style={{
-                                              textAlign: 'end',
-                                              padding: '5px 5px 10px',
-                                              color: '#111111',
-                                              fontWeight: '500',
-                                              fontSize: '11px',
-                                              fontFamily: 'Roboto',
-                                            }}
-                                          >
-                                            <img
-                                              alt="Platform"
-                                              src={`/static/assets/images/Donut Chart Icon/${
-                                                platformObject[platformName.toLowerCase()]
-                                              }.png`}
+                                          {platformName && (
+                                            <div
                                               style={{
-                                                height: '13px',
-                                                marginRight: '5px',
+                                                textAlign: 'end',
+                                                padding: '5px 5px 10px',
+                                                color: '#111111',
+                                                fontWeight: '500',
+                                                fontSize: '11px',
+                                                fontFamily: 'Roboto',
                                               }}
-                                            />
-                                            {platformObject[platformName.toLowerCase()]}
-                                          </div>
-                                        )}
-                                      </div>
-                                    }
-                                  />
-                                ) : (
-                                  <span style={{ wordBreak: 'break-word' }}>{cellContent}</span>
-                                )}
-                              </span>
+                                            >
+                                              <img
+                                                alt="Platform"
+                                                src={`/static/assets/images/Donut Chart Icon/${
+                                                  platformObject[platformName.toLowerCase()]
+                                                }.png`}
+                                                style={{
+                                                  height: '13px',
+                                                  marginRight: '5px',
+                                                }}
+                                              />
+                                              {platformObject[platformName.toLowerCase()]}
+                                            </div>
+                                          )}
+                                        </div>
+                                      }
+                                    />
+                                  ) : (
+                                    <span style={{ wordBreak: 'break-word' }}>{cellContent}</span>
+                                  )}
+                                </span>
+                              </OverlayTrigger>
                             </span>
                           </div>
                         );
@@ -606,7 +619,7 @@ function CustomsTable({
                             className="td"
                             key={key}
                             {...restProps}
-                            tooltip-data-title=""
+                            title=""
                             style={{
                               ...restProps,
                               display: 'flex',
@@ -624,37 +637,61 @@ function CustomsTable({
                                   height: '15px',
                                 }}
                               >
-                                <span
-                                  style={{
-                                    background: `linear-gradient( 90deg, #2ACCB2, #2ACCB2 80%, ${getBarGradient(
-                                      'positive',
-                                      positivePercentage,
-                                      neutralPercentage,
-                                      negativePercentage,
-                                    )})`,
-                                    padding: '0px ' + positivePercentage / 2 + '%',
-                                  }}
-                                  tooltip-data-title={'Positive: ' + positivePercentage + '%'}
-                                />
-                                <span
-                                  style={{
-                                    background: '#E9DE90',
-                                    padding: '0px ' + neutralPercentage / 2 + '%',
-                                  }}
-                                  tooltip-data-title={'Neutral: ' + neutralPercentage + '%'}
-                                />
-                                <span
-                                  style={{
-                                    background: `linear-gradient( 90deg, ${getBarGradient(
-                                      'negative',
-                                      positivePercentage,
-                                      neutralPercentage,
-                                      negativePercentage,
-                                    )}, #FF4545 20%, #FF4545)`,
-                                    padding: '0px ' + negativePercentage / 2 + '%',
-                                  }}
-                                  tooltip-data-title={'Negative: ' + negativePercentage + '%'}
-                                />
+                                <OverlayTrigger
+                                  placement="bottom"
+                                  overlay={
+                                    <Tooltip id="tooltip">
+                                      {'Positive: ' + positivePercentage + '%'}
+                                    </Tooltip>
+                                  }
+                                >
+                                  <span
+                                    style={{
+                                      background: `linear-gradient( 90deg, #2ACCB2, #2ACCB2 80%, ${getBarGradient(
+                                        'positive',
+                                        positivePercentage,
+                                        neutralPercentage,
+                                        negativePercentage,
+                                      )})`,
+                                      padding: '0px ' + positivePercentage / 2 + '%',
+                                    }}
+                                  />
+                                </OverlayTrigger>
+                                <OverlayTrigger
+                                  placement="bottom"
+                                  overlay={
+                                    <Tooltip id="tooltip">
+                                      {'Neutral: ' + neutralPercentage + '%'}
+                                    </Tooltip>
+                                  }
+                                >
+                                  <span
+                                    style={{
+                                      background: '#E9DE90',
+                                      padding: '0px ' + neutralPercentage / 2 + '%',
+                                    }}
+                                  />
+                                </OverlayTrigger>
+                                <OverlayTrigger
+                                  placement="bottom"
+                                  overlay={
+                                    <Tooltip id="tooltip">
+                                      {'Negative: ' + negativePercentage + '%'}
+                                    </Tooltip>
+                                  }
+                                >
+                                  <span
+                                    style={{
+                                      background: `linear-gradient( 90deg, ${getBarGradient(
+                                        'negative',
+                                        positivePercentage,
+                                        neutralPercentage,
+                                        negativePercentage,
+                                      )}, #FF4545 20%, #FF4545)`,
+                                      padding: '0px ' + negativePercentage / 2 + '%',
+                                    }}
+                                  />
+                                </OverlayTrigger>
                               </div>
                             ) : (
                               <span
