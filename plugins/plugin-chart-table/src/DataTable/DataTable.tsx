@@ -326,7 +326,7 @@ function CustomsTable({
 
                   if (column.Header.includes('organization')) {
                     return (
-                      <div {...headerRestProps} className="th">
+                      <div {...headerRestProps} title="" className="th">
                         <span>
                           {getKeyOrLableContent(column.Header)}
                           {column.render('SortIcon')}
@@ -337,7 +337,7 @@ function CustomsTable({
 
                   if (column.Header.includes('video_title')) {
                     return (
-                      <div {...headerRestProps} className="th">
+                      <div {...headerRestProps} title="" className="th">
                         <span>
                           {getKeyOrLableContent(column.Header)}
                           {column.render('SortIcon')}
@@ -348,7 +348,7 @@ function CustomsTable({
 
                   if (column.Header.includes('published_date')) {
                     return (
-                      <div {...headerRestProps} className="th">
+                      <div {...headerRestProps} title="" className="th">
                         <span>
                           {getKeyOrLableContent(column.Header)}
                           {column.render('SortIcon')}
@@ -358,7 +358,7 @@ function CustomsTable({
                   }
 
                   return (
-                    <div {...headerRestProps} className="th">
+                    <div {...headerRestProps} title="" className="th">
                       <span>
                         {getKeyOrLableContent(column.Header)}
                         {column.render('SortIcon')}
@@ -382,7 +382,7 @@ function CustomsTable({
                       const key = cellKey || cell.column.id;
 
                       if (cellProps.dangerouslySetInnerHTML) {
-                        return <div className="td" key={key} {...restProps} />;
+                        return <div className="td" key={key} {...restProps} title="" />;
                       }
 
                       if (
@@ -391,7 +391,7 @@ function CustomsTable({
                         cell.column.Header === 'created_date'
                       ) {
                         return (
-                          <div className="td" key={key} {...restProps}>
+                          <div className="td" key={key} {...restProps} title="">
                             {getRequiredDateFormat(cellContent)}
                           </div>
                         );
@@ -402,26 +402,31 @@ function CustomsTable({
                         const gradientArray = getColorGradientArray(color);
                         const textColor = getTextColor(color);
                         return (
-                          <div className="td" key={key} {...restProps}>
-                            <span
-                              style={{
-                                background: gradientArray
-                                  ? 'transparent linear-gradient(180deg, ' +
-                                    gradientArray[1] +
-                                    ' 0%, ' +
-                                    gradientArray[0] +
-                                    ' 100%) 0% 0% no-repeat padding-box'
-                                  : color,
-                                padding: '7px',
-                                borderRadius: '15px',
-                                color: textColor ? 'black' : 'white',
-                                display: 'inline-block',
-                                width: '160px',
-                                textAlign: 'center',
-                              }}
+                          <div className="td" key={key} {...restProps} title="">
+                            <OverlayTrigger
+                              placement="bottom"
+                              overlay={<Tooltip id="tooltip">{cellContent}</Tooltip>}
                             >
-                              {cellContent}
-                            </span>
+                              <span
+                                style={{
+                                  background: gradientArray
+                                    ? 'transparent linear-gradient(180deg, ' +
+                                      gradientArray[1] +
+                                      ' 0%, ' +
+                                      gradientArray[0] +
+                                      ' 100%) 0% 0% no-repeat padding-box'
+                                    : color,
+                                  padding: '7px',
+                                  borderRadius: '15px',
+                                  color: textColor ? 'black' : 'white',
+                                  display: 'inline-block',
+                                  width: '160px',
+                                  textAlign: 'center',
+                                }}
+                              >
+                                {cellContent}
+                              </span>
+                            </OverlayTrigger>
                           </div>
                         );
                       }
@@ -440,7 +445,7 @@ function CustomsTable({
                           instagram: 'Instagram',
                         };
                         return (
-                          <div className="td" key={key} {...restProps}>
+                          <div className="td" key={key} {...restProps} title="">
                             <span
                               style={{
                                 display: 'flex',
@@ -449,16 +454,25 @@ function CustomsTable({
                               }}
                             >
                               {platformName && (
-                                <img
-                                  alt="Platform"
-                                  src={`/static/assets/images/Donut Chart Icon/${
-                                    platformObject[platformName.toLowerCase()]
-                                  }.png`}
-                                  style={{
-                                    height: '20px',
-                                    marginRight: '20px',
-                                  }}
-                                />
+                                <OverlayTrigger
+                                  placement="bottom"
+                                  overlay={
+                                    <Tooltip id="tooltip">
+                                      {platformObject[platformName.toLowerCase()]}
+                                    </Tooltip>
+                                  }
+                                >
+                                  <img
+                                    alt="Platform"
+                                    src={`/static/assets/images/Donut Chart Icon/${
+                                      platformObject[platformName.toLowerCase()]
+                                    }.png`}
+                                    style={{
+                                      height: '20px',
+                                      marginRight: '20px',
+                                    }}
+                                  />
+                                </OverlayTrigger>
                               )}
                               <OverlayTrigger
                                 placement="bottom"
@@ -583,16 +597,25 @@ function CustomsTable({
                           instagram: 'Instagram',
                         };
                         return (
-                          <div className="td" key={key} {...restProps}>
-                            <img
-                              alt="Platform"
-                              src={`/static/assets/images/Donut Chart Icon/${
-                                platformObject[cellContent.toLowerCase()]
-                              }.png`}
-                              style={{
-                                height: '20px',
-                              }}
-                            />
+                          <div className="td" key={key} {...restProps} title="">
+                            <OverlayTrigger
+                              placement="bottom"
+                              overlay={
+                                <Tooltip id="tooltip">
+                                  {platformObject[cellContent.toLowerCase()]}
+                                </Tooltip>
+                              }
+                            >
+                              <img
+                                alt="Platform"
+                                src={`/static/assets/images/Donut Chart Icon/${
+                                  platformObject[cellContent.toLowerCase()]
+                                }.png`}
+                                style={{
+                                  height: '20px',
+                                }}
+                              />
+                            </OverlayTrigger>
                           </div>
                         );
                       }
@@ -716,13 +739,19 @@ function CustomsTable({
                             key={key}
                             {...restProps}
                             className="td"
+                            title=""
                             style={{
                               ...restProps.style,
                               textAlign: 'left',
                               justifyContent: 'start',
                             }}
                           >
-                            <span style={{ wordBreak: 'break-word' }}>{cellContent}</span>
+                            <OverlayTrigger
+                              placement="bottom"
+                              overlay={<Tooltip id="tooltip">{restProps.title}</Tooltip>}
+                            >
+                              <span style={{ wordBreak: 'break-word' }}>{cellContent}</span>
+                            </OverlayTrigger>
                           </div>
                         );
                       }
@@ -736,20 +765,31 @@ function CustomsTable({
                             key={key}
                             {...restProps}
                             className="td"
+                            title=""
                             style={{
                               ...restProps.style,
                               textAlign: 'left',
                               justifyContent: 'start',
                             }}
                           >
-                            {cellContent}
+                            <OverlayTrigger
+                              placement="bottom"
+                              overlay={<Tooltip id="tooltip">{restProps.title}</Tooltip>}
+                            >
+                              {cellContent}
+                            </OverlayTrigger>
                           </div>
                         );
                       }
 
                       return (
-                        <div key={key} {...restProps} className="td">
-                          {cellContent}
+                        <div key={key} {...restProps} className="td" title="">
+                          <OverlayTrigger
+                            placement="bottom"
+                            overlay={<Tooltip id="tooltip">{restProps.title}</Tooltip>}
+                          >
+                            <span>{cellContent}</span>
+                          </OverlayTrigger>
                         </div>
                       );
                     })}
@@ -787,7 +827,7 @@ function getBarGradient(
   positivePercentage: number,
   neutralPercentage: number,
   negativePercentage: number,
-): string {
+) {
   if (barName === 'positive') {
     if (neutralPercentage > 0) return '#E9DE90';
     if (negativePercentage > 0) return '#FF4545';
