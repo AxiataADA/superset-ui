@@ -405,7 +405,11 @@ function CustomsTable({
                           <div className="td" key={key} {...restProps} title="">
                             <OverlayTrigger
                               placement="bottom"
-                              overlay={<Tooltip id="tooltip">{cellContent}</Tooltip>}
+                              overlay={
+                                <Tooltip id="tooltip">
+                                  <span>{cellContent}</span>
+                                </Tooltip>
+                              }
                             >
                               <span
                                 style={{
@@ -458,7 +462,7 @@ function CustomsTable({
                                   placement="bottom"
                                   overlay={
                                     <Tooltip id="tooltip">
-                                      {platformObject[platformName.toLowerCase()]}
+                                      <span>{platformObject[platformName.toLowerCase()]}</span>
                                     </Tooltip>
                                   }
                                 >
@@ -476,7 +480,11 @@ function CustomsTable({
                               )}
                               <OverlayTrigger
                                 placement="bottom"
-                                overlay={<Tooltip id="tooltip">{cellContent}</Tooltip>}
+                                overlay={
+                                  <Tooltip id="tooltip">
+                                    <span>{cellContent}</span>
+                                  </Tooltip>
+                                }
                               >
                                 <span
                                   style={{
@@ -602,7 +610,7 @@ function CustomsTable({
                               placement="bottom"
                               overlay={
                                 <Tooltip id="tooltip">
-                                  {platformObject[cellContent.toLowerCase()]}
+                                  <span>{platformObject[cellContent.toLowerCase()]}</span>
                                 </Tooltip>
                               }
                             >
@@ -664,7 +672,7 @@ function CustomsTable({
                                   placement="bottom"
                                   overlay={
                                     <Tooltip id="tooltip">
-                                      {'Positive: ' + positivePercentage + '%'}
+                                      <span>{'Positive: ' + positivePercentage + '%'}</span>
                                     </Tooltip>
                                   }
                                 >
@@ -684,7 +692,7 @@ function CustomsTable({
                                   placement="bottom"
                                   overlay={
                                     <Tooltip id="tooltip">
-                                      {'Neutral: ' + neutralPercentage + '%'}
+                                      <span>{'Neutral: ' + neutralPercentage + '%'}</span>
                                     </Tooltip>
                                   }
                                 >
@@ -699,7 +707,7 @@ function CustomsTable({
                                   placement="bottom"
                                   overlay={
                                     <Tooltip id="tooltip">
-                                      {'Negative: ' + negativePercentage + '%'}
+                                      <span>{'Negative: ' + negativePercentage + '%'}</span>
                                     </Tooltip>
                                   }
                                 >
@@ -748,7 +756,11 @@ function CustomsTable({
                           >
                             <OverlayTrigger
                               placement="bottom"
-                              overlay={<Tooltip id="tooltip">{restProps.title}</Tooltip>}
+                              overlay={
+                                <Tooltip id="tooltip">
+                                  <span>{restProps.title || cellContent}</span>
+                                </Tooltip>
+                              }
                             >
                               <span style={{ wordBreak: 'break-word' }}>{cellContent}</span>
                             </OverlayTrigger>
@@ -774,9 +786,13 @@ function CustomsTable({
                           >
                             <OverlayTrigger
                               placement="bottom"
-                              overlay={<Tooltip id="tooltip">{restProps.title}</Tooltip>}
+                              overlay={
+                                <Tooltip id="tooltip">
+                                  <span>{restProps.title || cellContent}</span>
+                                </Tooltip>
+                              }
                             >
-                              {cellContent}
+                              <span>{cellContent}</span>
                             </OverlayTrigger>
                           </div>
                         );
@@ -784,12 +800,20 @@ function CustomsTable({
 
                       return (
                         <div key={key} {...restProps} className="td" title="">
-                          <OverlayTrigger
-                            placement="bottom"
-                            overlay={<Tooltip id="tooltip">{restProps.title}</Tooltip>}
-                          >
-                            <span>{cellContent}</span>
-                          </OverlayTrigger>
+                          {restProps.title || (cellContent && cellContent !== 'N/A') ? (
+                            <OverlayTrigger
+                              placement="bottom"
+                              overlay={
+                                <Tooltip id="tooltip">
+                                  <span>{restProps.title || cellContent}</span>
+                                </Tooltip>
+                              }
+                            >
+                              <span>{cellContent || 'N/A'}</span>
+                            </OverlayTrigger>
+                          ) : (
+                            <span>{cellContent || 'N/A'}</span>
+                          )}
                         </div>
                       );
                     })}
