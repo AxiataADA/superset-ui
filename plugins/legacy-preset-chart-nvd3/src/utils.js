@@ -172,7 +172,7 @@ export function generateRichLineTooltipContent(d, timeFormatter, valueFormatter)
       '></div>' +
       '</td>' +
       `<td>${key}</td>` +
-      `<td>${valueFormatter(series.value)}</td>` +
+      `<td>${valueFormatter(series.value === 'null' || !series.value ? 0 : series.value)}</td>` +
       '</tr>';
   });
   tooltip += '</tbody></table>';
@@ -200,8 +200,11 @@ export function generateAreaChartTooltipContent(d, timeFormatter, valueFormatter
       `<tr class="${trClass}" style="border-color: ${series.color}">` +
       `<td style="color: ${series.color}">${series.key === 'TOTAL' ? '' : '&#9724;'}</td>` +
       `<td>${key}</td>` +
-      `<td>${valueFormatter(series.value)}</td>` +
-      `<td>${((100 * series.value) / total).toFixed(2)}%</td>` +
+      `<td>${valueFormatter(series.value === 'null' || !series.value ? 0 : series.value)}</td>` +
+      `<td>${(
+        (100 * (series.value === 'null' || !series.value ? 0 : series.value)) /
+        total
+      ).toFixed(2)}%</td>` +
       '</tr>';
   });
   tooltip += '</tbody></table>';
@@ -225,7 +228,9 @@ export function generateMultiLineTooltipContent(d, xFormatter, yFormatters) {
       "<tr><td class='legend-color-guide'>" +
       `<div style="background-color: ${series.color};"></div></td>` +
       `<td class='key'>${key}</td>` +
-      `<td class='value'>${yFormatter(series.value)}</td></tr>`;
+      `<td class='value'>${yFormatter(
+        series.value === 'null' || !series.value ? 0 : series.value,
+      )}</td></tr>`;
   });
 
   tooltip += '</tbody></table>';
@@ -254,7 +259,9 @@ export function generateTimePivotTooltip(d, xFormatter, yFormatter) {
         "<tr><td class='legend-color-guide'>" +
         `<div style="background-color: ${series.color};"></div></td>` +
         `<td class='key'>${label}</td>` +
-        `<td class='value'>${yFormatter(series.value)}</td></tr>`;
+        `<td class='value'>${yFormatter(
+          series.value === 'null' || !series.value ? 0 : series.value,
+        )}</td></tr>`;
     }
   });
 
