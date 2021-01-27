@@ -149,16 +149,14 @@ const BetweenDateControl = ({
 }) => {
   const MOMENT_FORMAT = 'MM/DD/YYYY';
   const [state, setState] = useState({
-    since: new Date(
+    since:
       appliedFilersObject && appliedFilersObject.value && appliedFilersObject.value.length
-        ? appliedFilersObject.value[0]
-        : Date.now(),
-    ),
-    until: new Date(
+        ? new Date(appliedFilersObject.value[0])
+        : undefined,
+    until:
       appliedFilersObject && appliedFilersObject.value && appliedFilersObject.value.length
-        ? appliedFilersObject.value[1]
-        : Date.now(),
-    ),
+        ? new Date(appliedFilersObject.value[1])
+        : undefined,
     showSinceCalendar: false,
     showUntilCalendar: false,
     sinceViewMode: 'days',
@@ -169,7 +167,6 @@ const BetweenDateControl = ({
     const closeCalendar =
       (key === 'since' && state.sinceViewMode === 'days') ||
       (key === 'until' && state.untilViewMode === 'days');
-
     setState({
       ...state,
       [key]: typeof value === 'string' ? value : value.format(MOMENT_FORMAT),
@@ -179,8 +176,10 @@ const BetweenDateControl = ({
       untilViewMode: closeCalendar ? 'days' : state.untilViewMode,
     });
     if (key === 'since') updateSearchInputFilterArray(id, [new Date(value), new Date(state.until)]);
-    else if (key === 'until')
+    else if (key === 'until') {
+      value.endOf('day');
       updateSearchInputFilterArray(id, [new Date(state.since), new Date(value)]);
+    }
   };
 
   const isValidMoment = s => {
@@ -250,7 +249,7 @@ const BetweenDateControl = ({
       <div style={{ margin: '0px 20px 0px 20px', height: '30px' }}>
         <Datetime
           timeFormat={false}
-          value={state.since}
+          value={state.since ? state.since : ''}
           defaultValue={state.since}
           viewDate={state.since}
           onChange={value => setCustomStartEnd('since', value)}
@@ -275,7 +274,7 @@ const BetweenDateControl = ({
       <div style={{ marginLeft: '20px', height: '30px' }}>
         <Datetime
           timeFormat={false}
-          value={state.until}
+          value={state.until ? state.until : ''}
           defaultValue={state.until}
           viewDate={state.until}
           onChange={value => setCustomStartEnd('until', value)}
@@ -646,8 +645,17 @@ export default function TableChart<D extends DataRecord = DataRecord>(
       let isFilterColumn = null;
       let isFixedColumn = null;
       if (filterColumns && filterColumns.length) {
+        const regex = /\((.*?)\)$/;
+        let contentDisplayName = label;
+        while (regex.test(contentDisplayName)) {
+          const resultArray = regex.exec(contentDisplayName);
+          if (!resultArray || !resultArray.length) {
+            break;
+          }
+          contentDisplayName = resultArray[1];
+        }
         filterColumns.map(i => {
-          if (label.includes(i)) isFilterColumn = label;
+          if (label === i) isFilterColumn = label;
         });
       }
       if (fixedColumns && fixedColumns.length) {

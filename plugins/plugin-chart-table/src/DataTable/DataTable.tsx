@@ -57,6 +57,7 @@ const { getScale } = CategoricalColorNamespace;
 const Styles = styled.div`
   .table {
     margin-bottom: 0px;
+    background: #f8f8f8;
     .tr {
       :last-child {
         .td {
@@ -165,7 +166,7 @@ function CustomsTable({
   showVideoTitleThumbnail,
   initialHeight,
   initialWidth,
-}) {
+}: any) {
   const colorFunction = getScale(colorScheme);
   const defaultColumn = React.useMemo(
     () => ({
@@ -174,6 +175,63 @@ function CustomsTable({
     }),
     [],
   );
+
+  function getRequiredDateFormat(dateString: string): string {
+    const newDate = new Date(new Date(dateString.trim()) + 'UTC');
+    const monthsArray = [
+      'Jan ',
+      'Feb ',
+      'Mar ',
+      'Apr ',
+      'May ',
+      'Jun ',
+      'Jul ',
+      'Aug ',
+      'Sep ',
+      'Oct ',
+      'Nov ',
+      'Dec ',
+    ];
+    const date = newDate.getDate(),
+      year = newDate.getFullYear(),
+      month = newDate.getMonth();
+    return monthsArray[month] + date + ', ' + year;
+  }
+
+  function customSearchFilter(rows: any, columnsIDs: any, globalFilterValue: any) {
+    globalFilterValue = globalFilterValue.toLowerCase();
+    const filteredRows: any = [];
+    rows.map((row: any) => {
+      const rowInfo = row.original || [];
+      for (let key in rowInfo) {
+        if (
+          globalFilterValue === 'n/a' &&
+          typeof rowInfo[key] === 'string' &&
+          rowInfo[key].length === 0
+        ) {
+          filteredRows.push(row);
+          break;
+        } else if (
+          (key === 'published_date' || key === 'crawled_date') &&
+          getRequiredDateFormat(rowInfo?.[key].toString()).toLowerCase().includes(globalFilterValue)
+        ) {
+          filteredRows.push(row);
+          break;
+        } else if (typeof rowInfo[key] === 'number') {
+          let valueFormatter = columnsMeta.filter((column: any) => column.key === key)?.[0]
+            ?.formatter;
+          if (valueFormatter && valueFormatter(rowInfo[key])?.includes(globalFilterValue)) {
+            filteredRows.push(row);
+            break;
+          }
+        } else if (rowInfo[key]?.toString().toLowerCase().includes(globalFilterValue)) {
+          filteredRows.push(row);
+          break;
+        }
+      }
+    });
+    return filteredRows;
+  }
 
   const {
     getTableProps,
@@ -197,7 +255,7 @@ function CustomsTable({
       data,
       initialState,
       getTableSize: defaultGetTableSize,
-      globalFilter: defaultGlobalFilter,
+      globalFilter: customSearchFilter,
       ...moreUseTableOptions,
       uniqueTableIdForPDFDownload,
       defaultColumn,
@@ -861,28 +919,6 @@ function getBarGradient(
     if (positivePercentage > 0) return '#2ACCB2';
     return '#FF4545';
   }
-}
-
-function getRequiredDateFormat(dateString: string): string {
-  const newDate = new Date(new Date(dateString.trim()) + 'UTC');
-  const monthsArray = [
-    'Jan ',
-    'Feb ',
-    'Mar ',
-    'Apr ',
-    'May ',
-    'Jun ',
-    'Jul ',
-    'Aug ',
-    'Sep ',
-    'Oct ',
-    'Nov ',
-    'Dec ',
-  ];
-  const date = newDate.getDate(),
-    year = newDate.getFullYear(),
-    month = newDate.getMonth();
-  return monthsArray[month] + date + ', ' + year;
 }
 
 function getTextColor(color: string): object {
