@@ -310,7 +310,10 @@ function CustomsTable({
       {hasGlobalControl ? (
         <div ref={globalControlRef} className="form-inline dt-controls">
           <div className="row">
-            <div className="col-sm-6">
+            <div
+              className="col-sm-2"
+              style={{ height: '32px', display: 'flex', alignItems: 'center' }}
+            >
               {/* hasPagination ? (
                 <SelectPageSize
                   total={data.length}
@@ -330,8 +333,8 @@ function CustomsTable({
                   alt="Description"
                   src={`/static/assets/images/icons/Table Description.png`}
                   style={{
-                    width: '16px',
-                    height: '16px',
+                    width: '18px',
+                    height: '18px',
                     margin:
                       customTableHeader || tableHeader ? '-5px 0px 0px 7.5px' : '0px 0px 0px 7.5px',
                   }}
@@ -339,7 +342,7 @@ function CustomsTable({
               </OverlayTrigger>
             </div>
             {searchInput ? (
-              <div className="col-sm-6">
+              <div className="col-sm-10">
                 <GlobalFilter
                   exportCSV={exportCSV}
                   tableHeader={tableHeader}

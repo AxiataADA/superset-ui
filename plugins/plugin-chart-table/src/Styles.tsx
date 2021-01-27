@@ -60,6 +60,8 @@ export default styled.div`
   .dt-global-filter {
     float: right;
     display: flex;
+    width: 100%;
+    justify-content: flex-end;
   }
 
   .dt-pagination {
@@ -106,7 +108,7 @@ export default styled.div`
   .table-search-input {
     border: none;
     margin-left: 25px;
-    width: 205px;
+    width: 50%;
     font-family: 'Roboto', sans-serif;
     &::placeholder {
       color: #7c90db;
