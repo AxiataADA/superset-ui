@@ -131,6 +131,28 @@ const Styles = styled.div`
   }
 `;
 
+function getRequiredDateFormat(dateString: string): string {
+  const newDate = new Date(new Date(dateString.trim()) + 'UTC');
+  const monthsArray = [
+    'Jan ',
+    'Feb ',
+    'Mar ',
+    'Apr ',
+    'May ',
+    'Jun ',
+    'Jul ',
+    'Aug ',
+    'Sep ',
+    'Oct ',
+    'Nov ',
+    'Dec ',
+  ];
+  const date = newDate.getDate(),
+    year = newDate.getFullYear(),
+    month = newDate.getMonth();
+  return monthsArray[month] + date + ', ' + year;
+}
+
 function CustomsTable({
   columns,
   data,
@@ -175,28 +197,6 @@ function CustomsTable({
     }),
     [],
   );
-
-  function getRequiredDateFormat(dateString: string): string {
-    const newDate = new Date(new Date(dateString.trim()) + 'UTC');
-    const monthsArray = [
-      'Jan ',
-      'Feb ',
-      'Mar ',
-      'Apr ',
-      'May ',
-      'Jun ',
-      'Jul ',
-      'Aug ',
-      'Sep ',
-      'Oct ',
-      'Nov ',
-      'Dec ',
-    ];
-    const date = newDate.getDate(),
-      year = newDate.getFullYear(),
-      month = newDate.getMonth();
-    return monthsArray[month] + date + ', ' + year;
-  }
 
   function customSearchFilter(rows: any, columnsIDs: any, globalFilterValue: any) {
     globalFilterValue = globalFilterValue.toLowerCase();
