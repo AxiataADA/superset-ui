@@ -311,8 +311,12 @@ function CustomsTable({
         <div ref={globalControlRef} className="form-inline dt-controls">
           <div className="row">
             <div
-              className="col-sm-2"
-              style={{ height: '32px', display: 'flex', alignItems: 'center' }}
+              style={{
+                height: '32px',
+                display: 'flex',
+                alignItems: 'center',
+                paddingLeft: '10px',
+              }}
             >
               {/* hasPagination ? (
                 <SelectPageSize
@@ -342,7 +346,7 @@ function CustomsTable({
               </OverlayTrigger>
             </div>
             {searchInput ? (
-              <div className="col-sm-10">
+              <div style={{ minWidth: '380px' }}>
                 <GlobalFilter
                   exportCSV={exportCSV}
                   tableHeader={tableHeader}

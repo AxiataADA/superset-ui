@@ -249,7 +249,7 @@ const BetweenDateControl = ({
       <div style={{ margin: '0px 20px 0px 20px', height: '30px' }}>
         <Datetime
           timeFormat={false}
-          value={state.since ? state.since : ''}
+          value={state.since || ''}
           defaultValue={state.since}
           viewDate={state.since}
           onChange={value => setCustomStartEnd('since', value)}
@@ -274,7 +274,7 @@ const BetweenDateControl = ({
       <div style={{ marginLeft: '20px', height: '30px' }}>
         <Datetime
           timeFormat={false}
-          value={state.until ? state.until : ''}
+          value={state.until || ''}
           defaultValue={state.until}
           viewDate={state.until}
           onChange={value => setCustomStartEnd('until', value)}
@@ -619,7 +619,8 @@ export default function TableChart<D extends DataRecord = DataRecord>(
   const getColumnConfigs = useCallback(
     (column: DataColumnMeta, i: number, columnArrayJustForLengthPurpose: Array): Column<D> => {
       const timeFiltersArray = ['published_date', 'crawled_date', 'as_of_date', 'created_date'];
-      const { key, label, dataType } = column;
+      const { key, dataType } = column;
+      let { label } = column;
       let isDateFilterType = false;
 
       timeFiltersArray.map(i => {
@@ -646,16 +647,17 @@ export default function TableChart<D extends DataRecord = DataRecord>(
       let isFixedColumn = null;
       if (filterColumns && filterColumns.length) {
         const regex = /\((.*?)\)$/;
-        let contentDisplayName = label;
-        while (regex.test(contentDisplayName)) {
-          const resultArray = regex.exec(contentDisplayName);
+        while (regex.test(label)) {
+          const resultArray = regex.exec(label);
           if (!resultArray || !resultArray.length) {
             break;
           }
-          contentDisplayName = resultArray[1];
+          label = resultArray[1];
         }
         filterColumns.map(i => {
-          if (label === i) isFilterColumn = label;
+          if (label === i) {
+            isFilterColumn = label;
+          }
         });
       }
       if (fixedColumns && fixedColumns.length) {
