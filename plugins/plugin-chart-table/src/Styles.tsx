@@ -43,6 +43,20 @@ export default styled.div`
   .dt-controls {
     padding-bottom: 0.65em;
   }
+
+  .dt-controls .row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .dt-controls .row:before {
+    content: none;
+  }
+
+  .dt-controls .row:after {
+    content: none;
+  }
   .dt-metric {
     text-align: center;
   }
@@ -60,6 +74,7 @@ export default styled.div`
   .dt-global-filter {
     float: right;
     display: flex;
+    padding: 0px 10px;
   }
 
   .dt-pagination {
@@ -83,7 +98,7 @@ export default styled.div`
 
   .table-search-input-with-icon {
     position: relative;
-    width: 230px;
+    width: 210px;
     height: 30px;
     border: 1px solid #7c90db;
     border-radius: 16px;
