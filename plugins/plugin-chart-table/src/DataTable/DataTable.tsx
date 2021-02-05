@@ -722,6 +722,7 @@ function CustomsTable({
                               alignItems: 'center',
                               padding: '0px 25px',
                               borderBottom: '1px solid #CFD8DB',
+                              backgroundColor: '#fff',
                             }}
                           >
                             {totalSentiment > 0 ? (
