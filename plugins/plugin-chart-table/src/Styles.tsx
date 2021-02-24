@@ -74,6 +74,8 @@ export default styled.div`
   .dt-global-filter {
     float: right;
     display: flex;
+    align-items: center;
+    min-width: 380px;
     padding: 0px 10px;
   }
 
