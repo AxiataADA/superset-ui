@@ -407,9 +407,9 @@ function SearchInput({
           alt="PDF"
           src={`/static/assets/images/icons/PDF.png`}
           style={{
-            width: '24px',
-            height: '30px',
-            margin: '0px 10px 0px 25px',
+            width: '19px',
+            height: '25px',
+            margin: '0px 10px 0px 15px',
             cursor: 'pointer',
           }}
         />
@@ -422,8 +422,8 @@ function SearchInput({
           alt="XLS"
           src={`/static/assets/images/icons/XLS.png`}
           style={{
-            width: '24px',
-            height: '30px',
+            width: '19px',
+            height: '25px',
             cursor: 'pointer',
           }}
         />

@@ -74,6 +74,8 @@ export default styled.div`
   .dt-global-filter {
     float: right;
     display: flex;
+    align-items: center;
+    min-width: 380px;
     padding: 0px 10px;
   }
 
@@ -98,7 +100,7 @@ export default styled.div`
 
   .table-search-input-with-icon {
     position: relative;
-    width: 210px;
+    width: 260px;
     height: 30px;
     border: 1px solid #7c90db;
     border-radius: 16px;
