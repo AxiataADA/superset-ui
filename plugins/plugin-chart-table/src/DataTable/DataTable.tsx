@@ -346,7 +346,7 @@ function CustomsTable({
               </OverlayTrigger>
             </div>
             {searchInput ? (
-              <div style={{ minWidth: '380px' }}>
+              <div>
                 <GlobalFilter
                   exportCSV={exportCSV}
                   tableHeader={tableHeader}
