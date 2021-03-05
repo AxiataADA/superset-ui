@@ -16,16 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { QueryFormDataMetric } from '@superset-ui/query';
-import { ChartProps, DataRecord, DataRecordValue, DataRecordFilters } from '@superset-ui/chart';
-import { TimeFormatter, TimeGranularity } from '@superset-ui/time-format';
-import { NumberFormatter } from '@superset-ui/number-format';
-
-export enum DataType {
-  Number = 'number',
-  String = 'string',
-  DateTime = 'datetime',
-}
+import {
+  NumberFormatter,
+  TimeFormatter,
+  TimeGranularity,
+  QueryFormMetric,
+  ChartProps,
+  DataRecord,
+  DataRecordValue,
+  DataRecordFilters,
+  GenericDataType,
+  QueryMode,
+  ChartDataResponseResult,
+  QueryFormData,
+  SetDataMaskHook,
+} from '@superset-ui/core';
 
 export type CustomFormatter = (value: DataRecordValue) => string;
 
@@ -34,39 +39,53 @@ export interface DataColumnMeta {
   key: string;
   // `label` is verbose column name used for rendering
   label: string;
-  dataType: DataType;
+  dataType: GenericDataType;
   formatter?: TimeFormatter | NumberFormatter | CustomFormatter;
+  isMetric?: boolean;
+  isPercentMetric?: boolean;
 }
 
-export interface TableChartData<D extends DataRecord = DataRecord> {
-  records: D[];
+export interface TableChartData {
+  records: DataRecord[];
   columns: string[];
 }
 
-export interface TableChartFormData {
-  alignPn?: boolean;
-  colorPn?: boolean;
-  includeSearch?: boolean;
-  pageLength?: string | number | null; // null means auto-paginate
-  metrics?: QueryFormDataMetric[] | null;
-  percentMetrics?: QueryFormDataMetric[] | null;
-  orderDesc?: boolean;
-  showCellBars?: boolean;
-  tableTimestampFormat?: string;
-  tableFilter?: boolean;
-  timeGrainSqla?: TimeGranularity;
-}
+export type TableChartFormData = QueryFormData & {
+  align_pn?: boolean;
+  color_pn?: boolean;
+  include_time?: boolean;
+  include_search?: boolean;
+  query_mode?: QueryMode;
+  page_length?: string | number | null; // null means auto-paginate
+  metrics?: QueryFormMetric[] | null;
+  percent_metrics?: QueryFormMetric[] | null;
+  timeseries_limit_metric?: QueryFormMetric[] | QueryFormMetric | null;
+  groupby?: QueryFormMetric[] | null;
+  all_columns?: QueryFormMetric[] | null;
+  order_desc?: boolean;
+  show_cell_bars?: boolean;
+  table_timestamp_format?: string;
+  table_filter?: boolean;
+  time_grain_sqla?: TimeGranularity;
+};
 
-export interface TableChartProps<D extends DataRecord = DataRecord> extends ChartProps {
-  formData: TableChartFormData;
-  queryData: ChartProps['queryData'] & {
-    data?: TableChartData<D>;
+export interface TableChartProps extends ChartProps {
+  ownCurrentState: {
+    pageSize?: number;
+    currentPage?: number;
   };
+  rawFormData: TableChartFormData;
+  queriesData: ChartDataResponseResult[];
 }
 
 export interface TableChartTransformedProps<D extends DataRecord = DataRecord> {
   height: number;
   width: number;
+  showNextButton: boolean;
+  serverPagination: boolean;
+  currentPage?: number;
+  setDataMask: SetDataMaskHook;
+  isRawRecords?: boolean;
   data: D[];
   columns: DataColumnMeta[];
   metrics?: (keyof D)[];
@@ -84,3 +103,10 @@ export interface TableChartTransformedProps<D extends DataRecord = DataRecord> {
   emitFilter?: boolean;
   onChangeFilter?: ChartProps['hooks']['onAddFilter'];
 }
+
+export enum ServerPage {
+  NEXT = 'next',
+  PREVIOUS = 'previous',
+}
+
+export default {};

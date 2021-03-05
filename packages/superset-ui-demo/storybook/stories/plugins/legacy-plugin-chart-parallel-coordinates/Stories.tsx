@@ -1,5 +1,5 @@
 import React from 'react';
-import { SuperChart } from '@superset-ui/chart';
+import { SuperChart } from '@superset-ui/core';
 import ParallelCoordinatesChartPlugin from '@superset-ui/legacy-plugin-chart-parallel-coordinates';
 import data from './data';
 
@@ -14,7 +14,7 @@ export const basic = () => (
     chartType="parallel-coordinates"
     width={400}
     height={400}
-    queryData={{ data }}
+    queriesData={[{ data }]}
     formData={{
       includeSeries: false,
       linearColorScheme: 'schemeRdYlBu',

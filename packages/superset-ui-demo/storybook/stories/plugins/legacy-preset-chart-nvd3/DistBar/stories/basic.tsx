@@ -1,5 +1,5 @@
 import React from 'react';
-import { SuperChart } from '@superset-ui/chart';
+import { SuperChart } from '@superset-ui/core';
 import dummyDatasource from '../../../../../shared/dummyDatasource';
 import data from '../data';
 
@@ -9,7 +9,7 @@ export const basic = () => (
     width={400}
     height={400}
     datasource={dummyDatasource}
-    queryData={{ data }}
+    queriesData={[{ data }]}
     formData={{
       barstacked: false,
       bottomMargin: 'auto',

@@ -1,4 +1,4 @@
-import styled from '@superset-ui/style';
+import { styled } from '@superset-ui/core';
 
 export default styled.div`
   table {
@@ -37,6 +37,9 @@ export default styled.div`
   }
   .dt-metric {
     text-align: right;
+  }
+  .dt-is-null {
+    color: ${({ theme: { colors } }) => colors.grayscale.light1};
   }
   td.dt-is-filter {
     cursor: pointer;

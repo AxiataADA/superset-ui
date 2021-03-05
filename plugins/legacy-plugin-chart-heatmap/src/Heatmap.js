@@ -21,8 +21,7 @@ import d3 from 'd3';
 import PropTypes from 'prop-types';
 import 'd3-svg-legend';
 import d3tip from 'd3-tip';
-import { getSequentialSchemeRegistry } from '@superset-ui/color';
-import { getNumberFormatter, NumberFormats } from '@superset-ui/number-format';
+import { getNumberFormatter, NumberFormats, getSequentialSchemeRegistry } from '@superset-ui/core';
 
 import './vendor/d3tip.css';
 import './Heatmap.css';
@@ -341,18 +340,19 @@ function Heatmap(element, props) {
       }
     });
 
-    let p = -1;
-    for (let i = 0; i < heatmapDim[0] * heatmapDim[1]; i++) {
+    let p = 0;
+    for (let i = 0; i < heatmapDim[0] * heatmapDim[1]; i += 1) {
       let c = pixs[i];
       let alpha = 255;
       if (c === undefined) {
         c = d3.rgb('#F00');
         alpha = 0;
       }
-      image.data[++p] = c.r;
-      image.data[++p] = c.g;
-      image.data[++p] = c.b;
-      image.data[++p] = alpha;
+      image.data[p + 0] = c.r;
+      image.data[p + 1] = c.g;
+      image.data[p + 2] = c.b;
+      image.data[p + 3] = alpha;
+      p += 4;
     }
     context.putImageData(image, 0, 0);
     imageObj.src = canvas.node().toDataURL();

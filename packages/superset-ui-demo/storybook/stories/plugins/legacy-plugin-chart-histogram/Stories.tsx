@@ -1,6 +1,6 @@
 /* eslint-disable no-magic-numbers */
 import React from 'react';
-import { SuperChart } from '@superset-ui/chart';
+import { SuperChart } from '@superset-ui/core';
 import HistogramChartPlugin from '@superset-ui/legacy-plugin-chart-histogram';
 import data from './data';
 
@@ -15,7 +15,7 @@ export const basic = () => (
     chartType="histogram"
     width={400}
     height={400}
-    queryData={{ data }}
+    queriesData={[{ data }]}
     formData={{
       colorScheme: 'd3Category10',
       globalOpacity: 1,

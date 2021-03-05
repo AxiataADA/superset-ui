@@ -18,9 +18,11 @@
  * under the License.
  */
 import React, { ReactNode, ReactText, ReactElement } from 'react';
-import { QueryFormData } from '@superset-ui/query';
+import { QueryFormData, DatasourceType, Metric } from '@superset-ui/core';
 import sharedControls from './shared-controls';
 import sharedControlComponents from './shared-controls/components';
+
+export { Metric } from '@superset-ui/core';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyDict = Record<string, any>;
@@ -48,12 +50,19 @@ export interface ColumnMeta extends AnyDict {
 }
 
 export interface DatasourceMeta {
+  id: number;
+  type: DatasourceType;
   columns: ColumnMeta[];
-  metrics: unknown[];
-  type: unknown;
-  main_dttm_col: unknown;
-  time_grain_sqla: unknown;
-  order_by_choices?: [] | null;
+  metrics: Metric[];
+  column_format: Record<string, string>;
+  verbose_map: Record<string, string>;
+  main_dttm_col: string;
+  // eg. ['["ds", true]', 'ds [asc]']
+  order_by_choices?: [string, string][] | null;
+  time_grain_sqla?: string;
+  granularity_sqla?: string;
+  datasource_name: string | null;
+  description: string | null;
 }
 
 export interface ControlPanelState {
@@ -130,15 +139,14 @@ export type InternalControlType =
   | 'MetricsControl'
   | 'AdhocFilterControl'
   | 'FilterBoxItemControl'
-  | 'MetricsControlVerifiedOptions'
-  | 'SelectControlVerifiedOptions'
-  | 'AdhocFilterControlVerifiedOptions'
+  | 'DndColumnSelect'
+  | 'DndFilterSelect'
   | keyof SharedControlComponents; // expanded in `expandControlConfig`
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ControlType = InternalControlType | React.ComponentType<any>;
 
-export type TabOverride = 'data' | boolean;
+export type TabOverride = 'data' | 'customize' | boolean;
 
 /**
  * Control config specifying how chart controls appear in the control panel, all
@@ -163,7 +171,8 @@ export type TabOverride = 'data' | boolean;
  *    show a warning based on the value of another component. It's also possible to bind
  *    arbitrary data from the redux store to the component this way.
  * - tabOverride: set to 'data' if you want to force a renderTrigger to show up on the `Data`
- *    tab, otherwise `renderTrigger: true` components will show up on the `Style` tab.
+     tab, or 'customize' if you want it to show up on that tam. Otherwise sections with ALL 
+     `renderTrigger: true` components will show up on the `Customize` tab.
  * - visibility: a function that uses control panel props to check whether a control should
  *    be visibile.
  */
@@ -181,12 +190,7 @@ export interface BaseControlConfig<
   warning?: ReactNode;
   error?: ReactNode;
   // override control panel state props
-  mapStateToProps?: (
-    state: ControlPanelState,
-    control: this,
-    actions?: ControlPanelActionDispatchers,
-  ) => ExtraControlProps;
-  tabOverride?: TabOverride;
+  mapStateToProps?: (state: ControlPanelState, control: this) => ExtraControlProps;
   visibility?: (props: ControlPanelsContainerProps) => boolean;
 }
 
@@ -208,10 +212,7 @@ type SelectControlType =
   | 'MetricsControl'
   | 'FixedOrMetricControl'
   | 'AdhocFilterControl'
-  | 'FilterBoxItemControl'
-  | 'MetricsControlVerifiedOptions'
-  | 'SelectControlVerifiedOptions'
-  | 'AdhocFilterControlVerifiedOptions';
+  | 'FilterBoxItemControl';
 
 // via react-select/src/filters
 interface FilterOption<T extends SelectOption> {
@@ -316,3 +317,5 @@ export type ControlOverrides = {
 export type SectionOverrides = {
   [P in SharedSectionAlias]?: Partial<ControlPanelSectionConfig>;
 };
+
+export default {};

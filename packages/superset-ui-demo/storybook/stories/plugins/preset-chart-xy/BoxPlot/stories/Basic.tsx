@@ -1,6 +1,6 @@
 /* eslint-disable no-magic-numbers, sort-keys */
 import React from 'react';
-import { SuperChart } from '@superset-ui/chart';
+import { SuperChart } from '@superset-ui/core';
 import data from '../data';
 
 export const basic = () => (
@@ -8,7 +8,7 @@ export const basic = () => (
     chartType="v2-box-plot"
     width={400}
     height={400}
-    queryData={{ data }}
+    queriesData={[{ data }]}
     formData={{
       encoding: {
         x: {
@@ -51,7 +51,7 @@ export const horizontal = () => (
     chartType="v2-box-plot"
     width={400}
     height={400}
-    queryData={{ data }}
+    queriesData={[{ data }]}
     formData={{
       encoding: {
         y: {

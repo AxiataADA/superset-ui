@@ -20,11 +20,9 @@ import React from 'react';
 import Mustache from 'mustache';
 import { scaleLinear } from 'd3-scale';
 import { Table, Thead, Th, Tr, Td } from 'reactable-arc';
-import { formatNumber } from '@superset-ui/number-format';
-import { formatTime } from '@superset-ui/time-format';
-import styled from '@superset-ui/style';
-import moment from 'moment';
+import { formatNumber, formatTime, styled } from '@superset-ui/core';
 import { InfoTooltipWithTrigger, MetricOption } from '@superset-ui/chart-controls';
+import moment from 'moment';
 
 import FormattedNumber from './FormattedNumber';
 import SparklineCell from './SparklineCell';
@@ -51,11 +49,12 @@ function colorFromBounds(
 
       // @ts-ignore
       return colorScale(value);
-      // eslint-disable-next-line no-else-return
-    } else if (min !== null) {
+    }
+    if (min !== null) {
       // @ts-ignore
       return value >= min ? maxColor : minColor;
-    } else if (max !== null) {
+    }
+    if (max !== null) {
       // @ts-ignore
       return value < max ? maxColor : minColor;
     }
@@ -104,7 +103,6 @@ class TimeTable extends React.PureComponent<ChartProps, {}> {
   renderLeftCell(row: RowData) {
     const { rowType, url } = this.props;
     const context = { metric: row };
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
     const fullUrl = url ? Mustache.render(url, context) : null;
 
     if (rowType === 'column') {
@@ -119,10 +117,7 @@ class TimeTable extends React.PureComponent<ChartProps, {}> {
       return column.label;
     }
 
-    const metric = row;
-
-    // @ts-ignore
-    return <MetricOption openInNewWindow metric={metric} url={fullUrl} showFormula={false} />;
+    return <MetricOption openInNewWindow metric={row} url={fullUrl} showFormula={false} />;
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -131,7 +126,7 @@ class TimeTable extends React.PureComponent<ChartProps, {}> {
     if (column.timeRatio) {
       // Period ratio sparkline
       sparkData = [];
-      for (let i = column.timeRatio; i < entries.length; i++) {
+      for (let i = column.timeRatio; i < entries.length; i += 1) {
         const prevData = entries[i - column.timeRatio][valueField];
         if (prevData && prevData !== 0) {
           sparkData.push(entries[i][valueField] / prevData);
@@ -141,7 +136,6 @@ class TimeTable extends React.PureComponent<ChartProps, {}> {
         }
       }
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       sparkData = entries.map(d => d[valueField]);
     }
 
@@ -169,7 +163,7 @@ class TimeTable extends React.PureComponent<ChartProps, {}> {
   // eslint-disable-next-line class-methods-use-this
   renderValueCell(valueField: string, column: ColumnConfigProps, reversedEntries: Entry[]) {
     const recent = reversedEntries[0][valueField];
-    let v: number = 0;
+    let v = 0;
     let errorMsg;
     if (column.colType === 'time') {
       // Time lag ratio

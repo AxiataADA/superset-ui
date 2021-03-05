@@ -1,12 +1,12 @@
 import React from 'react';
-import { SuperChart } from '@superset-ui/chart';
+import { SuperChart, seedRandom } from '@superset-ui/core';
 import data from '../data/data';
 import { LINE_PLUGIN_TYPE } from '../constants';
 import dummyDatasource from '../../../../../shared/dummyDatasource';
 
 const missingData = data.map(({ y, ...rest }) => ({
   ...rest,
-  y: Math.random() < 0.25 ? null : y,
+  y: seedRandom() < 0.25 ? null : y,
 }));
 
 const missing = () => (
@@ -16,7 +16,7 @@ const missing = () => (
     width={400}
     height={400}
     datasource={dummyDatasource}
-    queryData={{ data: missingData }}
+    queriesData={[{ data: missingData }]}
     formData={{
       encoding: {
         x: {

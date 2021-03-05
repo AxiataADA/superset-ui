@@ -16,8 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { DatasourceType } from '@superset-ui/query';
-import { TimeGranularity } from '@superset-ui/time-format';
+import { DatasourceType, TimeGranularity } from '@superset-ui/core';
 import transformProps, {
   BignumberChartProps,
   BigNumberDatum,
@@ -64,10 +63,12 @@ function generateProps(
       ...formData,
       ...extraFormData,
     },
-    queryData: {
-      data,
-      ...extraQueryData,
-    },
+    queriesData: [
+      {
+        data,
+        ...extraQueryData,
+      },
+    ],
   };
 }
 

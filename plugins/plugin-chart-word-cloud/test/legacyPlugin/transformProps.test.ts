@@ -1,5 +1,4 @@
-import 'babel-polyfill';
-import { ChartProps } from '@superset-ui/chart';
+import { ChartProps } from '@superset-ui/core';
 import transformProps from '../../src/legacyPlugin/transformProps';
 
 describe('WordCloud tranformProps', () => {
@@ -17,9 +16,11 @@ describe('WordCloud tranformProps', () => {
     formData,
     width: 800,
     height: 600,
-    queryData: {
-      data: [{ name: 'Hulk', sum__num: 1 }],
-    },
+    queriesData: [
+      {
+        data: [{ name: 'Hulk', sum__num: 1 }],
+      },
+    ],
   });
 
   it('should tranform chart props for word cloud viz', () => {

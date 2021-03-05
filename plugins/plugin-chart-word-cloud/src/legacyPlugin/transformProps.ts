@@ -1,4 +1,4 @@
-import { ChartProps } from '@superset-ui/chart';
+import { ChartProps } from '@superset-ui/core';
 import { WordCloudProps, WordCloudEncoding } from '../chart/WordCloud';
 import { LegacyWordCloudFormData } from './types';
 
@@ -14,7 +14,7 @@ function getMetricLabel(metric: LegacyWordCloudFormData['metric']): string | und
 }
 
 export default function transformProps(chartProps: ChartProps): WordCloudProps {
-  const { width, height, formData, queryData } = chartProps;
+  const { width, height, formData, queriesData } = chartProps;
   const {
     colorScheme,
     metric,
@@ -51,7 +51,7 @@ export default function transformProps(chartProps: ChartProps): WordCloudProps {
   };
 
   return {
-    data: queryData.data,
+    data: queriesData[0].data,
     encoding,
     height,
     rotation,

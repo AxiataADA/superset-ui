@@ -16,16 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { t } from '@superset-ui/translation';
-import { D3_FORMAT_OPTIONS } from '@superset-ui/chart-controls';
+import { t } from '@superset-ui/core';
+import { ControlPanelConfig, D3_FORMAT_OPTIONS } from '@superset-ui/chart-controls';
 import { showLegend } from '../NVD3Controls';
 
-export default {
+const config: ControlPanelConfig = {
   controlPanelSections: [
     {
       label: t('Query'),
       expanded: true,
-      controlSetRows: [['metric'], ['adhoc_filters'], ['groupby'], ['row_limit']],
+      controlSetRows: [['groupby'], ['metric'], ['adhoc_filters'], ['row_limit']],
     },
     {
       label: t('Chart Options'),
@@ -113,3 +113,5 @@ export default {
     },
   },
 };
+
+export default config;

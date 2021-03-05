@@ -16,8 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { t } from '@superset-ui/translation';
-import { D3_FORMAT_OPTIONS, formatSelectOptions } from '@superset-ui/chart-controls';
+import { t } from '@superset-ui/core';
+import {
+  ControlPanelConfig,
+  formatSelectOptions,
+  D3_FORMAT_OPTIONS,
+  sections,
+} from '@superset-ui/chart-controls';
 import {
   showLegend,
   xAxisLabel,
@@ -31,13 +36,14 @@ import {
   leftMargin,
 } from '../NVD3Controls';
 
-export default {
-  label: t('Bubble Chart'),
+const config: ControlPanelConfig = {
   controlPanelSections: [
+    sections.legacyRegularTime,
     {
       label: t('Query'),
       expanded: true,
       controlSetRows: [
+        [],
         ['series', 'entity'],
         ['x'],
         ['y'],
@@ -61,6 +67,7 @@ export default {
     {
       label: t('Chart Options'),
       expanded: true,
+      tabOverride: 'customize',
       controlSetRows: [
         ['color_scheme', 'label_colors'],
         [showLegend, null],
@@ -69,6 +76,7 @@ export default {
     {
       label: t('X Axis'),
       expanded: true,
+      tabOverride: 'customize',
       controlSetRows: [
         [xAxisLabel, leftMargin],
         [
@@ -100,6 +108,7 @@ export default {
     {
       label: t('Y Axis'),
       expanded: true,
+      tabOverride: 'customize',
       controlSetRows: [
         [yAxisLabel, bottomMargin],
         ['y_axis_format', null],
@@ -113,3 +122,5 @@ export default {
     },
   },
 };
+
+export default config;

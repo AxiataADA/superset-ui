@@ -34,25 +34,35 @@
  * control interface.
  */
 import React from 'react';
-import { t } from '@superset-ui/translation';
 import {
+  FeatureFlag,
+  t,
   getCategoricalSchemeRegistry,
   getSequentialSchemeRegistry,
+  isFeatureEnabled,
   SequentialScheme,
-} from '@superset-ui/color';
-import { legacyValidateInteger, validateNonEmpty } from '@superset-ui/validator';
+  legacyValidateInteger,
+  validateNonEmpty,
+  smartDateFormatter,
+} from '@superset-ui/core';
 
-import { formatSelectOptions } from '../utils/selectOptions';
-import { mainMetric, Metric } from '../utils/mainMetric';
+import { mainMetric, formatSelectOptions } from '../utils';
 import { TIME_FILTER_LABELS } from '../constants';
 import {
+  Metric,
   SharedControlConfig,
   ColumnMeta,
-  DatasourceMeta,
   ExtraControlProps,
   SelectControlConfig,
 } from '../types';
 import { ColumnOption } from '../components/ColumnOption';
+import {
+  dnd_adhoc_filters,
+  dndColumnsControl,
+  dndEntity,
+  dndGroupByControl,
+  dndSeries,
+} from './dndControls';
 
 const categoricalSchemeRegistry = getCategoricalSchemeRegistry();
 const sequentialSchemeRegistry = getSequentialSchemeRegistry();
@@ -91,8 +101,10 @@ export const D3_TIME_FORMAT_OPTIONS = [
   ['%H:%M:%S', '%H:%M:%S | 01:32:10'],
 ];
 
+export const D3_TIME_FORMAT_DOCS = t('D3 time format syntax: https://github.com/d3/d3-time-format');
+
 const timeColumnOption = {
-  verbose_name: 'Time',
+  verbose_name: t('Time'),
   column_name: '__timestamp',
   description: t('A reference to the [Time] configuration, taking granularity into account'),
 };
@@ -105,13 +117,12 @@ type Control = {
 const groupByControl: SharedControlConfig<'SelectControl', ColumnMeta> = {
   type: 'SelectControl',
   label: t('Group by'),
-  queryField: 'groupby',
   multi: true,
   freeForm: true,
   clearable: true,
   default: [],
   includeTime: false,
-  description: t('One or many controls to group by'),
+  description: t('One or many columns to group by'),
   optionRenderer: c => <ColumnOption showType column={c} />,
   valueRenderer: c => <ColumnOption column={c} />,
   valueKey: 'column_name',
@@ -126,7 +137,7 @@ const groupByControl: SharedControlConfig<'SelectControl', ColumnMeta> = {
     if (state.datasource) {
       const options = state.datasource.columns.filter(c => c.groupby);
       if (includeTime) {
-        options.push(timeColumnOption);
+        options.unshift(timeColumnOption);
       }
       newState.options = options;
     }
@@ -137,7 +148,6 @@ const groupByControl: SharedControlConfig<'SelectControl', ColumnMeta> = {
 
 const metrics: SharedControlConfig<'MetricsControl'> = {
   type: 'MetricsControl',
-  queryField: 'metrics',
   multi: true,
   label: t('Metrics'),
   validators: [validateNonEmpty],
@@ -145,13 +155,11 @@ const metrics: SharedControlConfig<'MetricsControl'> = {
     const metric = mainMetric(c.savedMetrics);
     return metric ? [metric] : null;
   },
-  mapStateToProps: ({ datasource }) => {
-    return {
-      columns: datasource ? datasource.columns : [],
-      savedMetrics: datasource ? datasource.metrics : [],
-      datasourceType: datasource?.type,
-    };
-  },
+  mapStateToProps: ({ datasource }) => ({
+    columns: datasource ? datasource.columns : [],
+    savedMetrics: datasource ? datasource.metrics : [],
+    datasourceType: datasource?.type,
+  }),
   description: t('One or many metrics to display'),
 };
 
@@ -163,23 +171,13 @@ const metric: SharedControlConfig<'MetricsControl'> = {
   default: (c: Control) => mainMetric(c.savedMetrics),
 };
 
-export function columnChoices(datasource: DatasourceMeta) {
-  if (datasource?.columns) {
-    return datasource.columns
-      .map(col => [col.column_name, col.verbose_name || col.column_name])
-      .sort((opt1, opt2) => (opt1[1].toLowerCase() > opt2[1].toLowerCase() ? 1 : -1));
-  }
-  return [];
-}
-
 const datasourceControl: SharedControlConfig<'DatasourceControl'> = {
   type: 'DatasourceControl',
   label: t('Datasource'),
   default: null,
   description: null,
-  mapStateToProps: (state, control, actions) => ({
-    datasource: state.datasource,
-    onDatasourceSave: actions?.setDatasource,
+  mapStateToProps: ({ datasource }) => ({
+    datasource,
   }),
 };
 
@@ -229,7 +227,7 @@ const secondary_metric: SharedControlConfig<'MetricsControl'> = {
 const columnsControl: typeof groupByControl = {
   ...groupByControl,
   label: t('Columns'),
-  description: t('One or many controls to pivot as columns'),
+  description: t('One or many columns to pivot as columns'),
 };
 
 const druid_time_origin: SharedControlConfig<'SelectControl'> = {
@@ -336,7 +334,8 @@ const time_range: SharedControlConfig<'DateFilterControl'> = {
       "using the engine's local timezone. Note one can explicitly set the timezone " +
       'per the ISO 8601 format if specifying either the start and/or end time.',
   ),
-  mapStateToProps: ({ form_data }) => ({
+  mapStateToProps: ({ datasource, form_data }) => ({
+    datasource,
     endpoints: form_data?.time_range_endpoints || null,
   }),
 };
@@ -439,17 +438,28 @@ const y_axis_format: SharedControlConfig<'SelectControl'> = {
   },
 };
 
+const x_axis_time_format: SharedControlConfig<'SelectControl'> = {
+  type: 'SelectControl',
+  freeForm: true,
+  label: t('Time format'),
+  renderTrigger: true,
+  default: smartDateFormatter.id,
+  choices: D3_TIME_FORMAT_OPTIONS,
+  description: D3_TIME_FORMAT_DOCS,
+};
+
 const adhoc_filters: SharedControlConfig<'AdhocFilterControl'> = {
   type: 'AdhocFilterControl',
   label: t('Filters'),
   default: null,
   description: '',
-  mapStateToProps: ({ datasource }) => ({
+  mapStateToProps: ({ datasource, form_data }) => ({
     columns: datasource?.columns.filter(c => c.filterable) || [],
     savedMetrics: datasource?.metrics || [],
+    // current active adhoc metrics
+    selectedMetrics: form_data.metrics || (form_data.metric ? [form_data.metric] : []),
     datasource,
   }),
-  provideFormDataToProps: true,
 };
 
 const color_scheme: SharedControlConfig<'ColorSchemeControl'> = {
@@ -475,7 +485,9 @@ const label_colors: SharedControlConfig<'ColorMapControl'> = {
   }),
 };
 
-export default {
+const enableExploreDnd = isFeatureEnabled(FeatureFlag.ENABLE_EXPLORE_DRAG_AND_DROP);
+
+const sharedControls = {
   metrics,
   metric,
   datasource: datasourceControl,
@@ -484,8 +496,8 @@ export default {
   metric_2,
   linear_color_scheme,
   secondary_metric,
-  groupby: groupByControl,
-  columns: columnsControl,
+  groupby: enableExploreDnd ? dndGroupByControl : groupByControl,
+  columns: enableExploreDnd ? dndColumnsControl : columnsControl,
   druid_time_origin,
   granularity,
   granularity_sqla,
@@ -494,13 +506,16 @@ export default {
   row_limit,
   limit,
   timeseries_limit_metric,
-  series,
-  entity,
+  series: enableExploreDnd ? dndSeries : series,
+  entity: enableExploreDnd ? dndEntity : entity,
   x,
   y,
   size,
   y_axis_format,
-  adhoc_filters,
+  x_axis_time_format,
+  adhoc_filters: enableExploreDnd ? dnd_adhoc_filters : adhoc_filters,
   color_scheme,
   label_colors,
 };
+
+export default sharedControls;

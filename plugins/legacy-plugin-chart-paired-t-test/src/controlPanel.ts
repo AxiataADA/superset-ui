@@ -16,17 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { t } from '@superset-ui/translation';
+import { t, validateNonEmpty } from '@superset-ui/core';
+import { ControlPanelConfig, sections } from '@superset-ui/chart-controls';
 
-export default {
+const config: ControlPanelConfig = {
   controlPanelSections: [
+    sections.legacyRegularTime,
     {
       label: t('Query'),
       expanded: true,
       controlSetRows: [
         ['metrics'],
         ['adhoc_filters'],
-        ['groupby'],
+        [
+          {
+            name: 'groupby',
+            override: {
+              validators: [validateNonEmpty],
+            },
+          },
+        ],
         ['limit', 'timeseries_limit_metric'],
         [
           {
@@ -52,7 +61,7 @@ export default {
       ],
     },
     {
-      label: t('Paired t-test'),
+      label: t('Parameters'),
       expanded: false,
       controlSetRows: [
         [
@@ -92,3 +101,5 @@ export default {
     },
   ],
 };
+
+export default config;

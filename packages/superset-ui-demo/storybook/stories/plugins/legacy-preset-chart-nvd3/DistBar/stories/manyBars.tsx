@@ -1,5 +1,5 @@
 import React from 'react';
-import { SuperChart } from '@superset-ui/chart';
+import { SuperChart, seedRandom } from '@superset-ui/core';
 import dummyDatasource from '../../../../../shared/dummyDatasource';
 
 const data: {
@@ -14,8 +14,8 @@ const LONG_LABEL =
 
 for (let i = 0; i < 50; i += 1) {
   data[0].values.push({
-    x: `${LONG_LABEL.substring(0, Math.round(Math.random() * LONG_LABEL.length))} ${i + 1}`,
-    y: Math.round(Math.random() * 10000),
+    x: `${LONG_LABEL.substring(0, Math.round(seedRandom() * LONG_LABEL.length))} ${i + 1}`,
+    y: Math.round(seedRandom() * 10000),
   });
 }
 
@@ -25,7 +25,7 @@ export const manyBars = () => (
     width={400}
     height={400}
     datasource={dummyDatasource}
-    queryData={{ data }}
+    queriesData={[{ data }]}
     formData={{
       colorScheme: 'd3Category10',
       showBarValue: false,

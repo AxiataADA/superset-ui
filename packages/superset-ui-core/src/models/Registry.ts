@@ -1,5 +1,26 @@
-/* eslint no-console: 0 */
-import { OverwritePolicy } from '../types';
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+export enum OverwritePolicy {
+  ALLOW = 'ALLOW',
+  PROHIBIT = 'PROHIBIT',
+  WARN = 'WARN',
+}
 
 interface ItemWithValue<T> {
   value: T;
@@ -65,6 +86,7 @@ export default class Registry<V, W extends V | Promise<V> = V | Promise<V>> {
       this.has(key) && (('value' in item && item.value !== value) || 'loader' in item);
     if (willOverwrite) {
       if (this.overwritePolicy === OverwritePolicy.WARN) {
+        // eslint-disable-next-line no-console
         console.warn(`Item with key "${key}" already exists. You are assigning a new value.`);
       } else if (this.overwritePolicy === OverwritePolicy.PROHIBIT) {
         throw new Error(`Item with key "${key}" already exists. Cannot overwrite.`);
@@ -84,6 +106,7 @@ export default class Registry<V, W extends V | Promise<V> = V | Promise<V>> {
       this.has(key) && (('loader' in item && item.loader !== loader) || 'value' in item);
     if (willOverwrite) {
       if (this.overwritePolicy === OverwritePolicy.WARN) {
+        // eslint-disable-next-line no-console
         console.warn(`Item with key "${key}" already exists. You are assigning a new value.`);
       } else if (this.overwritePolicy === OverwritePolicy.PROHIBIT) {
         throw new Error(`Item with key "${key}" already exists. Cannot overwrite.`);

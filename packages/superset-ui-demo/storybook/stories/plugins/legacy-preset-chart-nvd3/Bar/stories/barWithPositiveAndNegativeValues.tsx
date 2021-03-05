@@ -1,5 +1,5 @@
 import React from 'react';
-import { SuperChart } from '@superset-ui/chart';
+import { SuperChart } from '@superset-ui/core';
 import dummyDatasource from '../../../../../shared/dummyDatasource';
 import data from '../data';
 
@@ -9,12 +9,14 @@ export const barWithPositiveAndNegativeValues = () => (
     width={400}
     height={400}
     datasource={dummyDatasource}
-    queryData={{
-      data: data.map((group, i) => ({
-        ...group,
-        values: group.values.map(pair => ({ ...pair, y: (i % 2 === 0 ? 1 : -1) * pair.y })),
-      })),
-    }}
+    queriesData={[
+      {
+        data: data.map((group, i) => ({
+          ...group,
+          values: group.values.map(pair => ({ ...pair, y: (i % 2 === 0 ? 1 : -1) * pair.y })),
+        })),
+      },
+    ]}
     formData={{
       bottomMargin: 'auto',
       colorScheme: 'd3Category10',

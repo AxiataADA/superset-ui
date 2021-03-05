@@ -16,8 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { t } from '@superset-ui/translation';
-import { D3_FORMAT_OPTIONS } from '@superset-ui/chart-controls';
+import { t } from '@superset-ui/core';
+import { ControlPanelConfig, D3_FORMAT_OPTIONS, sections } from '@superset-ui/chart-controls';
 import {
   lineInterpolation,
   showLegend,
@@ -32,8 +32,9 @@ import {
   leftMargin,
 } from '../NVD3Controls';
 
-export default {
+const config: ControlPanelConfig = {
   controlPanelSections: [
+    sections.legacyTimeseriesTime,
     {
       label: t('Query'),
       expanded: true,
@@ -75,18 +76,16 @@ export default {
     {
       label: t('Chart Options'),
       expanded: true,
-      controlSetRows: [
-        [showLegend, lineInterpolation],
-        ['color_picker', null],
-      ],
+      controlSetRows: [[showLegend], [lineInterpolation], ['color_picker', null]],
     },
     {
       label: t('X Axis'),
       expanded: true,
       controlSetRows: [
-        [xAxisLabel, bottomMargin],
+        [xAxisLabel],
+        [bottomMargin],
+        [xAxisShowMinmax],
         [
-          xAxisShowMinmax,
           {
             name: xAxisFormat.name,
             config: {
@@ -102,9 +101,12 @@ export default {
       label: t('Y Axis'),
       expanded: true,
       controlSetRows: [
-        [yAxisLabel, leftMargin],
-        [yAxisShowMinmax, yLogScale],
-        ['y_axis_format', yAxisBounds],
+        [yAxisLabel],
+        [leftMargin],
+        [yAxisShowMinmax],
+        [yLogScale],
+        ['y_axis_format'],
+        [yAxisBounds],
       ],
     },
   ],
@@ -113,12 +115,6 @@ export default {
       clearable: false,
     },
   },
-  sectionOverrides: {
-    druidTimeSeries: {
-      controlSetRows: [['granularity', 'druid_time_origin'], ['time_range']],
-    },
-    sqlaTimeSeries: {
-      controlSetRows: [['granularity_sqla', 'time_grain_sqla'], ['time_range']],
-    },
-  },
 };
+
+export default config;

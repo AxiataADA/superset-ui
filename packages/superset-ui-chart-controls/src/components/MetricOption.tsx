@@ -17,25 +17,26 @@
  * under the License.
  */
 import React from 'react';
+import { styled, Metric } from '@superset-ui/core';
 import InfoTooltipWithTrigger from './InfoTooltipWithTrigger';
 import { ColumnTypeLabel } from './ColumnTypeLabel';
+import CertifiedIconWithTooltip from './CertifiedIconWithTooltip';
+
+const FlexRowContainer = styled.div`
+  align-items: center;
+  display: flex;
+
+  > svg {
+    margin-right: ${({ theme }) => theme.gridUnit}px;
+  }
+`;
 
 export interface MetricOptionProps {
-  metric: {
-    // eslint-disable-next-line camelcase
-    verbose_name: string;
-    // eslint-disable-next-line camelcase
-    metric_name: string;
-    label: string;
-    description: string;
-    // eslint-disable-next-line camelcase
-    warning_text: string;
-    expression: string;
-  };
-  openInNewWindow: boolean;
-  showFormula: boolean;
-  showType: boolean;
-  url: string;
+  metric: Omit<Metric, 'id'> & { label?: string };
+  openInNewWindow?: boolean;
+  showFormula?: boolean;
+  showType?: boolean;
+  url?: string;
 }
 
 export function MetricOption({
@@ -47,15 +48,22 @@ export function MetricOption({
 }: MetricOptionProps) {
   const verbose = metric.verbose_name || metric.metric_name || metric.label;
   const link = url ? (
-    <a href={url} target={openInNewWindow ? '_blank' : ''}>
+    <a href={url} target={openInNewWindow ? '_blank' : ''} rel="noreferrer">
       {verbose}
     </a>
   ) : (
     verbose
   );
   return (
-    <div className="metric-option">
+    <FlexRowContainer className="metric-option">
       {showType && <ColumnTypeLabel type="expression" />}
+      {metric.is_certified && (
+        <CertifiedIconWithTooltip
+          metricName={metric.metric_name}
+          certifiedBy={metric.certified_by}
+          details={metric.certification_details}
+        />
+      )}
       <span className="option-label">{link}</span>
       {metric.description && (
         <InfoTooltipWithTrigger
@@ -81,6 +89,6 @@ export function MetricOption({
           label={`warn-${metric.metric_name}`}
         />
       )}
-    </div>
+    </FlexRowContainer>
   );
 }

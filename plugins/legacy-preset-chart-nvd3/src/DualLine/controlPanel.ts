@@ -16,26 +16,35 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { t } from '@superset-ui/translation';
-import { sections } from '@superset-ui/chart-controls';
-import { xAxisFormat, yAxis2Format } from '../NVD3Controls';
+import { t } from '@superset-ui/core';
+import { ControlPanelConfig, sections } from '@superset-ui/chart-controls';
+import {
+  xAxisFormat,
+  yAxis2Format,
+  showLegend,
+  yAxisBounds,
+  yAxisShowMinmax,
+  yAxis2Bounds,
+  yAxis2ShowMinmax,
+} from '../NVD3Controls';
 
-export default {
+const config: ControlPanelConfig = {
   controlPanelSections: [
+    sections.legacyTimeseriesTime,
     {
       label: t('Chart Options'),
       expanded: true,
-      controlSetRows: [['color_scheme', 'label_colors'], [xAxisFormat]],
+      controlSetRows: [['color_scheme', 'label_colors'], [showLegend], [xAxisFormat]],
     },
     {
       label: t('Y Axis 1'),
       expanded: true,
-      controlSetRows: [['metric', 'y_axis_format']],
+      controlSetRows: [['metric', 'y_axis_format'], [yAxisShowMinmax], [yAxisBounds]],
     },
     {
       label: t('Y Axis 2'),
       expanded: true,
-      controlSetRows: [['metric_2', yAxis2Format]],
+      controlSetRows: [['metric_2', yAxis2Format], [yAxis2ShowMinmax], [yAxis2Bounds]],
     },
     {
       label: t('Query'),
@@ -53,12 +62,6 @@ export default {
       label: t('Left Axis Format'),
     },
   },
-  sectionOverrides: {
-    druidTimeSeries: {
-      controlSetRows: [['granularity', 'druid_time_origin'], ['time_range']],
-    },
-    sqlaTimeSeries: {
-      controlSetRows: [['granularity_sqla', 'time_grain_sqla'], ['time_range']],
-    },
-  },
 };
+
+export default config;

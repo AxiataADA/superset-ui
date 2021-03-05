@@ -17,20 +17,17 @@
  * under the License.
  */
 import React from 'react';
-import { reactify } from '@superset-ui/chart';
-import styled from '@superset-ui/style';
+import { reactify, styled } from '@superset-ui/core';
 import PropTypes from 'prop-types';
 import SanKey from './Sankey';
 
 const ReactSanKey = reactify(SanKey);
 
-const SankeyComponent = ({ className, ...otherProps }) => {
-  return (
-    <div className={className}>
-      <ReactSanKey {...otherProps} />
-    </div>
-  );
-};
+const SankeyComponent = ({ className, ...otherProps }) => (
+  <div className={className}>
+    <ReactSanKey {...otherProps} />
+  </div>
+);
 
 SankeyComponent.propTypes = {
   className: PropTypes.string.isRequired,

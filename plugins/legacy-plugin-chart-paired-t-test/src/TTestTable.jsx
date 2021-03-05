@@ -19,7 +19,7 @@
 /* eslint-disable react/no-array-index-key, react/jsx-no-bind */
 import dist from 'distributions';
 import React from 'react';
-import { Table, Tr, Td, Thead, Th } from 'reactable-arc';
+import { Table, Tr, Td, Thead, Th } from 'reactable';
 import PropTypes from 'prop-types';
 
 export const dataPropType = PropTypes.arrayOf(
@@ -127,7 +127,7 @@ class TTestTable extends React.Component {
       const diff = control[i].y - value.y;
       /* eslint-disable-next-line */
       if (isFinite(diff)) {
-        finiteCount++;
+        finiteCount += 1;
         diffSum += diff;
         diffSqSum += diff * diff;
       }
@@ -151,7 +151,7 @@ class TTestTable extends React.Component {
     if (!data) {
       return;
     }
-    for (let i = 0; i < data.length; i++) {
+    for (let i = 0; i < data.length; i += 1) {
       if (i === control) {
         pValues.push('control');
         liftValues.push('control');
@@ -166,6 +166,11 @@ class TTestTable extends React.Component {
   render() {
     const { data, metric, groups } = this.props;
     const { control, liftValues, pValues } = this.state;
+
+    if (!Array.isArray(groups) || groups.length === 0) {
+      throw Error('Group by param is required');
+    }
+
     // Render column header for each group
     const columns = groups.map((group, i) => (
       <Th key={i} column={group}>

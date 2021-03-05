@@ -17,15 +17,15 @@
  * under the License.
  */
 export default function transformProps(chartProps) {
-  const { formData, queryData } = chartProps;
+  const { formData, queriesData } = chartProps;
   const { groupby, liftvaluePrecision, metrics, pvaluePrecision, significanceLevel } = formData;
 
   return {
     alpha: significanceLevel,
-    data: queryData.data,
+    data: queriesData[0].data,
     groups: groupby,
     liftValPrec: parseInt(liftvaluePrecision, 10),
-    metrics,
+    metrics: metrics.map(metric => (typeof metric === 'string' ? metric : metric.label)),
     pValPrec: parseInt(pvaluePrecision, 10),
   };
 }

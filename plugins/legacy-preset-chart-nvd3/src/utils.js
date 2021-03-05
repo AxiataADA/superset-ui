@@ -19,8 +19,7 @@
 import d3 from 'd3';
 import d3tip from 'd3-tip';
 import dompurify from 'dompurify';
-import { getNumberFormatter } from '@superset-ui/number-format';
-import { smartDateFormatter } from '@superset-ui/time-format';
+import { smartDateFormatter, getNumberFormatter } from '@superset-ui/core';
 // Regexp for the label added to time shifted series
 // (1 hour offset, 2 days offset, etc.)
 const TIME_SHIFT_PATTERN = /\d+ \w+ offset/;
@@ -133,8 +132,40 @@ export function generateRichLineTooltipContent(d, timeFormatter, valueFormatter)
   return dompurify.sanitize(tooltip);
 }
 
-export function generateAreaChartTooltipContent(d, timeFormatter, valueFormatter) {
-  const total = d.series[d.series.length - 1].value;
+export function generateCompareTooltipContent(d, valueFormatter) {
+  let tooltip = '';
+  tooltip +=
+    "<table><thead><tr><td colspan='3'>" +
+    `<strong class='x-value'>${d.value}</strong>` +
+    '</td></tr></thead><tbody>';
+  d.series.sort((a, b) => (a.value >= b.value ? -1 : 1));
+  d.series.forEach(series => {
+    const key = getFormattedKey(series.key, true);
+    tooltip +=
+      `<tr class="${series.highlight ? 'emph' : ''}">` +
+      `<td class='legend-color-guide' style="opacity: ${series.highlight ? '1' : '0.75'};"">` +
+      '<div ' +
+      `style="border: 2px solid ${series.highlight ? 'black' : 'transparent'}; background-color: ${
+        series.color
+      };"` +
+      '></div>' +
+      '</td>' +
+      `<td>${key}</td>` +
+      `<td>${valueFormatter(series.value)}</td>` +
+      '</tr>';
+  });
+  tooltip += '</tbody></table>';
+
+  return dompurify.sanitize(tooltip);
+}
+
+export function generateAreaChartTooltipContent(d, timeFormatter, valueFormatter, chart) {
+  const total =
+    chart.style() === 'expand'
+      ? // expand mode does not include total row
+        d3.sum(d.series, s => s.value)
+      : // other modes include total row at the end
+        d.series[d.series.length - 1].value;
   let tooltip = '';
   tooltip +=
     "<table><thead><tr><td colspan='4'>" +
@@ -276,14 +307,14 @@ export function removeTooltip(uuid) {
   }
 }
 
-export function wrapTooltip(chart, maxWidth) {
+export function wrapTooltip(chart) {
   const tooltipLayer =
     chart.useInteractiveGuideline && chart.useInteractiveGuideline()
       ? chart.interactiveLayer
       : chart;
   const tooltipGeneratorFunc = tooltipLayer.tooltip.contentGenerator();
   tooltipLayer.tooltip.contentGenerator(d => {
-    let tooltip = `<div style="max-width: ${maxWidth * 0.5}px">`;
+    let tooltip = `<div>`;
     tooltip += tooltipGeneratorFunc(d);
     tooltip += '</div>';
 

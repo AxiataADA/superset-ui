@@ -17,7 +17,7 @@
  * under the License.
  */
 import React from 'react';
-import { t } from '@superset-ui/translation';
+import { t } from '@superset-ui/core';
 import { Zoom } from '@vx/zoom';
 import { localPoint } from '@vx/event';
 import { RectClipPath } from '@vx/clip-path';
@@ -116,6 +116,22 @@ class ChoroplethMap extends React.PureComponent<
     }
   }
 
+  handleMouseOver = (event: React.MouseEvent<SVGPathElement>, datum?: MapDataPoint) => {
+    const coords = localPoint(event);
+    this.props.showTooltip({
+      tooltipLeft: coords?.x,
+      tooltipTop: coords?.y,
+      tooltipData: datum,
+    });
+  };
+
+  toggleMiniMap = () => {
+    const { showMiniMap } = this.state;
+    this.setState({
+      showMiniMap: !showMiniMap,
+    });
+  };
+
   processData() {
     const { data, encoding } = this.props;
     const encoder = this.createEncoder(encoding);
@@ -145,22 +161,6 @@ class ChoroplethMap extends React.PureComponent<
       this.setState({ mapShape });
     });
   }
-
-  toggleMiniMap = () => {
-    const { showMiniMap } = this.state;
-    this.setState({
-      showMiniMap: !showMiniMap,
-    });
-  };
-
-  handleMouseOver = (event: React.MouseEvent<SVGPathElement>, datum?: MapDataPoint) => {
-    const coords = localPoint(event);
-    this.props.showTooltip({
-      tooltipLeft: coords?.x,
-      tooltipTop: coords?.y,
-      tooltipData: datum,
-    });
-  };
 
   renderMap() {
     const { height, width, hideTooltip } = this.props;

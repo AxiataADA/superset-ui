@@ -16,10 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+/* eslint-disable react/jsx-key */
 
 import React from 'react';
-import { t } from '@superset-ui/translation';
+import { t } from '@superset-ui/core';
 import {
+  ControlPanelSectionConfig,
+  CustomControlItem,
   formatSelectOptions,
   D3_TIME_FORMAT_OPTIONS,
   D3_FORMAT_DOCS,
@@ -42,7 +45,7 @@ import {
   TimePivotChartPlugin,
 */
 
-export const yAxis2Format = {
+export const yAxis2Format: CustomControlItem = {
   name: 'y_axis_2_format',
   config: {
     type: 'SelectControl',
@@ -54,7 +57,7 @@ export const yAxis2Format = {
   },
 };
 
-export const showMarkers = {
+export const showMarkers: CustomControlItem = {
   name: 'show_markers',
   config: {
     type: 'CheckboxControl',
@@ -65,7 +68,7 @@ export const showMarkers = {
   },
 };
 
-export const leftMargin = {
+export const leftMargin: CustomControlItem = {
   name: 'left_margin',
   config: {
     type: 'SelectControl',
@@ -79,7 +82,7 @@ export const leftMargin = {
   },
 };
 
-export const yAxisShowMinmax = {
+export const yAxisShowMinmax: CustomControlItem = {
   name: 'y_axis_showminmax',
   config: {
     type: 'CheckboxControl',
@@ -90,7 +93,18 @@ export const yAxisShowMinmax = {
   },
 };
 
-export const lineInterpolation = {
+export const yAxis2ShowMinmax: CustomControlItem = {
+  name: 'y_axis_2_showminmax',
+  config: {
+    type: 'CheckboxControl',
+    label: t('Y 2 bounds'),
+    renderTrigger: true,
+    default: false,
+    description: t('Whether to display the min and max values of the Y-axis'),
+  },
+};
+
+export const lineInterpolation: CustomControlItem = {
   name: 'line_interpolation',
   config: {
     type: 'SelectControl',
@@ -109,7 +123,7 @@ export const lineInterpolation = {
   },
 };
 
-export const showBrush = {
+export const showBrush: CustomControlItem = {
   name: 'show_brush',
   config: {
     type: 'SelectControl',
@@ -126,18 +140,18 @@ export const showBrush = {
   },
 };
 
-export const showLegend = {
+export const showLegend: CustomControlItem = {
   name: 'show_legend',
   config: {
     type: 'CheckboxControl',
     label: t('Legend'),
     renderTrigger: true,
-    default: true,
+    default: false,
     description: t('Whether to display the legend (toggles)'),
   },
 };
 
-export const showControls = {
+export const showControls: CustomControlItem = {
   name: 'show_controls',
   config: {
     type: 'CheckboxControl',
@@ -152,7 +166,7 @@ export const showControls = {
   },
 };
 
-export const xAxisLabel = {
+export const xAxisLabel: CustomControlItem = {
   name: 'x_axis_label',
   config: {
     type: 'TextControl',
@@ -162,7 +176,7 @@ export const xAxisLabel = {
   },
 };
 
-export const bottomMargin = {
+export const bottomMargin: CustomControlItem = {
   name: 'bottom_margin',
   config: {
     type: 'SelectControl',
@@ -176,7 +190,7 @@ export const bottomMargin = {
   },
 };
 
-export const xTicksLayout = {
+export const xTicksLayout: CustomControlItem = {
   name: 'x_ticks_layout',
   config: {
     type: 'SelectControl',
@@ -189,7 +203,7 @@ export const xTicksLayout = {
   },
 };
 
-export const xAxisFormat = {
+export const xAxisFormat: CustomControlItem = {
   name: 'x_axis_format',
   config: {
     type: 'SelectControl',
@@ -202,7 +216,7 @@ export const xAxisFormat = {
   },
 };
 
-export const yLogScale = {
+export const yLogScale: CustomControlItem = {
   name: 'y_log_scale',
   config: {
     type: 'CheckboxControl',
@@ -213,7 +227,7 @@ export const yLogScale = {
   },
 };
 
-export const yAxisBounds = {
+export const yAxisBounds: CustomControlItem = {
   name: 'y_axis_bounds',
   config: {
     type: 'BoundsControl',
@@ -229,7 +243,23 @@ export const yAxisBounds = {
   },
 };
 
-export const xAxisShowMinmax = {
+export const yAxis2Bounds: CustomControlItem = {
+  name: 'y_axis_2_bounds',
+  config: {
+    type: 'BoundsControl',
+    label: t('Y Axis 2 Bounds'),
+    renderTrigger: true,
+    default: [null, null],
+    description: t(
+      'Bounds for the Y-axis. When left empty, the bounds are ' +
+        'dynamically defined based on the min/max of the data. Note that ' +
+        "this feature will only expand the axis range. It won't " +
+        "narrow the data's extent.",
+    ),
+  },
+};
+
+export const xAxisShowMinmax: CustomControlItem = {
   name: 'x_axis_showminmax',
   config: {
     type: 'CheckboxControl',
@@ -240,7 +270,7 @@ export const xAxisShowMinmax = {
   },
 };
 
-export const richTooltip = {
+export const richTooltip: CustomControlItem = {
   name: 'rich_tooltip',
   config: {
     type: 'CheckboxControl',
@@ -251,7 +281,7 @@ export const richTooltip = {
   },
 };
 
-export const showBarValue = {
+export const showBarValue: CustomControlItem = {
   name: 'show_bar_value',
   config: {
     type: 'CheckboxControl',
@@ -262,7 +292,7 @@ export const showBarValue = {
   },
 };
 
-export const barStacked = {
+export const barStacked: CustomControlItem = {
   name: 'bar_stacked',
   config: {
     type: 'CheckboxControl',
@@ -273,7 +303,7 @@ export const barStacked = {
   },
 };
 
-export const reduceXTicks = {
+export const reduceXTicks: CustomControlItem = {
   name: 'reduce_x_ticks',
   config: {
     type: 'CheckboxControl',
@@ -290,7 +320,7 @@ export const reduceXTicks = {
   },
 };
 
-export const yAxisLabel = {
+export const yAxisLabel: CustomControlItem = {
   name: 'y_axis_label',
   config: {
     type: 'TextControl',
@@ -300,7 +330,7 @@ export const yAxisLabel = {
   },
 };
 
-export const timeSeriesSection = [
+export const timeSeriesSection: ControlPanelSectionConfig[] = [
   {
     label: t('Query'),
     expanded: true,
@@ -308,7 +338,8 @@ export const timeSeriesSection = [
       ['metrics'],
       ['adhoc_filters'],
       ['groupby'],
-      ['limit', 'timeseries_limit_metric'],
+      ['limit'],
+      ['timeseries_limit_metric'],
       [
         {
           name: 'order_desc',
@@ -319,6 +350,8 @@ export const timeSeriesSection = [
             description: t('Whether to sort descending or ascending'),
           },
         },
+      ],
+      [
         {
           name: 'contribution',
           config: {
@@ -341,7 +374,6 @@ export const timeSeriesSection = [
         'of query results',
     ),
     controlSetRows: [
-      // eslint-disable-next-line react/jsx-key
       [<h1 className="section-header">{t('Rolling Window')}</h1>],
       [
         {
@@ -357,6 +389,8 @@ export const timeSeriesSection = [
             ),
           },
         },
+      ],
+      [
         {
           name: 'rolling_periods',
           config: {
@@ -369,6 +403,8 @@ export const timeSeriesSection = [
             ),
           },
         },
+      ],
+      [
         {
           name: 'min_periods',
           config: {
@@ -385,7 +421,6 @@ export const timeSeriesSection = [
           },
         },
       ],
-      // eslint-disable-next-line react/jsx-key
       [<h1 className="section-header">{t('Time Comparison')}</h1>],
       [
         {
@@ -402,15 +437,19 @@ export const timeSeriesSection = [
               '30 days',
               '52 weeks',
               '1 year',
+              '104 weeks',
+              '2 years',
             ]),
             description: t(
               'Overlay one or more timeseries from a ' +
                 'relative time period. Expects relative time deltas ' +
                 'in natural language (example:  24 hours, 7 days, ' +
-                '56 weeks, 365 days)',
+                '52 weeks, 365 days). Free text is supported.',
             ),
           },
         },
+      ],
+      [
         {
           name: 'comparison_type',
           config: {
@@ -431,9 +470,7 @@ export const timeSeriesSection = [
           },
         },
       ],
-      // eslint-disable-next-line react/jsx-key
       [<h1 className="section-header">{t('Python Functions')}</h1>],
-      // eslint-disable-next-line react/jsx-key
       [<h2 className="section-header">pandas.resample</h2>],
       [
         {
@@ -447,6 +484,8 @@ export const timeSeriesSection = [
             description: t('Pandas resample rule'),
           },
         },
+      ],
+      [
         {
           name: 'resample_method',
           config: {

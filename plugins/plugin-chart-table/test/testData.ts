@@ -16,21 +16,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { ChartProps } from '@superset-ui/chart';
-import { DatasourceType } from '@superset-ui/query';
+import {
+  ChartDataResponseResult,
+  ChartProps,
+  DatasourceType,
+  GenericDataType,
+} from '@superset-ui/core';
+import { TableChartProps, TableChartFormData } from '../src/types';
 
-const basicFormData = {
-  alignPn: false,
-  colorPn: false,
-  showCellBars: true,
-  includeSearch: false,
-  orderDesc: true,
-  pageLength: 20,
+const basicFormData: TableChartFormData = {
+  datasource: '1__abc',
+  viz_type: 'table',
+  align_pn: false,
+  color_pn: false,
+  show_cell_bars: true,
+  include_search: false,
+  order_desc: true,
+  page_length: 20,
   metrics: [],
-  percentMetrics: null,
-  timeseriesLimitMetric: null,
-  tableFilter: false,
-  tableTimestampFormat: '%Y-%m-%d %H:%M:%S',
+  percent_metrics: null,
+  timeseries_limit_metric: '',
+  table_filter: false,
+  table_timestamp_format: '%Y-%m-%d %H:%M:%S',
 };
 
 const basicChartProps = {
@@ -47,24 +54,49 @@ const basicChartProps = {
   },
   hooks: {},
   initialValues: {},
-  queryData: {
-    data: {
-      columns: [],
-      records: [],
+  queriesData: [
+    {
+      data: {
+        columns: [],
+        records: [],
+      },
     },
-  },
+  ],
   formData: basicFormData,
+};
+
+const basicQueryResult: ChartDataResponseResult = {
+  annotation_data: null,
+  cache_key: null,
+  cache_dttm: null,
+  cache_timeout: null,
+  data: [],
+  colnames: [],
+  coltypes: [],
+  error: null,
+  is_cached: false,
+  query: 'SELECT ...',
+  rowcount: 100,
+  stacktrace: null,
+  status: 'success',
 };
 
 /**
  * Basic data input
  */
-const basic = {
+const basic: TableChartProps = {
   ...new ChartProps(basicChartProps),
-  queryData: {
-    data: {
-      columns: ['__timestamp', 'name', 'sum__num', 'abc.com'],
-      records: [
+  queriesData: [
+    {
+      ...basicQueryResult,
+      colnames: ['__timestamp', 'name', 'sum__num', 'abc.com'],
+      coltypes: [
+        GenericDataType.TEMPORAL,
+        GenericDataType.STRING,
+        GenericDataType.NUMERIC,
+        GenericDataType.STRING,
+      ],
+      data: [
         {
           __timestamp: '2020-01-01T12:34:56',
           name: 'Michael',
@@ -81,7 +113,7 @@ const basic = {
         },
       ],
     },
-  },
+  ],
 };
 
 /**
@@ -89,7 +121,7 @@ const basic = {
  *   - verbose map
  *   - metric columns
  */
-const advanced = {
+const advanced: TableChartProps = {
   ...basic,
   datasource: {
     ...basic.datasource,
@@ -97,28 +129,29 @@ const advanced = {
       sum__num: 'Sum of Num',
     },
   },
-  formData: {
+  rawFormData: {
     ...basicFormData,
     metrics: ['sum__num'],
-    percentMetrics: ['pct_nice'],
+    percent_metrics: ['pct_nice'],
   },
-  queryData: {
-    data: {
-      columns: ['name', 'sum__num', '%pct_nice'],
-      records: [...(basic.queryData.data?.records || [])],
+  queriesData: [
+    {
+      ...basicQueryResult,
+      colnames: ['name', 'sum__num', '%pct_nice'],
+      coltypes: [GenericDataType.STRING, GenericDataType.NUMERIC, GenericDataType.NUMERIC],
+      data: [...(basic.queriesData[0].data || [])],
     },
-  },
+  ],
 };
 
 const empty = {
   ...advanced,
-  queryData: {
-    ...advanced.queryData,
-    data: {
-      ...advanced.queryData.data,
-      records: [],
+  queriesData: [
+    {
+      ...advanced.queriesData[0],
+      data: [],
     },
-  },
+  ],
 };
 
 export default {

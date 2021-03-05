@@ -1,5 +1,5 @@
 import React from 'react';
-import { SuperChart } from '@superset-ui/chart';
+import { SuperChart } from '@superset-ui/core';
 import PartitionChartPlugin from '@superset-ui/legacy-plugin-chart-partition';
 import data from './data';
 import dummyDatasource from '../../../shared/dummyDatasource';
@@ -16,7 +16,7 @@ export const basic = () => (
     width={400}
     height={400}
     datasource={dummyDatasource}
-    queryData={{ data }}
+    queriesData={[{ data }]}
     formData={{
       colorScheme: 'd3Category10',
       dateTimeFormat: '%Y-%m-%d',

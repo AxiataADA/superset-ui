@@ -1,4 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable global-require */
 /**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -22,7 +23,7 @@ describe('logging', () => {
     jest.resetModules();
   });
   it('should pipe to `console` methods', () => {
-    const { logging } = require('../../src');
+    const { logging } = require('@superset-ui/core/src');
 
     expect(() => {
       logging.debug();
@@ -42,7 +43,7 @@ describe('logging', () => {
   it('should use noop functions when console unavailable', () => {
     const { console } = window;
     Object.assign(window, { console: undefined });
-    const { logging } = require('../../src');
+    const { logging } = require('@superset-ui/core/src');
 
     afterAll(() => {
       Object.assign(window, { console });
@@ -55,6 +56,10 @@ describe('logging', () => {
       logging.warn('warn');
       logging.error('error');
       logging.trace();
+      logging.table([
+        [1, 2],
+        [3, 4],
+      ]);
     }).not.toThrow();
   });
 });

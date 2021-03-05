@@ -1,5 +1,5 @@
 import React from 'react';
-import { SuperChart } from '@superset-ui/chart';
+import { SuperChart } from '@superset-ui/core';
 import dummyDatasource from '../../../../../shared/dummyDatasource';
 import data from '../data';
 
@@ -15,7 +15,7 @@ export const verifyConsistentColors = () => (
       width={400}
       height={400}
       datasource={dummyDatasource}
-      queryData={{ data }}
+      queriesData={[{ data }]}
       formData={{
         colorScheme: 'd3Category10',
         vizType: 'dual_line',
@@ -29,7 +29,7 @@ export const verifyConsistentColors = () => (
       width={400}
       height={400}
       datasource={dummyDatasource}
-      queryData={{ data: reverseData }}
+      queriesData={[{ data: reverseData }]}
       formData={{
         colorScheme: 'd3Category10',
         vizType: 'dual_line',

@@ -16,15 +16,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { t } from '@superset-ui/translation';
-import { validateNonEmpty } from '@superset-ui/validator';
+import { t, validateNonEmpty } from '@superset-ui/core';
+import { ControlPanelConfig, sections } from '@superset-ui/chart-controls';
 
-export default {
+const config: ControlPanelConfig = {
   controlPanelSections: [
+    sections.legacyRegularTime,
     {
       label: t('Query'),
       expanded: true,
-      controlSetRows: [['series'], ['metric'], ['adhoc_filters'], ['row_limit', null]],
+      controlSetRows: [
+        ['series'],
+        ['metric'],
+        ['adhoc_filters'],
+        ['row_limit'],
+        [
+          {
+            name: 'sort_by_metric',
+            config: {
+              type: 'CheckboxControl',
+              label: t('Sort by metric'),
+              description: t('Whether to sort results by the selected metric in descending order.'),
+            },
+          },
+        ],
+      ],
     },
     {
       label: t('Options'),
@@ -86,3 +102,5 @@ export default {
     },
   },
 };
+
+export default config;

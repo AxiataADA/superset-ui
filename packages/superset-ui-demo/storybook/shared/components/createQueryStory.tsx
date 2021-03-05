@@ -1,7 +1,6 @@
 import React from 'react';
 import { text, select } from '@storybook/addon-knobs';
-import { SuperChart, ChartDataProvider } from '@superset-ui/chart';
-import { SupersetClient } from '@superset-ui/connection';
+import { SuperChart, ChartDataProvider, SupersetClient } from '@superset-ui/core';
 import Expandable from './Expandable';
 import VerifyCORS, { renderError } from './VerifyCORS';
 
@@ -18,8 +17,7 @@ export default function createQueryStory({
   };
 }) {
   const keys = Object.keys(choices);
-
-  return () => {
+  const story = () => {
     const host = text('Set Superset App host for CORS request', 'localhost:8088');
     const mode = select('Choose mode:', keys, keys[0]);
     const { formData: presetFormData, chartType } = choices[mode];
@@ -50,11 +48,7 @@ export default function createQueryStory({
                         formData={payload.formData}
                         // @TODO fix typing
                         // all vis's now expect objects but api/v1/ returns an array
-                        queryData={
-                          Array.isArray(payload.queryData)
-                            ? payload.queryData[0]
-                            : payload.queryData
-                        }
+                        queriesData={payload.queriesData}
                       />
                       <br />
                       <Expandable expandableWhat="payload">
@@ -71,4 +65,8 @@ export default function createQueryStory({
       </div>
     );
   };
+  story.parameters = {
+    chromatic: { disable: true },
+  };
+  return story;
 }

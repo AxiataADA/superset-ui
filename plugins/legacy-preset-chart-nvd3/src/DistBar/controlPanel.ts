@@ -16,8 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { t } from '@superset-ui/translation';
-import { validateNonEmpty } from '@superset-ui/validator';
+import { t, validateNonEmpty } from '@superset-ui/core';
+import { ControlPanelConfig, sections } from '@superset-ui/chart-controls';
 import {
   showLegend,
   showControls,
@@ -28,10 +28,13 @@ import {
   barStacked,
   reduceXTicks,
   yAxisLabel,
+  yAxisShowMinmax,
+  yAxisBounds,
 } from '../NVD3Controls';
 
-export default {
+const config: ControlPanelConfig = {
   controlPanelSections: [
+    sections.legacyRegularTime,
     {
       label: t('Query'),
       expanded: true,
@@ -41,6 +44,18 @@ export default {
         ['groupby'],
         ['columns'],
         ['row_limit'],
+        ['timeseries_limit_metric'],
+        [
+          {
+            name: 'order_desc',
+            config: {
+              type: 'CheckboxControl',
+              label: t('Sort Descending'),
+              default: true,
+              description: t('Whether to sort descending or ascending'),
+            },
+          },
+        ],
         [
           {
             name: 'contribution',
@@ -58,10 +73,12 @@ export default {
       label: t('Chart Options'),
       expanded: true,
       controlSetRows: [
-        ['color_scheme', 'label_colors'],
-        [showLegend, showBarValue],
+        ['color_scheme'],
+        ['label_colors'],
+        [showLegend],
+        [showBarValue],
+        [barStacked],
         [
-          barStacked,
           {
             name: 'order_bars',
             config: {
@@ -73,17 +90,17 @@ export default {
             },
           },
         ],
-        ['y_axis_format', yAxisLabel],
+        ['y_axis_format'],
+        [yAxisLabel],
         [showControls, null],
+        [yAxisShowMinmax],
+        [yAxisBounds],
       ],
     },
     {
       label: t('X Axis'),
       expanded: true,
-      controlSetRows: [
-        [xAxisLabel, bottomMargin],
-        [xTicksLayout, reduceXTicks],
-      ],
+      controlSetRows: [[xAxisLabel], [bottomMargin], [xTicksLayout], [reduceXTicks]],
     },
   ],
   controlOverrides: {
@@ -97,3 +114,5 @@ export default {
     },
   },
 };
+
+export default config;

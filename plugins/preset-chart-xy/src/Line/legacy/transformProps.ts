@@ -1,4 +1,4 @@
-import { ChartProps } from '@superset-ui/chart';
+import { ChartProps } from '@superset-ui/core';
 import { flatMap } from 'lodash';
 
 interface DataRow {
@@ -10,9 +10,9 @@ interface DataRow {
 }
 
 export default function transformProps(chartProps: ChartProps) {
-  const { width, height, formData, queryData } = chartProps;
+  const { width, height, formData, queriesData } = chartProps;
   const { colorScheme, xAxisLabel, xAxisFormat, yAxisLabel, yAxisFormat } = formData;
-  const data = queryData.data as DataRow[];
+  const data = queriesData[0].data as DataRow[];
 
   return {
     data: flatMap(

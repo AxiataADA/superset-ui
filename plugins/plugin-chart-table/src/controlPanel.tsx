@@ -18,7 +18,14 @@
  * under the License.
  */
 import React from 'react';
-import { t, addLocaleData } from '@superset-ui/translation';
+import {
+  t,
+  validateNonEmpty,
+  addLocaleData,
+  smartDateFormatter,
+  QueryMode,
+  QueryFormColumn,
+} from '@superset-ui/core';
 import {
   formatSelectOptions,
   D3_TIME_FORMAT_OPTIONS,
@@ -28,9 +35,9 @@ import {
   ControlPanelConfig,
   ControlPanelsContainerProps,
   sharedControls,
+  sections,
 } from '@superset-ui/chart-controls';
-import { validateNonEmpty } from '@superset-ui/validator';
-import { smartDateFormatter } from '@superset-ui/time-format';
+
 import i18n from './i18n';
 
 addLocaleData(i18n);
@@ -44,11 +51,6 @@ export const PAGE_SIZE_OPTIONS = formatSelectOptions<number>([
   200,
 ]);
 
-export enum QueryMode {
-  aggregate = 'aggregate',
-  raw = 'raw',
-}
-
 const QueryModeLabel = {
   [QueryMode.aggregate]: t('Aggregate'),
   [QueryMode.raw]: t('Raw Records'),
@@ -59,8 +61,8 @@ function getQueryMode(controls: ControlStateMapping): QueryMode {
   if (mode === QueryMode.aggregate || mode === QueryMode.raw) {
     return mode as QueryMode;
   }
-  const rawColumns = controls?.all_columns?.value;
-  const hasRawColumns = rawColumns && (rawColumns as string[])?.length > 0;
+  const rawColumns: QueryFormColumn[] | undefined = controls?.all_columns?.value;
+  const hasRawColumns = rawColumns && rawColumns.length > 0;
   return hasRawColumns ? QueryMode.raw : QueryMode.aggregate;
 }
 
@@ -68,9 +70,7 @@ function getQueryMode(controls: ControlStateMapping): QueryMode {
  * Visibility check
  */
 function isQueryMode(mode: QueryMode) {
-  return ({ controls }: ControlPanelsContainerProps) => {
-    return getQueryMode(controls) === mode;
-  };
+  return ({ controls }: ControlPanelsContainerProps) => getQueryMode(controls) === mode;
 }
 
 const isAggMode = isQueryMode(QueryMode.aggregate);
@@ -90,9 +90,7 @@ const queryMode: ControlConfig<'RadioButtonControl'> = {
       value: QueryMode.raw,
     },
   ],
-  mapStateToProps: ({ controls }) => {
-    return { value: getQueryMode(controls) };
-  },
+  mapStateToProps: ({ controls }) => ({ value: getQueryMode(controls) }),
 };
 
 const all_columns: typeof sharedControls.groupby = {
@@ -117,23 +115,24 @@ const all_columns: typeof sharedControls.groupby = {
 const percent_metrics: typeof sharedControls.metrics = {
   type: 'MetricsControl',
   label: t('Percentage Metrics'),
-  description: t('Metrics for which percentage of total are to be displayed'),
+  description: t(
+    'Metrics for which percentage of total are to be displayed. Calculated from only data within the row limit.',
+  ),
   multi: true,
   visibility: isAggMode,
-  mapStateToProps: ({ datasource, controls }) => {
-    return {
-      columns: datasource?.columns || [],
-      savedMetrics: datasource?.metrics || [],
-      datasourceType: datasource?.type,
-      queryMode: getQueryMode(controls),
-    };
-  },
+  mapStateToProps: ({ datasource, controls }) => ({
+    columns: datasource?.columns || [],
+    savedMetrics: datasource?.metrics || [],
+    datasourceType: datasource?.type,
+    queryMode: getQueryMode(controls),
+  }),
   default: [],
   validators: [],
 };
 
 const config: ControlPanelConfig = {
   controlPanelSections: [
+    sections.legacyTimeseriesTime,
     {
       label: t('Query'),
       expanded: true,
@@ -183,7 +182,7 @@ const config: ControlPanelConfig = {
             config: {
               type: 'SelectControl',
               label: t('Ordering'),
-              description: t('One or many metrics to display'),
+              description: t('Order results by selected columns'),
               multi: true,
               default: [],
               mapStateToProps: ({ datasource }) => ({
@@ -193,7 +192,39 @@ const config: ControlPanelConfig = {
             },
           },
         ],
-        ['row_limit'],
+        [
+          {
+            name: 'server_pagination',
+            config: {
+              type: 'CheckboxControl',
+              label: t('Server pagination'),
+              description: t('Enable server side pagination of results (experimental feature)'),
+              default: false,
+            },
+          },
+        ],
+        [
+          {
+            name: 'row_limit',
+            override: {
+              visibility: ({ controls }: ControlPanelsContainerProps) =>
+                !controls.server_pagination.value,
+            },
+          },
+          {
+            name: 'server_page_length',
+            config: {
+              type: 'SelectControl',
+              freeForm: true,
+              label: t('Server Page Length'),
+              default: 10,
+              choices: PAGE_SIZE_OPTIONS,
+              description: t('Rows per page, 0 means no pagination'),
+              visibility: ({ controls }: ControlPanelsContainerProps) =>
+                controls.server_pagination.value,
+            },
+          },
+        ],
         [
           {
             name: 'include_time',
@@ -252,6 +283,8 @@ const config: ControlPanelConfig = {
               default: null,
               choices: PAGE_SIZE_OPTIONS,
               description: t('Rows per page, 0 means no pagination'),
+              visibility: ({ controls }: ControlPanelsContainerProps) =>
+                !controls.server_pagination.value,
             },
           },
           null,
@@ -316,14 +349,6 @@ const config: ControlPanelConfig = {
       ],
     },
   ],
-  sectionOverrides: {
-    druidTimeSeries: {
-      controlSetRows: [['granularity', 'druid_time_origin'], ['time_range']],
-    },
-    sqlaTimeSeries: {
-      controlSetRows: [['granularity_sqla', 'time_grain_sqla'], ['time_range']],
-    },
-  },
 };
 
 export default config;

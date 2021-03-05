@@ -1,5 +1,5 @@
 import React from 'react';
-import { SuperChart } from '@superset-ui/chart';
+import { SuperChart } from '@superset-ui/core';
 import dummyDatasource from '../../../../../shared/dummyDatasource';
 
 export const noData = () => (
@@ -8,7 +8,7 @@ export const noData = () => (
     width={400}
     height={400}
     datasource={dummyDatasource}
-    queryData={{ data: [] }}
+    queriesData={[{ data: [] }]}
     formData={{
       colorScheme: 'd3Category10',
       donut: false,

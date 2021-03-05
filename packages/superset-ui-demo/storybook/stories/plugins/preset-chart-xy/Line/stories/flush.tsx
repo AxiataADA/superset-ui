@@ -1,5 +1,5 @@
 import React from 'react';
-import { SuperChart } from '@superset-ui/chart';
+import { SuperChart } from '@superset-ui/core';
 import { radios } from '@storybook/addon-knobs';
 import rawData from '../data/data';
 import { LINE_PLUGIN_TYPE } from '../constants';
@@ -17,7 +17,7 @@ export default () => (
       width={400}
       height={200}
       datasource={dummyDatasource}
-      queryData={{ data }}
+      queriesData={[{ data }]}
       formData={{
         encoding: {
           x: {
@@ -68,7 +68,7 @@ export default () => (
       width={400}
       height={200}
       datasource={dummyDatasource}
-      queryData={{ data }}
+      queriesData={[{ data }]}
       formData={{
         encoding: {
           x: {

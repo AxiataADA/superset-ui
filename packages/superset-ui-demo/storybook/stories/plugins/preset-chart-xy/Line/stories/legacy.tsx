@@ -1,5 +1,5 @@
 import React from 'react';
-import { SuperChart } from '@superset-ui/chart';
+import { SuperChart } from '@superset-ui/core';
 import data from '../data/legacyData';
 import { LINE_PLUGIN_LEGACY_TYPE } from '../constants';
 import dummyDatasource from '../../../../../shared/dummyDatasource';
@@ -12,7 +12,7 @@ export default () => (
       width={400}
       height={400}
       datasource={dummyDatasource}
-      queryData={{ data }}
+      queriesData={[{ data }]}
       formData={{
         bottomMargin: 'auto',
         colorScheme: 'd3Category10',
@@ -41,7 +41,7 @@ export default () => (
       width={400}
       height={400}
       datasource={dummyDatasource}
-      queryData={{ data }}
+      queriesData={[{ data }]}
       formData={{
         bottomMargin: 'auto',
         colorScheme: 'd3Category10',

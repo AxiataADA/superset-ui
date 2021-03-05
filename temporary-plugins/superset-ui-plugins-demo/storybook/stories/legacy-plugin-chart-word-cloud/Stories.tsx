@@ -1,6 +1,6 @@
 /* eslint-disable no-magic-numbers */
 import React from 'react';
-import { SuperChart } from '@superset-ui/chart';
+import { SuperChart } from '@superset-ui/core';
 import data from './data';
 
 export default [
@@ -10,7 +10,7 @@ export default [
         chartType="word-cloud"
         width={400}
         height={400}
-        queryData={{ data }}
+        queriesData={[{ data }]}
         formData={{
           colorScheme: 'd3Category10',
           metric: 'sum__num',

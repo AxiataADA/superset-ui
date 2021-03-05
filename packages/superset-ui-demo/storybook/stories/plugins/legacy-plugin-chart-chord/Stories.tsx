@@ -1,5 +1,5 @@
 import React from 'react';
-import { SuperChart } from '@superset-ui/chart';
+import { SuperChart } from '@superset-ui/core';
 import ChordChartPlugin from '@superset-ui/legacy-plugin-chart-chord';
 import data from './data';
 
@@ -14,7 +14,7 @@ export const basic = () => (
     chartType="chord"
     width={400}
     height={400}
-    queryData={{ data }}
+    queriesData={[{ data }]}
     formData={{
       colorScheme: 'd3Category10',
       yAxisFormat: '.2f',

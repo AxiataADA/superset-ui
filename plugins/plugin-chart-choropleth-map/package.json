@@ -1,6 +1,6 @@
 {
   "name": "@superset-ui/plugin-chart-choropleth-map",
-  "version": "0.14.16",
+  "version": "0.17.14",
   "description": "Superset Chart - Choropleth Map",
   "sideEffects": false,
   "private": true,
@@ -27,27 +27,25 @@
     "access": "public"
   },
   "dependencies": {
+    "@superset-ui/chart-controls": "0.17.14",
+    "@superset-ui/core": "0.17.14",
     "@types/d3-geo": "^1.11.1",
     "@types/geojson": "^7946.0.3",
-    "@types/react": "^16.9.43",
     "@types/topojson-client": "^3.0.0",
     "@types/topojson-specification": "^1.0.0",
     "@vx/clip-path": "^0.0.197",
     "@vx/event": "^0.0.198",
     "@vx/pattern": "^0.0.197",
-    "@vx/tooltip": "^0.0.197",
+    "@vx/tooltip": "^0.0.199",
     "@vx/zoom": "^0.0.197",
     "d3-geo": "^1.12.0",
-    "encodable": "^0.3.7",
+    "encodable": "^0.7.6",
     "geojson": "^0.5.0",
     "lodash": "^4.17.15",
     "topojson-client": "^3.1.0"
   },
   "peerDependencies": {
-    "@superset-ui/chart": "^0.14.0",
-    "@superset-ui/chart-composition": "^0.14.0",
-    "@superset-ui/style": "^0.14.0",
-    "@superset-ui/translation": "^0.14.0",
+    "@types/react": "*",
     "react": "^16.13.1"
   }
 }

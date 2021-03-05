@@ -20,16 +20,16 @@ import React, { useState, useMemo, useCallback } from 'react';
 import { ColumnInstance, DefaultSortTypes, ColumnWithLooseAccessor } from 'react-table';
 import { extent as d3Extent, max as d3Max } from 'd3-array';
 import { FaSort, FaSortUp as FaSortAsc, FaSortDown as FaSortDesc } from 'react-icons/fa';
-import { t, tn } from '@superset-ui/translation';
-import { DataRecordValue, DataRecord } from '@superset-ui/chart';
+import { t, tn, DataRecordValue, DataRecord, GenericDataType } from '@superset-ui/core';
 
-import { TableChartTransformedProps, DataType, DataColumnMeta } from './types';
+import { TableChartTransformedProps, DataColumnMeta } from './types';
 import DataTable, {
   DataTableProps,
   SearchInputProps,
   SelectPageSizeRendererProps,
   SizeOption,
 } from './DataTable';
+
 import Styles from './Styles';
 import formatValue from './utils/formatValue';
 import { PAGE_SIZE_OPTIONS } from './controlPanel';
@@ -39,11 +39,11 @@ type ValueRange = [number, number];
 /**
  * Return sortType based on data type
  */
-function getSortTypeByDataType(dataType: DataType): DefaultSortTypes {
-  if (dataType === DataType.DateTime) {
+function getSortTypeByDataType(dataType: GenericDataType): DefaultSortTypes {
+  if (dataType === GenericDataType.TEMPORAL) {
     return 'datetime';
   }
-  if (dataType === DataType.String) {
+  if (dataType === GenericDataType.STRING) {
     return 'alphanumeric';
   }
   return 'basic';
@@ -146,11 +146,16 @@ export default function TableChart<D extends DataRecord = DataRecord>(
     height,
     width,
     data,
+    isRawRecords,
+    showNextButton,
     columns: columnsMeta,
     alignPositiveNegative = false,
     colorPositiveNegative = false,
     includeSearch = false,
     pageSize = 0,
+    serverPagination = false,
+    currentPage,
+    setDataMask,
     showCellBars = true,
     emitFilter = false,
     sortDesc = false,
@@ -163,7 +168,8 @@ export default function TableChart<D extends DataRecord = DataRecord>(
 
   // only take relevant page size options
   const pageSizeOptions = useMemo(
-    () => PAGE_SIZE_OPTIONS.filter(([n, _]) => n <= 2 * data.length) as SizeOption[],
+    () =>
+      PAGE_SIZE_OPTIONS.filter(([n]) => n <= 2 * data.length || serverPagination) as SizeOption[],
     [data.length],
   );
 
@@ -205,22 +211,22 @@ export default function TableChart<D extends DataRecord = DataRecord>(
 
   const getColumnConfigs = useCallback(
     (column: DataColumnMeta, i: number): ColumnWithLooseAccessor<D> => {
-      const { key, label, dataType } = column;
+      const { key, label, dataType, isMetric } = column;
       let className = '';
-      if (dataType === DataType.Number) {
+      if (dataType === GenericDataType.NUMERIC) {
         className += ' dt-metric';
       } else if (emitFilter) {
         className += ' dt-is-filter';
       }
-      const valueRange = showCellBars && getValueRange(key);
+      const valueRange = showCellBars && (isMetric || isRawRecords) && getValueRange(key);
       return {
         id: String(i), // to allow duplicate column keys
         // must use custom accessor to allow `.` in column names
         // typing is incorrect in current version of `@types/react-table`
         // so we ask TS not to check.
         accessor: ((datum: D) => datum[key]) as never,
-        Cell: ({ column: col, value }: { column: ColumnInstance<D>; value: DataRecordValue }) => {
-          const [isHtml, text] = formatValue(column, value);
+        Cell: ({ value }: { column: ColumnInstance<D>; value: DataRecordValue }) => {
+          const [isHtml, text, customClassName] = formatValue(column, value);
           const style = {
             background: valueRange
               ? cellBar({
@@ -236,7 +242,7 @@ export default function TableChart<D extends DataRecord = DataRecord>(
             // show raw number in title in case of numeric values
             title: typeof value === 'number' ? String(value) : undefined,
             onClick: emitFilter && !valueRange ? () => toggleFilter(key, value) : undefined,
-            className: `${className}${
+            className: `${className} ${customClassName || ''} ${
               isActiveFilterValue(key, value) ? ' dt-is-active-filter' : ''
             }`,
             style,
@@ -249,19 +255,17 @@ export default function TableChart<D extends DataRecord = DataRecord>(
           // render `Cell`. This saves some time for large tables.
           return <td {...cellProps}>{text}</td>;
         },
-        Header: ({ column: col, title, onClick, style }) => {
-          return (
-            <th
-              title={title}
-              className={col.isSorted ? `${className || ''} is-sorted` : className}
-              style={style}
-              onClick={onClick}
-            >
-              {label}
-              <SortIcon column={col} />
-            </th>
-          );
-        },
+        Header: ({ column: col, onClick, style }) => (
+          <th
+            title="Shift + Click to sort by multiple columns"
+            className={col.isSorted ? `${className || ''} is-sorted` : className}
+            style={style}
+            onClick={onClick}
+          >
+            {label}
+            <SortIcon column={col} />
+          </th>
+        ),
         sortDescFirst: sortDesc,
         sortType: getSortTypeByDataType(dataType),
       };
@@ -278,20 +282,22 @@ export default function TableChart<D extends DataRecord = DataRecord>(
     ],
   );
 
-  const columns = useMemo(() => {
-    return columnsMeta.map(getColumnConfigs);
-  }, [columnsMeta, getColumnConfigs]);
+  const columns = useMemo(() => columnsMeta.map(getColumnConfigs), [columnsMeta, getColumnConfigs]);
 
   return (
     <Styles>
       <DataTable<D>
         columns={columns}
         data={data}
+        showNextButton={showNextButton}
         tableClassName="table table-striped table-condensed"
         pageSize={pageSize}
+        currentPage={currentPage}
         pageSizeOptions={pageSizeOptions}
         width={width}
         height={height}
+        serverPagination={serverPagination}
+        setDataMask={setDataMask}
         // 9 page items in > 340px works well even for 100+ pages
         maxPageItemCount={width > 340 ? 9 : 7}
         noResults={(filter: string) => t(filter ? 'No matching records found' : 'No records found')}

@@ -17,20 +17,17 @@
  * under the License.
  */
 import React from 'react';
-import { reactify } from '@superset-ui/chart';
-import styled from '@superset-ui/style';
+import { reactify, styled } from '@superset-ui/core';
 import PropTypes from 'prop-types';
 import Component from './Chord';
 
 const ReactComponent = reactify(Component);
 
-const Chord = ({ className, ...otherProps }) => {
-  return (
-    <div className={className}>
-      <ReactComponent {...otherProps} />
-    </div>
-  );
-};
+const Chord = ({ className, ...otherProps }) => (
+  <div className={className}>
+    <ReactComponent {...otherProps} />
+  </div>
+);
 
 Chord.defaultProps = {
   otherProps: {},

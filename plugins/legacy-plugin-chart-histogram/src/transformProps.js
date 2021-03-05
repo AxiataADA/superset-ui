@@ -17,18 +17,27 @@
  * under the License.
  */
 export default function transformProps(chartProps) {
-  const { width, height, formData, queryData } = chartProps;
-  const { colorScheme, linkLength, normalized, globalOpacity, xAxisLabel, yAxisLabel } = formData;
+  const { width, height, formData, queriesData } = chartProps;
+  const {
+    colorScheme,
+    linkLength,
+    normalized,
+    globalOpacity,
+    xAxisLabel,
+    yAxisLabel,
+    showLegend,
+  } = formData;
 
   return {
     width,
     height,
-    data: queryData.data,
+    data: queriesData[0].data,
     binCount: parseInt(linkLength, 10),
     colorScheme,
     normalized,
     opacity: globalOpacity,
     xAxisLabel,
     yAxisLabel,
+    showLegend,
   };
 }

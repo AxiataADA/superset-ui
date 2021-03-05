@@ -17,7 +17,7 @@
  * under the License.
  */
 import React from 'react';
-import { SuperChart } from '@superset-ui/chart';
+import { SuperChart } from '@superset-ui/core';
 import { BigNumberChartPlugin } from '@superset-ui/legacy-preset-chart-big-number';
 import testData from './data';
 
@@ -46,7 +46,7 @@ const formData = {
  * Add null values to trendline data
  * @param data input data
  */
-function withNulls(origData: object[], nullPosition: number = 3) {
+function withNulls(origData: object[], nullPosition = 3) {
   const data = [...origData];
   data[nullPosition] = {
     ...data[nullPosition],
@@ -64,7 +64,7 @@ export const basicWithTrendline = () => (
     chartType="big-number"
     width={400}
     height={400}
-    queryData={{ data: testData }}
+    queriesData={[{ data: testData }]}
     formData={formData}
   />
 );
@@ -74,7 +74,7 @@ export const weeklyTimeGranularity = () => (
     chartType="big-number"
     width={400}
     height={400}
-    queryData={{ data: testData }}
+    queriesData={[{ data: testData }]}
     formData={{
       ...formData,
       timeGrainSqla: 'P1W',
@@ -87,7 +87,7 @@ export const nullInTheMiddle = () => (
     chartType="big-number"
     width={400}
     height={400}
-    queryData={{ data: withNulls(testData, 3) }}
+    queriesData={[{ data: withNulls(testData, 3) }]}
     formData={formData}
   />
 );
@@ -97,11 +97,13 @@ export const fixedRange = () => (
     chartType="big-number"
     width={400}
     height={400}
-    queryData={{
-      data: testData.slice(0, 9),
-      from_dttm: testData[testData.length - 1][TIME_COLUMN],
-      to_dttm: null,
-    }}
+    queriesData={[
+      {
+        data: testData.slice(0, 9),
+        from_dttm: testData[testData.length - 1][TIME_COLUMN],
+        to_dttm: null,
+      },
+    ]}
     formData={{
       ...formData,
       timeRangeFixed: true,
@@ -114,11 +116,13 @@ export const noFixedRange = () => (
     chartType="big-number"
     width={400}
     height={400}
-    queryData={{
-      data: testData.slice(0, 9),
-      from_dttm: testData[testData.length - 1][TIME_COLUMN],
-      to_dttm: testData[0][TIME_COLUMN],
-    }}
+    queriesData={[
+      {
+        data: testData.slice(0, 9),
+        from_dttm: testData[testData.length - 1][TIME_COLUMN],
+        to_dttm: testData[0][TIME_COLUMN],
+      },
+    ]}
     formData={{
       ...formData,
       timeRangeFixed: false,

@@ -1,5 +1,5 @@
 import { CSSProperties } from 'react';
-import { getTextDimension, Margin, Dimension } from '@superset-ui/dimension';
+import { getTextDimension, Margin, Dimension } from '@superset-ui/core';
 import { AxisOrient, ChannelDef, Value } from 'encodable';
 
 import ChannelEncoderAxis from 'encodable/lib/encoders/ChannelEncoderAxis';
@@ -63,7 +63,7 @@ export default function computeAxisLayout<Def extends ChannelDef<Output>, Output
 
   const spaceForAxisTitle = axis.hasTitle() ? labelPadding + axisTitleHeight : 0;
   let tickTextAnchor = 'middle';
-  let labelOffset: number = 0;
+  let labelOffset = 0;
   let requiredMargin =
     tickSize + gapBetweenTickAndTickLabel + spaceForAxisTitle + gapBetweenAxisLabelAndBorder;
 

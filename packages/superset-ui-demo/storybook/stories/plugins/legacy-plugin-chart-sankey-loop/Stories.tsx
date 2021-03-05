@@ -1,6 +1,6 @@
 /* eslint-disable no-magic-numbers */
 import React from 'react';
-import { SuperChart } from '@superset-ui/chart';
+import { SuperChart } from '@superset-ui/core';
 import SankeyLoopChartPlugin from '@superset-ui/legacy-plugin-chart-sankey-loop';
 import data from './data';
 
@@ -15,7 +15,7 @@ export const basic = () => (
     chartType="sankey-loop"
     width={400}
     height={400}
-    queryData={{ data }}
+    queriesData={[{ data }]}
     formData={{
       colorScheme: 'd3Category10',
     }}

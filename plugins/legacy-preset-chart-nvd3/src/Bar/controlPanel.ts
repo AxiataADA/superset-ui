@@ -16,8 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { t } from '@superset-ui/translation';
-import { sections } from '@superset-ui/chart-controls';
+import { t } from '@superset-ui/core';
+import { ControlPanelConfig, sections } from '@superset-ui/chart-controls';
 import {
   lineInterpolation,
   showBrush,
@@ -40,17 +40,23 @@ import {
   timeSeriesSection,
 } from '../NVD3Controls';
 
-export default {
+const config: ControlPanelConfig = {
   controlPanelSections: [
+    sections.legacyTimeseriesTime,
     timeSeriesSection[0],
     {
       label: t('Chart Options'),
       expanded: true,
       controlSetRows: [
-        ['color_scheme', 'label_colors'],
-        [showBrush, showLegend, showBarValue],
-        [richTooltip, barStacked],
-        [lineInterpolation, showControls],
+        ['color_scheme'],
+        ['label_colors'],
+        [showBrush],
+        [showLegend],
+        [showBarValue],
+        [richTooltip],
+        [barStacked],
+        [lineInterpolation],
+        [showControls],
         [bottomMargin],
       ],
     },
@@ -58,29 +64,29 @@ export default {
       label: t('X Axis'),
       expanded: true,
       controlSetRows: [
-        [xAxisLabel, bottomMargin],
-        [xTicksLayout, xAxisFormat],
-        [xAxisShowMinmax, reduceXTicks],
+        [xAxisLabel],
+        [bottomMargin],
+        [xTicksLayout],
+        [xAxisFormat],
+        [xAxisShowMinmax],
+        [reduceXTicks],
       ],
     },
     {
       label: t('Y Axis'),
       expanded: true,
       controlSetRows: [
-        [yAxisLabel, leftMargin],
-        [yAxisShowMinmax, yLogScale],
-        ['y_axis_format', yAxisBounds],
+        [yAxisLabel],
+        [leftMargin],
+        [yAxisShowMinmax],
+        [yLogScale],
+        ['y_axis_format'],
+        [yAxisBounds],
       ],
     },
     timeSeriesSection[1],
     sections.annotations,
   ],
-  sectionOverrides: {
-    druidTimeSeries: {
-      controlSetRows: [['granularity', 'druid_time_origin'], ['time_range']],
-    },
-    sqlaTimeSeries: {
-      controlSetRows: [['granularity_sqla', 'time_grain_sqla'], ['time_range']],
-    },
-  },
 };
+
+export default config;

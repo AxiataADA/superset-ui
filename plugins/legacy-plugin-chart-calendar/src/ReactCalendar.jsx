@@ -18,19 +18,16 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { reactify } from '@superset-ui/chart';
-import styled from '@superset-ui/style';
+import { reactify, styled } from '@superset-ui/core';
 import Component from './Calendar';
 
 const ReactComponent = reactify(Component);
 
-const Calender = ({ className, ...otherProps }) => {
-  return (
-    <div className={className}>
-      <ReactComponent {...otherProps} />
-    </div>
-  );
-};
+const Calender = ({ className, ...otherProps }) => (
+  <div className={className}>
+    <ReactComponent {...otherProps} />
+  </div>
+);
 
 Calender.defaultProps = {
   otherProps: {},

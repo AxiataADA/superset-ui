@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { buildQueryContext, QueryFormData } from '@superset-ui/query';
+import { buildQueryContext, QueryFormData } from '@superset-ui/core';
 
 /**
  * The buildQuery function is used to create an instance of QueryContext that's
@@ -36,8 +36,6 @@ export default function buildQuery(formData: QueryFormData) {
   return buildQueryContext(formData, baseQueryObject => [
     {
       ...baseQueryObject,
-<%if (chartType === 'timeseries') { %>      // Time series charts need to set the `is_timeseries` flag to true
-      is_timeseries: true,
-<% } %>    },
+    },
   ]);
 }

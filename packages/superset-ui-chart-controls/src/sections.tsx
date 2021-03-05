@@ -16,19 +16,35 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { t } from '@superset-ui/translation';
+import { t } from '@superset-ui/core';
+import { ControlPanelSectionConfig } from './types';
 
 // A few standard controls sections that are used internally.
 // Not recommended for use in third-party plugins.
 
-export const druidTimeSeries = {
+const baseTimeSection = {
   label: t('Time'),
   expanded: true,
   description: t('Time related form attributes'),
-  controlSetRows: [['time_range']],
 };
 
-export const datasourceAndVizType = {
+export const legacyTimeseriesTime: ControlPanelSectionConfig = {
+  ...baseTimeSection,
+  controlSetRows: [
+    ['granularity'],
+    ['druid_time_origin'],
+    ['granularity_sqla'],
+    ['time_grain_sqla'],
+    ['time_range'],
+  ],
+};
+
+export const legacyRegularTime: ControlPanelSectionConfig = {
+  ...baseTimeSection,
+  controlSetRows: [['granularity_sqla'], ['time_range']],
+};
+
+export const datasourceAndVizType: ControlPanelSectionConfig = {
   label: t('Datasource & Chart Type'),
   expanded: true,
   controlSetRows: [
@@ -59,7 +75,18 @@ export const datasourceAndVizType = {
           type: 'HiddenControl',
           label: t('URL Parameters'),
           hidden: true,
-          description: t('Extra parameters for use in jinja templated queries'),
+          description: t('Extra url parameters for use in Jinja templated queries'),
+        },
+      },
+      {
+        name: 'custom_params',
+        config: {
+          type: 'HiddenControl',
+          label: t('Extra Parameters'),
+          hidden: true,
+          description: t(
+            'Extra parameters that any plugins can choose to set for use in Jinja templated queries',
+          ),
         },
       },
       {
@@ -75,19 +102,12 @@ export const datasourceAndVizType = {
   ],
 };
 
-export const colorScheme = {
+export const colorScheme: ControlPanelSectionConfig = {
   label: t('Color Scheme'),
   controlSetRows: [['color_scheme', 'label_colors']],
 };
 
-export const sqlaTimeSeries = {
-  label: t('Time'),
-  description: t('Time related form attributes'),
-  expanded: true,
-  controlSetRows: [['granularity_sqla'], ['time_range']],
-};
-
-export const annotations = {
+export const annotations: ControlPanelSectionConfig = {
   label: t('Annotations and Layers'),
   tabOverride: 'data',
   expanded: true,
@@ -101,7 +121,6 @@ export const annotations = {
           default: [],
           description: 'Annotation Layers',
           renderTrigger: true,
-          tabOverride: 'data',
         },
       },
     ],

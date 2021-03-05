@@ -16,8 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { t } from '@superset-ui/translation';
-import { sections } from '@superset-ui/chart-controls';
+import { t } from '@superset-ui/core';
+import { ControlPanelConfig, sections } from '@superset-ui/chart-controls';
 import {
   lineInterpolation,
   showBrush,
@@ -34,8 +34,9 @@ import {
   timeSeriesSection,
 } from '../NVD3Controls';
 
-export default {
+const config: ControlPanelConfig = {
   controlPanelSections: [
+    sections.legacyTimeseriesTime,
     timeSeriesSection[0],
     {
       label: t('Chart Options'),
@@ -66,6 +67,7 @@ export default {
     },
     {
       label: t('X Axis'),
+      tabOverride: 'customize',
       expanded: true,
       controlSetRows: [
         [xAxisLabel, bottomMargin],
@@ -75,6 +77,7 @@ export default {
     },
     {
       label: t('Y Axis'),
+      tabOverride: 'customize',
       expanded: true,
       controlSetRows: [
         ['y_axis_format', yAxisBounds],
@@ -84,17 +87,6 @@ export default {
     timeSeriesSection[1],
     sections.annotations,
   ],
-  controlOverrides: {
-    color_scheme: {
-      renderTrigger: false,
-    },
-  },
-  sectionOverrides: {
-    druidTimeSeries: {
-      controlSetRows: [['granularity', 'druid_time_origin'], ['time_range']],
-    },
-    sqlaTimeSeries: {
-      controlSetRows: [['granularity_sqla', 'time_grain_sqla'], ['time_range']],
-    },
-  },
 };
+
+export default config;

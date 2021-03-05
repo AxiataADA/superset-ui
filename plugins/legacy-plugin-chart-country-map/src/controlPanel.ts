@@ -16,19 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { t } from '@superset-ui/translation';
-import { D3_FORMAT_OPTIONS, D3_FORMAT_DOCS } from '@superset-ui/chart-controls';
+import { t } from '@superset-ui/core';
+import {
+  ControlPanelConfig,
+  D3_FORMAT_OPTIONS,
+  D3_FORMAT_DOCS,
+  sections,
+} from '@superset-ui/chart-controls';
 
-export default {
+const config: ControlPanelConfig = {
   controlPanelSections: [
+    sections.legacyRegularTime,
     {
       label: t('Query'),
       expanded: true,
       controlSetRows: [['entity'], ['metric'], ['adhoc_filters']],
     },
     {
-      label: t('Options'),
+      label: t('Chart Options'),
       expanded: true,
+      tabOverride: 'customize',
       controlSetRows: [
         [
           {
@@ -63,6 +70,7 @@ export default {
                 'Timorleste',
                 'Uk',
                 'Ukraine',
+                'Uruguay',
                 'Usa',
                 'Zambia',
               ].map(s => [s, s]),
@@ -88,9 +96,9 @@ export default {
   ],
   controlOverrides: {
     entity: {
-      label: t('ISO 3166-2 codes of region/province/department'),
+      label: t('ISO 3166-2 Codes'),
       description: t(
-        "It's ISO 3166-2 of your region/province/department in your table. (see documentation for list of ISO 3166-2)",
+        'Column containing ISO 3166-2 codes of region/province/department in your table.',
       ),
     },
     metric: {
@@ -102,3 +110,5 @@ export default {
     },
   },
 };
+
+export default config;

@@ -20,15 +20,21 @@
 import { kebabCase, throttle } from 'lodash';
 import d3 from 'd3';
 import nv from 'nvd3-fork';
-import mathjs from 'mathjs';
+import { parse as mathjsParse } from 'mathjs';
 import moment from 'moment';
 import PropTypes from 'prop-types';
-import { isDefined } from '@superset-ui/core';
-import { t } from '@superset-ui/translation';
-import { CategoricalColorNamespace } from '@superset-ui/color';
-import { getNumberFormatter, NumberFormats } from '@superset-ui/number-format';
-import { getTimeFormatter, smartDateVerboseFormatter } from '@superset-ui/time-format';
-import 'nvd3-fork/build/nv.d3.min.css';
+import {
+  t,
+  isDefined,
+  getTimeFormatter,
+  smartDateVerboseFormatter,
+  getNumberFormatter,
+  NumberFormats,
+  CategoricalColorNamespace,
+} from '@superset-ui/core';
+
+import 'nvd3-fork/build/nv.d3.css';
+
 /* eslint-disable-next-line */
 import ANNOTATION_TYPES, { applyNativeColumns } from './vendor/superset/AnnotationTypes';
 import isTruthy from './utils/isTruthy';
@@ -39,6 +45,7 @@ import {
   computeStackedYDomain,
   drawBarValues,
   generateBubbleTooltipContent,
+  generateCompareTooltipContent,
   generateMultiLineTooltipContent,
   generateRichLineTooltipContent,
   generateTimePivotTooltip,
@@ -64,7 +71,6 @@ import {
   numberOrAutoType,
   stringOrObjectWithLabelType,
 } from './PropTypes';
-import './NVD3Vis.css';
 
 const NO_DATA_RENDER_DATA = [
   { text: 'No data', dy: '-.75em', class: 'header' },
@@ -291,8 +297,10 @@ function nvd3Vis(element, props) {
     yAxisFormat,
     yAxis2Format,
     yAxisBounds,
+    yAxis2Bounds,
     yAxisLabel,
     yAxisShowMinMax = false,
+    yAxis2ShowMinMax = false,
     yField,
     yIsLogScale,
   } = props;
@@ -506,7 +514,7 @@ function nvd3Vis(element, props) {
         throw new Error(`Unrecognized visualization for nvd3${vizType}`);
     }
     // Assuming the container has padding already other than for top margin
-    chart.margin({ left: 0, right: 0, bottom: 0 });
+    chart.margin({ left: 0, bottom: 0 });
 
     if (showBarValue) {
       drawBarValues(svg, data, isBarStacked, yAxisFormat);
@@ -582,8 +590,14 @@ function nvd3Vis(element, props) {
 
     let yAxisFormatter = getTimeOrNumberFormatter(yAxisFormat);
     if (chart.yAxis && chart.yAxis.tickFormat) {
-      if (contribution || comparisonType === 'percentage') {
-        // When computing a "Percentage" or "Contribution" selected, we force a percentage format
+      if (
+        (contribution || comparisonType === 'percentage') &&
+        (!yAxisFormat ||
+          yAxisFormat === NumberFormats.SMART_NUMBER ||
+          yAxisFormat === NumberFormats.SMART_NUMBER_SIGNED)
+      ) {
+        // When computing a "Percentage" or "Contribution" selected,
+        // force a percentage format if no custom formatting set
         yAxisFormatter = getNumberFormatter(NumberFormats.PERCENT_1_POINT);
       }
       chart.yAxis.tickFormat(yAxisFormatter);
@@ -603,7 +617,7 @@ function nvd3Vis(element, props) {
     setAxisShowMaxMin(chart.xAxis, xAxisShowMinMax);
     setAxisShowMaxMin(chart.x2Axis, xAxisShowMinMax);
     setAxisShowMaxMin(chart.yAxis, yAxisShowMinMax);
-    setAxisShowMaxMin(chart.y2Axis, yAxisShowMinMax);
+    setAxisShowMaxMin(chart.y2Axis, yAxis2ShowMinMax || yAxisShowMinMax);
 
     if (vizType === 'time_pivot') {
       if (baseColor) {
@@ -630,12 +644,18 @@ function nvd3Vis(element, props) {
         chart.interactiveLayer.tooltip.contentGenerator(d =>
           generateRichLineTooltipContent(d, smartDateVerboseFormatter, yAxisFormatter),
         );
-      } else if (areaStackedStyle !== 'expand') {
+      } else {
         // area chart
         chart.interactiveLayer.tooltip.contentGenerator(d =>
-          generateAreaChartTooltipContent(d, smartDateVerboseFormatter, yAxisFormatter),
+          generateAreaChartTooltipContent(d, smartDateVerboseFormatter, yAxisFormatter, chart),
         );
       }
+    }
+
+    if (isVizTypes(['compare'])) {
+      chart.interactiveLayer.tooltip.contentGenerator(d =>
+        generateCompareTooltipContent(d, yAxisFormatter),
+      );
     }
 
     if (isVizTypes(['dual_line', 'line_multi'])) {
@@ -650,11 +670,6 @@ function nvd3Vis(element, props) {
       chart.interactiveLayer.tooltip.contentGenerator(d =>
         generateMultiLineTooltipContent(d, xAxisFormatter, yAxisFormatters),
       );
-      if (vizType === 'dual_line') {
-        chart.showLegend(width > BREAKPOINTS.small);
-      } else {
-        chart.showLegend(showLegend);
-      }
     }
     // This is needed for correct chart dimensions if a chart is rendered in a hidden container
     chart.width(width);
@@ -739,7 +754,7 @@ function nvd3Vis(element, props) {
       if (ticks1.length > 0 && ticks2.length > 0 && difference !== 0) {
         const smallest = difference < 0 ? ticks1 : ticks2;
         const delta = smallest[1] - smallest[0];
-        for (let i = 0; i < Math.abs(difference); i++) {
+        for (let i = 0; i < Math.abs(difference); i += 1) {
           if (i % 2 === 0) {
             smallest.unshift(smallest[0] - delta);
           } else {
@@ -751,6 +766,9 @@ function nvd3Vis(element, props) {
         chart.yAxis1.tickValues(ticks1);
         chart.yAxis2.tickValues(ticks2);
       }
+
+      chart.yDomain1([yAxisBounds[0] || ticks1[0], yAxisBounds[1] || ticks1[ticks1.length - 1]]);
+      chart.yDomain2([yAxis2Bounds[0] || ticks2[0], yAxis2Bounds[1] || ticks2[ticks2.length - 1]]);
     }
 
     if (showMarkers) {
@@ -893,7 +911,7 @@ function nvd3Vis(element, props) {
         // Formula annotations
         const formulas = activeAnnotationLayers
           .filter(a => a.annotationType === ANNOTATION_TYPES.FORMULA)
-          .map(a => ({ ...a, formula: mathjs.parse(a.value) }));
+          .map(a => ({ ...a, formula: mathjsParse(a.value) }));
 
         let xMax;
         let xMin;
@@ -947,7 +965,7 @@ function nvd3Vis(element, props) {
           }
           const formulaData = formulas.map(fo => ({
             key: fo.name,
-            values: xValues.map(x => ({ y: fo.formula.eval({ x }), x })),
+            values: xValues.map(x => ({ y: fo.formula.evaluate({ x }), x })),
             color: fo.color,
             strokeWidth: fo.width,
             classed: `${fo.opacity} ${fo.style}`,
@@ -1140,7 +1158,7 @@ function nvd3Vis(element, props) {
       }
     }
 
-    wrapTooltip(chart, maxWidth);
+    wrapTooltip(chart);
 
     return chart;
   };

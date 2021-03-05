@@ -35,7 +35,7 @@ const grabD3Format = (datasource, targetMetric) => {
 };
 
 export default function transformProps(chartProps) {
-  const { width, height, annotationData, datasource, formData, hooks, queryData } = chartProps;
+  const { width, height, annotationData, datasource, formData, hooks, queriesData } = chartProps;
 
   const { onAddFilter = NOOP, onError = NOOP } = hooks;
 
@@ -78,8 +78,10 @@ export default function transformProps(chartProps) {
     xTicksLayout,
     y,
     yAxisBounds,
+    yAxis2Bounds,
     yAxisLabel,
     yAxisShowminmax,
+    yAxis2Showminmax,
     yLogScale,
   } = formData;
 
@@ -95,7 +97,7 @@ export default function transformProps(chartProps) {
     yAxis2Format,
   } = formData;
 
-  const rawData = queryData.data || [];
+  const rawData = queriesData[0].data || [];
   const data = Array.isArray(rawData)
     ? rawData.map(row => ({
         ...row,
@@ -173,8 +175,10 @@ export default function transformProps(chartProps) {
     yAxisFormat,
     yAxis2Format,
     yAxisBounds,
+    yAxis2Bounds,
     yAxisLabel,
     yAxisShowMinMax: yAxisShowminmax,
+    yAxis2ShowMinMax: yAxis2Showminmax,
     yField: y,
     yIsLogScale: yLogScale,
   };

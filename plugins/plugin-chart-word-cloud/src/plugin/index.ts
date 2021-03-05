@@ -1,10 +1,12 @@
-import { t } from '@superset-ui/translation';
-import { ChartMetadata, ChartPlugin } from '@superset-ui/chart';
+import { t, ChartMetadata, ChartPlugin } from '@superset-ui/core';
 import transformProps from '../legacyPlugin/transformProps';
 import buildQuery from './buildQuery';
 import { WordCloudFormData } from '../types';
 import thumbnail from '../images/thumbnail.png';
 import controlPanel from './controlPanel';
+import configureEncodable from '../configureEncodable';
+
+configureEncodable();
 
 const metadata = new ChartMetadata({
   credits: ['https://github.com/jasondavies/d3-cloud'],

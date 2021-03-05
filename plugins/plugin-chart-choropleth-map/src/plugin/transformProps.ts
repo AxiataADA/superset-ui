@@ -1,4 +1,4 @@
-import { ChartProps } from '@superset-ui/chart';
+import { ChartProps } from '@superset-ui/core';
 
 /**
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -19,9 +19,9 @@ import { ChartProps } from '@superset-ui/chart';
  * under the License.
  */
 export default function transformProps(chartProps: ChartProps) {
-  const { width, height, formData, queryData } = chartProps;
+  const { width, height, formData, queriesData } = chartProps;
   const { map, encoding } = formData;
-  const { data } = queryData;
+  const { data } = queriesData[0];
 
   return {
     width,

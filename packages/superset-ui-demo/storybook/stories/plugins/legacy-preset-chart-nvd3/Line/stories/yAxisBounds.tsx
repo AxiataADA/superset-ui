@@ -1,5 +1,5 @@
 import React from 'react';
-import { SuperChart } from '@superset-ui/chart';
+import { SuperChart } from '@superset-ui/core';
 import dummyDatasource from '../../../../../shared/dummyDatasource';
 import data from '../data';
 
@@ -12,7 +12,7 @@ export const yAxisBounds = () => (
       width={400}
       height={200}
       datasource={dummyDatasource}
-      queryData={{ data }}
+      queriesData={[{ data }]}
       formData={{
         richTooltip: true,
         showLegend: false,
@@ -25,7 +25,7 @@ export const yAxisBounds = () => (
       width={400}
       height={200}
       datasource={dummyDatasource}
-      queryData={{ data }}
+      queriesData={[{ data }]}
       formData={{
         richTooltip: true,
         showLegend: false,
@@ -39,7 +39,7 @@ export const yAxisBounds = () => (
       width={400}
       height={200}
       datasource={dummyDatasource}
-      queryData={{ data }}
+      queriesData={[{ data }]}
       formData={{
         richTooltip: true,
         showLegend: false,
@@ -53,7 +53,7 @@ export const yAxisBounds = () => (
       width={400}
       height={200}
       datasource={dummyDatasource}
-      queryData={{ data }}
+      queriesData={[{ data }]}
       formData={{
         richTooltip: true,
         showLegend: false,
@@ -67,7 +67,7 @@ export const yAxisBounds = () => (
       width={400}
       height={200}
       datasource={dummyDatasource}
-      queryData={{ data }}
+      queriesData={[{ data }]}
       formData={{
         richTooltip: true,
         showLegend: true,

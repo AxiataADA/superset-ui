@@ -17,8 +17,7 @@
  * under the License.
  */
 
-import { ChartProps } from '@superset-ui/chart';
-import { QueryFormDataMetric, AdhocMetric } from '@superset-ui/query';
+import { ChartProps, QueryFormMetric, AdhocMetric } from '@superset-ui/core';
 import getProcessColumnsFunction from './processColumns';
 import getProcessMetricsFunction from './processMetrics';
 import getProcessDataFunction from './processData';
@@ -49,7 +48,7 @@ function transformData(data: PlainObject[], formData: PlainObject) {
 
   // handle percentage columns.
   const percentMetrics: string[] = (formData.percentMetrics || []).map(
-    (metric: QueryFormDataMetric) => (metric as AdhocMetric).label ?? (metric as string),
+    (metric: QueryFormMetric) => (metric as AdhocMetric).label ?? (metric as string),
   );
 
   if (percentMetrics.length > 0) {
@@ -90,7 +89,7 @@ function transformData(data: PlainObject[], formData: PlainObject) {
 const NOOP = () => {};
 
 export default function transformProps(chartProps: ChartProps) {
-  const { height, width, datasource, initialValues, formData, hooks, queryData } = chartProps;
+  const { height, width, datasource, initialValues, formData, hooks, queriesData } = chartProps;
 
   const { onAddFilter = NOOP } = hooks;
 
@@ -106,7 +105,7 @@ export default function transformProps(chartProps: ChartProps) {
     tableTimestampFormat,
     timeseriesLimitMetric,
   } = formData;
-  const { records, columns } = transformData(queryData.data, formData);
+  const { records, columns } = transformData(queriesData[0].data, formData);
 
   const metrics = processMetrics({
     metrics: rawMetrics,

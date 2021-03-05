@@ -1,6 +1,6 @@
 /* eslint-disable no-magic-numbers, sort-keys */
 import * as React from 'react';
-import { SuperChart } from '@superset-ui/chart';
+import { SuperChart } from '@superset-ui/core';
 import { radios } from '@storybook/addon-knobs';
 import data from '../data/data';
 import { SCATTER_PLOT_PLUGIN_TYPE } from '../constants';
@@ -13,7 +13,7 @@ export default () => (
     width={400}
     height={400}
     datasource={dummyDatasource}
-    queryData={{ data }}
+    queriesData={[{ data }]}
     formData={{
       encoding: {
         x: {

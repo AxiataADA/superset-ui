@@ -18,16 +18,16 @@
  */
 import React from 'react';
 import { kebabCase } from 'lodash';
-import { Tooltip, OverlayTrigger } from 'react-bootstrap';
-
-const tooltipStyle: React.CSSProperties = { wordWrap: 'break-word' };
+import { TooltipPlacement } from 'antd/lib/tooltip';
+import { t } from '@superset-ui/core';
+import { Tooltip, TooltipProps } from './Tooltip';
 
 export interface InfoTooltipWithTriggerProps {
   label?: string;
-  tooltip?: string;
+  tooltip?: TooltipProps['title'];
   icon?: string;
   onClick?: () => void;
-  placement?: string;
+  placement?: TooltipPlacement;
   bsStyle?: string;
   className?: string;
 }
@@ -45,6 +45,7 @@ export function InfoTooltipWithTrigger({
   const iconEl = (
     <i
       role="button"
+      aria-label={t('Show info tooltip')}
       tabIndex={0}
       className={iconClass}
       style={{ cursor: onClick ? 'pointer' : undefined }}
@@ -63,16 +64,9 @@ export function InfoTooltipWithTrigger({
     return iconEl;
   }
   return (
-    <OverlayTrigger
-      placement={placement}
-      overlay={
-        <Tooltip id={`${kebabCase(label)}-tooltip`} style={tooltipStyle}>
-          {tooltip}
-        </Tooltip>
-      }
-    >
+    <Tooltip id={`${kebabCase(label)}-tooltip`} title={tooltip} placement={placement}>
       {iconEl}
-    </OverlayTrigger>
+    </Tooltip>
   );
 }
 

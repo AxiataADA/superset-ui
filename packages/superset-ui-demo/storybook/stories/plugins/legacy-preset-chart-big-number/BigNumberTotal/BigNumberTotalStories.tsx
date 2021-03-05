@@ -17,7 +17,7 @@
  * under the License.
  */
 import React from 'react';
-import { SuperChart } from '@superset-ui/chart';
+import { SuperChart } from '@superset-ui/core';
 import { BigNumberTotalChartPlugin } from '@superset-ui/legacy-preset-chart-big-number';
 import data from './data';
 
@@ -32,7 +32,7 @@ export const totalBasic = () => (
     chartType="big-number-total"
     width={400}
     height={400}
-    queryData={{ data }}
+    queriesData={[{ data }]}
     formData={{
       metric: 'sum__num',
       subheader: 'total female participants',
@@ -47,7 +47,7 @@ export const totalNoData = () => (
     chartType="big-number-total"
     width={400}
     height={400}
-    queryData={{ data: [] }}
+    queriesData={[{ data: [] }]}
     formData={{
       metric: 'sum__num',
       subheader: 'total female participants',
