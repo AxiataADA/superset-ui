@@ -720,27 +720,35 @@ function CustomsTable({
                               ...restProps,
                               display: 'flex',
                               alignItems: 'center',
-                              padding: '0px 25px',
+                              justifyContent: 'center',
+                              padding: '0px 15px',
                               borderBottom: '1px solid #CFD8DB',
                               backgroundColor: '#fff',
+                              width: '240px',
                             }}
                           >
                             {totalSentiment > 0 ? (
-                              <div
-                                style={{
-                                  borderRadius: '15px',
-                                  overflow: 'hidden',
-                                  width: '150px',
-                                  height: '15px',
-                                }}
-                              >
-                                <OverlayTrigger
-                                  placement="bottom"
-                                  overlay={
-                                    <Tooltip id="tooltip">
-                                      <span>{'Positive: ' + positivePercentage + '%'}</span>
-                                    </Tooltip>
-                                  }
+                              <div style={{ position: 'relative', display: 'flex' }}>
+                                <div
+                                  style={{
+                                    color: '#2ACCB2',
+                                    fontWeight: 'bold',
+                                    fontFamily: "'Roboto', sans-serif",
+                                    marginTop: '1.5px',
+                                    fontSize: '10px',
+                                    width: '40px',
+                                    cursor: 'default',
+                                  }}
+                                >
+                                  {positivePercentage > 0 ? `${positivePercentage}%` : ''}
+                                </div>
+                                <div
+                                  style={{
+                                    borderRadius: '15px',
+                                    overflow: 'hidden',
+                                    width: '150px',
+                                    height: '15px',
+                                  }}
                                 >
                                   <span
                                     style={{
@@ -753,30 +761,47 @@ function CustomsTable({
                                       padding: '0px ' + positivePercentage / 2 + '%',
                                     }}
                                   />
-                                </OverlayTrigger>
-                                <OverlayTrigger
-                                  placement="bottom"
-                                  overlay={
-                                    <Tooltip id="tooltip">
-                                      <span>{'Neutral: ' + neutralPercentage + '%'}</span>
-                                    </Tooltip>
-                                  }
-                                >
-                                  <span
-                                    style={{
-                                      background: '#E9DE90',
-                                      padding: '0px ' + neutralPercentage / 2 + '%',
-                                    }}
-                                  />
-                                </OverlayTrigger>
-                                <OverlayTrigger
-                                  placement="bottom"
-                                  overlay={
-                                    <Tooltip id="tooltip">
-                                      <span>{'Negative: ' + negativePercentage + '%'}</span>
-                                    </Tooltip>
-                                  }
-                                >
+                                  {neutralPercentage < 15 ? (
+                                    <OverlayTrigger
+                                      placement="bottom"
+                                      overlay={
+                                        <Tooltip id="tooltip">
+                                          <span>{'Neutral: ' + neutralPercentage + '%'}</span>
+                                        </Tooltip>
+                                      }
+                                    >
+                                      <span
+                                        style={{
+                                          position: 'relative',
+                                          background: '#E9DE90',
+                                          padding: '0px ' + neutralPercentage / 2 + '%',
+                                        }}
+                                      ></span>
+                                    </OverlayTrigger>
+                                  ) : (
+                                    <span
+                                      style={{
+                                        position: 'relative',
+                                        background: '#E9DE90',
+                                        padding: '0px ' + neutralPercentage / 2 + '%',
+                                      }}
+                                    >
+                                      <div
+                                        style={{
+                                          position: 'absolute',
+                                          whiteSpace: 'nowrap',
+                                          left: '50%',
+                                          top: '0.8px',
+                                          fontSize: '10px',
+                                          fontWeight: 'bold',
+                                          fontFamily: "'Roboto', sans-serif",
+                                          color: '#FFFFFF',
+                                          transform: 'translate(-50%, 0)',
+                                          cursor: 'default',
+                                        }}
+                                      >{`${neutralPercentage}%`}</div>
+                                    </span>
+                                  )}
                                   <span
                                     style={{
                                       background: `linear-gradient( 90deg, ${getBarGradient(
@@ -788,7 +813,20 @@ function CustomsTable({
                                       padding: '0px ' + negativePercentage / 2 + '%',
                                     }}
                                   />
-                                </OverlayTrigger>
+                                </div>
+                                <div
+                                  style={{
+                                    color: '#FF4545',
+                                    fontWeight: 'bold',
+                                    fontFamily: "'Roboto', sans-serif",
+                                    fontSize: '10px',
+                                    width: '40px',
+                                    cursor: 'default',
+                                    marginTop: '1.5px',
+                                  }}
+                                >
+                                  {negativePercentage > 0 ? `${negativePercentage}%` : ''}
+                                </div>
                               </div>
                             ) : (
                               <span

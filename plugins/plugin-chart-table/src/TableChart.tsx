@@ -732,7 +732,7 @@ export default function TableChart<D extends DataRecord = DataRecord>(
       if (label.toLowerCase().includes('video_title_link'))
         columnObject.width = columnObject.width > 240 ? columnObject.width - 2 : 240;
       if (label.toLowerCase().includes('positive_sentiment_valence'))
-        columnObject.width = columnObject.width > 200 ? columnObject.width - 2 : 200;
+        columnObject.width = columnObject.width > 240 ? columnObject.width - 2 : 240;
       if (label.toLowerCase().includes('creator_name'))
         columnObject.width = columnObject.width > 170 ? columnObject.width - 2 : 170;
 
@@ -809,7 +809,7 @@ export default function TableChart<D extends DataRecord = DataRecord>(
                   else if (i && i.toLowerCase() === 'video_title_link')
                     return width / columns.length > 240 ? width / columns.length - 2 : 240;
                   else if (i && i.toLowerCase() === 'positive_sentiment_valence')
-                    return width / columns.length > 200 ? width / columns.length - 2 : 200;
+                    return width / columns.length > 240 ? width / columns.length - 2 : 240;
                   else if (i && i.toLowerCase() === 'creator_name')
                     return width / columns.length > 170 ? width / columns.length - 2 : 170;
                   else return 150;
