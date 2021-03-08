@@ -543,121 +543,124 @@ function CustomsTable({
                                   />
                                 </OverlayTrigger>
                               )}
-                              <OverlayTrigger
-                                placement="bottom"
-                                overlay={
-                                  <Tooltip id="tooltip">
-                                    <span>{cellContent}</span>
-                                  </Tooltip>
-                                }
+                              <span
+                                style={{
+                                  width: '150px',
+                                  height: '2.7rem',
+                                  overflow: 'hidden',
+                                  textAlign: 'left',
+                                }}
                               >
-                                <span
-                                  style={{
-                                    width: '150px',
-                                    height: '2.4em',
-                                    overflow: 'hidden',
-                                    textAlign: 'left',
-                                  }}
-                                >
-                                  {videoId && platformName && showVideoTitleThumbnail ? (
-                                    <ModalTrigger
-                                      triggerNode={
-                                        <span style={{ wordBreak: 'break-word' }}>
-                                          {cellContent}
-                                        </span>
-                                      }
-                                      className={
-                                        platformName.toLowerCase() === 'instagram'
-                                          ? 'popup-data-for-cell-content-modal-ig'
-                                          : 'popup-data-for-cell-content-modal-yt-fb'
-                                      }
-                                      modalBody={
-                                        <div>
-                                          {platformName &&
-                                            platformName.toLowerCase() === 'youtube' &&
-                                            videoId && (
-                                              <div style={{ '--aspect-ratio': '16/9' }}>
-                                                <iframe
-                                                  src={`https://www.youtube.com/embed/${videoId}`}
-                                                  allowTransparency="true"
-                                                  allowFullScreen="true"
-                                                />
-                                              </div>
-                                            )}
-                                          {platformName &&
-                                            platformName.toLowerCase() === 'facebook' &&
-                                            videoId && (
-                                              <div style={{ '--aspect-ratio': '16/9' }}>
-                                                <iframe
-                                                  src={`https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2FPlayStation%2Fvideos%2F${videoId}%2F&show_text=0&height=290`}
-                                                  allowTransparency="true"
-                                                  allowFullScreen="true"
-                                                />
-                                              </div>
-                                            )}
-                                          {platformName &&
-                                            platformName.toLowerCase() === 'instagram' &&
-                                            videoId && (
-                                              <div
-                                                style={{
-                                                  height: '550px',
-                                                  overflowY: 'auto',
-                                                }}
-                                              >
-                                                <iframe
-                                                  height="1000"
-                                                  id="table-viz-popup-instagram-iframe"
-                                                  src={`https://www.instagram.com/p/${videoId}/embed`}
-                                                  allowTransparency="true"
-                                                  allowFullScreen="true"
-                                                />
-                                              </div>
-                                            )}
-                                          {cellContent && cellContent !== 'N/A' && (
-                                            <div
-                                              style={{
-                                                color: '#111111',
-                                                margin: '10px',
-                                                fontSize: '14px',
-                                                fontFamily: 'Roboto',
-                                                maxWidth: '500px',
-                                              }}
-                                            >
-                                              {cellContent}
-                                            </div>
-                                          )}
-                                          {platformName && (
-                                            <div
-                                              style={{
-                                                textAlign: 'end',
-                                                padding: '5px 5px 10px',
-                                                color: '#111111',
-                                                fontWeight: '500',
-                                                fontSize: '11px',
-                                                fontFamily: 'Roboto',
-                                              }}
-                                            >
-                                              <img
-                                                alt="Platform"
-                                                src={`/static/assets/images/Donut Chart Icon/${
-                                                  platformObject[platformName.toLowerCase()]
-                                                }.png`}
-                                                style={{
-                                                  height: '13px',
-                                                  marginRight: '5px',
-                                                }}
+                                {videoId && platformName && showVideoTitleThumbnail ? (
+                                  <ModalTrigger
+                                    triggerNode={
+                                      <>
+                                        {' '}
+                                        <OverlayTrigger
+                                          placement="bottom"
+                                          overlay={
+                                            <Tooltip id="tooltip">
+                                              <span>{cellContent}</span>
+                                            </Tooltip>
+                                          }
+                                        >
+                                          <span style={{ wordBreak: 'break-word' }}>
+                                            {cellContent}
+                                          </span>
+                                        </OverlayTrigger>
+                                      </>
+                                    }
+                                    className={
+                                      platformName.toLowerCase() === 'instagram'
+                                        ? 'popup-data-for-cell-content-modal-ig'
+                                        : 'popup-data-for-cell-content-modal-yt-fb'
+                                    }
+                                    modalBody={
+                                      <div>
+                                        {platformName &&
+                                          platformName.toLowerCase() === 'youtube' &&
+                                          videoId && (
+                                            <div style={{ '--aspect-ratio': '16/9' }}>
+                                              <iframe
+                                                src={`https://www.youtube.com/embed/${videoId}`}
+                                                allowTransparency="true"
+                                                allowFullScreen="true"
                                               />
-                                              {platformObject[platformName.toLowerCase()]}
                                             </div>
                                           )}
-                                        </div>
-                                      }
-                                    />
-                                  ) : (
-                                    <span style={{ wordBreak: 'break-word' }}>{cellContent}</span>
-                                  )}
-                                </span>
-                              </OverlayTrigger>
+                                        {platformName &&
+                                          platformName.toLowerCase() === 'facebook' &&
+                                          videoId && (
+                                            <div style={{ '--aspect-ratio': '16/9' }}>
+                                              <iframe
+                                                src={`https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2FPlayStation%2Fvideos%2F${videoId}%2F&show_text=0&height=290`}
+                                                allowTransparency="true"
+                                                allowFullScreen="true"
+                                              />
+                                            </div>
+                                          )}
+                                        {platformName &&
+                                          platformName.toLowerCase() === 'instagram' &&
+                                          videoId && (
+                                            <div
+                                              style={{
+                                                height: '550px',
+                                                overflowY: 'auto',
+                                              }}
+                                            >
+                                              <iframe
+                                                height="1000"
+                                                id="table-viz-popup-instagram-iframe"
+                                                src={`https://www.instagram.com/p/${videoId}/embed`}
+                                                allowTransparency="true"
+                                                allowFullScreen="true"
+                                              />
+                                            </div>
+                                          )}
+                                        {cellContent && cellContent !== 'N/A' && (
+                                          <div
+                                            style={{
+                                              color: '#111111',
+                                              margin: '10px',
+                                              fontSize: '14px',
+                                              fontFamily: 'Roboto',
+                                              maxWidth: '500px',
+                                            }}
+                                          >
+                                            {cellContent}
+                                          </div>
+                                        )}
+                                        {platformName && (
+                                          <div
+                                            style={{
+                                              textAlign: 'end',
+                                              padding: '5px 5px 10px',
+                                              color: '#111111',
+                                              fontWeight: '500',
+                                              fontSize: '11px',
+                                              fontFamily: 'Roboto',
+                                            }}
+                                          >
+                                            <img
+                                              alt="Platform"
+                                              src={`/static/assets/images/Donut Chart Icon/${
+                                                platformObject[platformName.toLowerCase()]
+                                              }.png`}
+                                              style={{
+                                                height: '13px',
+                                                marginRight: '5px',
+                                              }}
+                                            />
+                                            {platformObject[platformName.toLowerCase()]}
+                                          </div>
+                                        )}
+                                      </div>
+                                    }
+                                  />
+                                ) : (
+                                  <span style={{ wordBreak: 'break-word' }}>{cellContent}</span>
+                                )}
+                              </span>
                             </span>
                           </div>
                         );
