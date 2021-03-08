@@ -1177,7 +1177,7 @@ export default function DataTable<D extends object>({
   }
 
   return (
-    <div ref={wrapperRef} style={{ width: initialWidth, height: initialHeight }}>
+    <div ref={wrapperRef} style={{ width: initialWidth, height: 'auto', paddingBottom: '20px' }}>
       <CustomsTable
         columns={columns}
         data={data}
