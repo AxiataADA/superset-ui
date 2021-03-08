@@ -809,7 +809,7 @@ export default function TableChart<D extends DataRecord = DataRecord>(
                   else if (i && i.toLowerCase() === 'video_title_link')
                     return width / columns.length > 240 ? width / columns.length - 2 : 240;
                   else if (i && i.toLowerCase() === 'positive_sentiment_valence')
-                    return width / columns.length > 200 ? width / columns.length - 2 : 200;
+                    return width / columns.length > 240 ? width / columns.length - 2 : 240;
                   else if (i && i.toLowerCase() === 'creator_name')
                     return width / columns.length > 170 ? width / columns.length - 2 : 170;
                   else return 150;
