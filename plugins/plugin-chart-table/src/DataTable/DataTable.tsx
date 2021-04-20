@@ -188,6 +188,7 @@ function CustomsTable({
   showVideoTitleThumbnail,
   initialHeight,
   initialWidth,
+  editMode,
 }: any) {
   const colorFunction = getScale(colorScheme);
   const defaultColumn = React.useMemo(
@@ -361,6 +362,7 @@ function CustomsTable({
                   applyColumnFilter={applyColumnFilter}
                   getKeyOrLableContent={getKeyOrLableContent}
                   globalSelectControl={globalSelectControl}
+                  editMode={editMode}
                 />
               </div>
             ) : null}
@@ -989,6 +991,7 @@ export interface DataTableProps<D extends object> extends TableOptions<D> {
   noResultsText?: string | ((filterString: string) => ReactNode);
   sticky?: boolean;
   wrapperRef?: MutableRefObject<HTMLDivElement>;
+  editMode: boolean;
 }
 
 export interface RenderHTMLCellProps extends HTMLProps<HTMLTableCellElement> {
@@ -1034,6 +1037,7 @@ export default function DataTable<D extends object>({
   marginLeftForHorizontalScroll,
   videoPlatformMerge,
   showVideoTitleThumbnail,
+  editMode,
   wrapperRef: userWrapperRef,
   ...moreUseTableOptions
 }: DataTableProps<D>) {
@@ -1254,6 +1258,7 @@ export default function DataTable<D extends object>({
         showVideoTitleThumbnail={showVideoTitleThumbnail}
         initialHeight={initialHeight}
         initialWidth={initialWidth}
+        editMode={editMode}
       />
     </div>
   );

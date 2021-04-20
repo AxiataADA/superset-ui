@@ -306,6 +306,7 @@ function SearchInput({
   applyColumnFilter,
   preGlobalFilteredRows,
   data,
+  editMode,
 }: SearchInputProps) {
   const [show, setShow] = useState(false);
   const [searchInputFilterArray, setSearchInputFilterArray] = useState(columnFilter || []);
@@ -413,20 +414,22 @@ function SearchInput({
             cursor: 'pointer',
           }}
         />
-        <img
-          onClick={() => {
-            if (exportCSV && typeof exportCSV === 'function') {
-              exportCSV();
-            }
-          }}
-          alt="XLS"
-          src={`/static/assets/images/icons/XLS.png`}
-          style={{
-            width: '19px',
-            height: '25px',
-            cursor: 'pointer',
-          }}
-        />
+        {!editMode && (
+          <img
+            onClick={() => {
+              if (exportCSV && typeof exportCSV === 'function') {
+                exportCSV();
+              }
+            }}
+            alt="XLS"
+            src={`/static/assets/images/icons/XLS.png`}
+            style={{
+              width: '19px',
+              height: '25px',
+              cursor: 'pointer',
+            }}
+          />
+        )}
       </span>
       <Modal
         className="tableFilterModal"
@@ -570,6 +573,7 @@ export default function TableChart<D extends DataRecord = DataRecord>(
     getColorGradientArray,
     globalSelectControl,
     colorScheme,
+    editMode,
   } = props;
 
   const [filters, setFilters] = useState(initialFilters);
@@ -798,6 +802,7 @@ export default function TableChart<D extends DataRecord = DataRecord>(
         fixedColumns={fixedColumns}
         filterColumns={filterColumns}
         globalSelectControl={globalSelectControl}
+        editMode={editMode}
         marginLeftForHorizontalScroll={
           fixedColumns && fixedColumns.length > 0
             ? fixedColumns

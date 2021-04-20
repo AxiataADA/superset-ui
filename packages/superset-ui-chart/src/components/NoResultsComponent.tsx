@@ -35,7 +35,15 @@ const NoResultsComponent = ({ className, height, id, width }: Props) => {
   const shouldRenderBody = typeof width === 'string' || width > MIN_WIDTH_FOR_BODY;
 
   return (
-    <div style={{ height, textAlign: 'center', display: 'flex', alignItems: 'center' }}>
+    <div
+      style={{
+        height,
+        textAlign: 'center',
+        display: 'flex',
+        alignItems: 'center',
+        maxHeight: '300px',
+      }}
+    >
       <div style={{ margin: 'auto' }}>
         <img
           alt="Icon"
