@@ -27,6 +27,7 @@ export interface SearchInputProps {
   uniqueTableIdForPDFDownload: string;
   onChange: ChangeEventHandler<HTMLInputElement>;
   exportCSV: ChangeEventHandler<HTMLInputElement>;
+  editMode: boolean;
 }
 
 export interface GlobalFilterProps<D extends object> {
@@ -39,6 +40,7 @@ export interface GlobalFilterProps<D extends object> {
   setGlobalFilter: (filterValue: FilterValue) => void;
   searchInput?: ComponentType<SearchInputProps>;
   exportCSV: ChangeEventHandler<HTMLInputElement>;
+  editMode: boolean;
 }
 
 function DefaultSearchInput({
@@ -48,6 +50,7 @@ function DefaultSearchInput({
   exportCSV,
   tableHeader,
   uniqueTableIdForPDFDownload,
+  editMode,
 }: SearchInputProps) {
   return (
     <span className="dt-global-filter">
@@ -105,20 +108,22 @@ function DefaultSearchInput({
           cursor: 'pointer',
         }}
       />
-      <img
-        onClick={() => {
-          if (exportCSV && typeof exportCSV === 'function') {
-            exportCSV();
-          }
-        }}
-        alt="XLS"
-        src={`/static/assets/images/icons/XLS.png`}
-        style={{
-          width: '24px',
-          height: '30px',
-          cursor: 'pointer',
-        }}
-      />
+      {!editMode && (
+        <img
+          onClick={() => {
+            if (exportCSV && typeof exportCSV === 'function') {
+              exportCSV();
+            }
+          }}
+          alt="XLS"
+          src={`/static/assets/images/icons/XLS.png`}
+          style={{
+            width: '24px',
+            height: '30px',
+            cursor: 'pointer',
+          }}
+        />
+      )}
     </span>
   );
 }
@@ -137,6 +142,7 @@ export default (React.memo as <T>(fn: T) => T)(function GlobalFilter<D extends o
   getKeyOrLableContent,
   globalSelectControl,
   applyColumnFilter,
+  editMode,
 }: GlobalFilterProps<D>) {
   const count = preGlobalFilteredRows.length;
   const [value, setValue] = useAsyncState(
@@ -168,6 +174,7 @@ export default (React.memo as <T>(fn: T) => T)(function GlobalFilter<D extends o
       globalSelectControl={globalSelectControl}
       preGlobalFilteredRows={preGlobalFilteredRows}
       setValue={setValue}
+      editMode={editMode}
     />
   );
 });

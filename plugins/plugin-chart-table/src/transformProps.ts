@@ -252,5 +252,6 @@ export default function transformProps(chartProps: TableChartProps): TableChartT
     globalSelectControl,
     videoPlatformMerge,
     showVideoTitleThumbnail,
+    editMode: hooks.editMode,
   };
 }

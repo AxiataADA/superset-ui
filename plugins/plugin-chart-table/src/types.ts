@@ -83,4 +83,5 @@ export interface TableChartTransformedProps<D extends DataRecord = DataRecord> {
   filters?: DataRecordFilters;
   emitFilter?: boolean;
   onChangeFilter?: ChartProps['hooks']['onAddFilter'];
+  editMode?: boolean;
 }
